@@ -20,17 +20,18 @@
             color: #f0f0f0; 
         }
 
+        /* NOVO ESTILO: Logo */
         .logo-container {
-    text-align: center;
-    margin-bottom: 30px; /* Espaço abaixo da logo */
-}
-.logo-container img {
-    max-width: 150px; /* Tamanho máximo da logo */
-    height: auto;
-    border-radius: 10px; /* Bordas levemente arredondadas */
-    box-shadow: 0 0 15px rgba(255, 140, 0, 0.4); /* Sombra laranja sutil */
-      }
-    
+            text-align: center;
+            margin-bottom: 30px; /* Espaço abaixo da logo */
+        }
+        .logo-container img {
+            max-width: 150px; /* Tamanho máximo da logo */
+            height: auto;
+            border-radius: 10px; /* Bordas levemente arredondadas */
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.4); /* Sombra laranja sutil */
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -164,9 +165,10 @@
     </style>
 </head>
 <body>
-<div class="logo-container">
-    <img src="https://i.ibb.co/C0519m1/PTF3-logo.png" alt="Logo PTF3">
-</div>
+    <div class="logo-container">
+        <img src="https://i.ibb.co/C0519m1/PTF3-logo.png" alt="Logo PTF3">
+    </div>
+
     <div class="container">
         
         <div id="chart-card" class="card">
@@ -247,7 +249,6 @@
         const STORAGE_KEY_TREINO = 'treinoProgresso';
         const STORAGE_KEY_PRESENCA = 'presencaMensal';
 
-        // NOVAS CHAVES DE ARMAZENAMENTO PARA CADA EXERCÍCIO
         const STORAGE_KEYS_PESO = {
             'AgachamentoLivre': 'progressoPesoAgachamento',
             'SupinoReto': 'progressoPesoSupino',
@@ -270,7 +271,6 @@
             const labels = dadosSalvos.map(d => d.data);
             const pesos = dadosSalvos.map(d => d.peso);
             
-            // Atualiza o TÍTULO do Card com o nome do exercício
             const nomeExercicio = document.querySelector(`#seletorExercicio option[value="${exercicioKey}"]`).textContent;
             document.querySelector('#chart-card h2').innerHTML = `📈 Progressão de Carga (${nomeExercicio})`;
 
@@ -349,14 +349,13 @@
                 peso: novoPeso
             });
             
-            // ATUALIZAÇÃO: Limita o histórico para os últimos 16 registros
             if (dadosSalvos.length > 16) {
                 dadosSalvos = dadosSalvos.slice(dadosSalvos.length - 16);
             }
 
             localStorage.setItem(storageKey, JSON.stringify(dadosSalvos));
             input.value = ''; 
-            inicializarGrafico(); // Atualiza o gráfico do exercício selecionado
+            inicializarGrafico(); 
             alert(`Peso de ${novoPeso}kg registrado para ${nomeExercicio}!`);
         }
         
@@ -461,17 +460,14 @@
 
         function resetarDados() {
             if (confirm("Tem certeza que deseja apagar TODOS os dados de progresso (Peso, Presença e Treino) do aluno?")) {
-                // Limpeza dos dados do Treino e Presença
                 localStorage.removeItem(STORAGE_KEY_TREINO);
                 localStorage.removeItem(STORAGE_KEY_PRESENCA);
                 
-                // Limpeza dos dados dos 3 gráficos
                 localStorage.removeItem(STORAGE_KEYS_PESO['AgachamentoLivre']);
                 localStorage.removeItem(STORAGE_KEYS_PESO['SupinoReto']);
                 localStorage.removeItem(STORAGE_KEYS_PESO['PuxadaFrontal']);
 
 
-                // Recarrega as visualizações
                 carregarProgressoTreino();
                 inicializarGrafico();
                 gerarCalendario();
@@ -483,7 +479,6 @@
 
         window.onload = function() {
             carregarProgressoTreino();
-            // INICIA O GRÁFICO COM O EXERCÍCIO PADRÃO (Agachamento Livre)
             inicializarGrafico(); 
             gerarCalendario();
         };
