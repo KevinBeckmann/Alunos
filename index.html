@@ -20,16 +20,16 @@
             color: #f0f0f0; 
         }
 
-        /* NOVO ESTILO: Logo */
+        /* ESTILOS DA LOGO */
         .logo-container {
             text-align: center;
-            margin-bottom: 30px; /* Espaço abaixo da logo */
+            margin-bottom: 30px; 
         }
         .logo-container img {
-            max-width: 150px; /* Tamanho máximo da logo */
+            max-width: 150px; 
             height: auto;
-            border-radius: 10px; /* Bordas levemente arredondadas */
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.4); /* Sombra laranja sutil */
+            border-radius: 10px; 
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.4); 
         }
 
         .container {
@@ -38,7 +38,6 @@
             display: grid;
             gap: 20px;
             
-            /* MOBILE-FIRST (PADRÃO PARA CELULARES: 1 COLUNA) */
             grid-template-columns: 1fr; 
         }
         
@@ -70,8 +69,8 @@
             }
         }
         
-        /* NOVO ESTILO: Seletor e Título do Gráfico */
-        #seletorExercicio {
+        /* ESTILOS DOS SELECTS */
+        #seletorExercicio, #seletorTreino {
             padding: 8px;
             border-radius: 4px;
             background-color: rgba(255, 255, 255, 0.1);
@@ -87,7 +86,7 @@
         h1 { 
             color: #ff8c00; 
             text-align: center; 
-            margin-bottom: 25px; 
+            margin-bottom: 15px; /* Ajustado para caber o seletor */
         }
 
         h2 { 
@@ -165,8 +164,9 @@
     </style>
 </head>
 <body>
+    
     <div class="logo-container">
-        <img src="https://raw.githubusercontent.com/KevinBeckmann/Alunos/principal/LOGOTIPO%20-%20Fundo%20Branco%20(1).jpg">
+        <img src="https://raw.githubusercontent.com/KevinBeckmann/Alunos/principal/LOGOTIPO%20-%20Fundo%20Branco%20(1).jpg" alt="Logo PTF3">
     </div>
 
     <div class="container">
@@ -190,40 +190,117 @@
         </div>
 
         <div id="treino-card" class="card">
-            <h1>🏋️ Treino de Força - Dia A</h1>
-            <p><strong>Aluno(a):</strong> João da Silva | <strong>Data:</strong> 19/11/2025</p>
+            <h1>🏋️ Treino de Força</h1>
+            
+            <label for="seletorTreino">Selecionar Dia:</label>
+            <select id="seletorTreino" onchange="alternarTreino()">
+                <option value="Dia A">Dia A</option>
+                <option value="Dia B">Dia B</option>
+                <option value="Dia C">Dia C</option>
+            </select>
             <hr>
 
-            <h2>Dia A: Peito, Ombros e Tríceps</h2>
-            <ul id="treino-dia-a" class="lista-treino">
-                <li class="exercicio-item" data-exercicio="Supino Reto">
-                    <div class="exercicio-info">
-                        <strong>Supino Reto com Barra</strong>
-                        <span>4 Séries de 10 Repetições | Intervalo: 60s</span>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" onchange="marcarConcluido(this)">
-                    </div>
-                </li>
-                <li class="exercicio-item" data-exercicio="Agachamento Livre">
-                    <div class="exercicio-info">
-                        <strong>Agachamento Livre</strong>
-                        <span>4 Séries de 8 Repetições | Intervalo: 90s</span>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" onchange="marcarConcluido(this)">
-                    </div>
-                </li>
-                <li class="exercicio-item" data-exercicio="Tríceps Pulley">
-                    <div class="exercicio-info">
-                        <strong>Tríceps Pulley</strong>
-                        <span>3 Séries de 15 Repetições | Intervalo: 45s</span>
-                    </div>
-                    <div class="checkbox-container">
-                        <input type="checkbox" onchange="marcarConcluido(this)">
-                    </div>
-                </li>
-            </ul>
+            <p><strong>Aluno(a):</strong> João da Silva | <strong>Data:</strong> 19/11/2025</p>
+
+            <div id="treino-Dia A" class="lista-treino-dia">
+                <h2>Dia A: Peito, Ombros e Tríceps</h2>
+                <ul id="lista-treino-a" class="lista-treino">
+                    <li class="exercicio-item" data-exercicio="Supino Reto">
+                        <div class="exercicio-info">
+                            <strong>Supino Reto com Barra</strong>
+                            <span>4 Séries de 10 Repetições | Intervalo: 60s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                    <li class="exercicio-item" data-exercicio="Agachamento Livre">
+                        <div class="exercicio-info">
+                            <strong>Agachamento Livre</strong>
+                            <span>4 Séries de 8 Repetições | Intervalo: 90s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                    <li class="exercicio-item" data-exercicio="Tríceps Pulley">
+                        <div class="exercicio-info">
+                            <strong>Tríceps Pulley</strong>
+                            <span>3 Séries de 15 Repetições | Intervalo: 45s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
+                <h2>Dia B: Costas e Bíceps</h2>
+                <ul id="lista-treino-b" class="lista-treino">
+                    <li class="exercicio-item" data-exercicio="Puxada Frontal">
+                        <div class="exercicio-info">
+                            <strong>Puxada Frontal (Máquina)</strong>
+                            <span>4 Séries de 12 Repetições | Intervalo: 60s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                    <li class="exercicio-item" data-exercicio="Remada Cavalinho">
+                        <div class="exercicio-info">
+                            <strong>Remada Cavalinho</strong>
+                            <span>4 Séries de 10 Repetições | Intervalo: 90s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                    <li class="exercicio-item" data-exercicio="Rosca Direta">
+                        <div class="exercicio-info">
+                            <strong>Rosca Direta com Barra</strong>
+                            <span>3 Séries de 12 Repetições | Intervalo: 45s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
+                <h2>Dia C: Pernas (Ênfase Quadríceps)</h2>
+                <ul id="lista-treino-c" class="lista-treino">
+                    <li class="exercicio-item" data-exercicio="Extensora">
+                        <div class="exercicio-info">
+                            <strong>Cadeira Extensora</strong>
+                            <span>5 Séries de 15 Repetições | Intervalo: 45s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                    <li class="exercicio-item" data-exercicio="Leg Press">
+                        <div class="exercicio-info">
+                            <strong>Leg Press 45°</strong>
+                            <span>4 Séries de 10 Repetições | Intervalo: 90s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                    <li class="exercicio-item" data-exercicio="Panturrilha">
+                        <div class="exercicio-info">
+                            <strong>Elevação de Panturrilha em Pé</strong>
+                            <span>4 Séries de 15 Repetições | Intervalo: 60s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
         </div>
         
         <div id="presenca-card" class="card">
@@ -249,6 +326,7 @@
         const STORAGE_KEY_TREINO = 'treinoProgresso';
         const STORAGE_KEY_PRESENCA = 'presencaMensal';
 
+        // Chaves para os gráficos de carga
         const STORAGE_KEYS_PESO = {
             'AgachamentoLivre': 'progressoPesoAgachamento',
             'SupinoReto': 'progressoPesoSupino',
@@ -259,6 +337,24 @@
 
         function obterExercicioSelecionado() {
             return document.getElementById('seletorExercicio').value;
+        }
+
+        // --- FUNÇÕES DE CONTROLE DE TREINO MULTI-DIAS (NOVO) ---
+        
+        function alternarTreino() {
+            const treinoSelecionado = document.getElementById('seletorTreino').value;
+            const diasDeTreino = ['Dia A', 'Dia B', 'Dia C'];
+            
+            diasDeTreino.forEach(dia => {
+                const elementoDia = document.getElementById(`treino-${dia}`);
+                if (elementoDia) {
+                    // Exibe apenas o treino selecionado, ocultando os outros
+                    elementoDia.style.display = (dia === treinoSelecionado) ? 'block' : 'none';
+                }
+            });
+            
+            // Recarrega o progresso para o dia visível, se houver
+            carregarProgressoTreino(); 
         }
 
         // --- FUNÇÕES DE CONTROLE DE PESO (GRÁFICO) ---
@@ -414,7 +510,7 @@
             localStorage.setItem(STORAGE_KEY_PRESENCA, JSON.stringify(presencasSalvas));
         }
 
-        // --- FUNÇÕES DE CONTROLE DE TREINO (Não Alteradas) ---
+        // --- FUNÇÕES DE CONTROLE DE PROGRESSO (Atualizada para verificar todos os dias) ---
 
         function marcarConcluido(checkbox) {
             const item = checkbox.closest('.exercicio-item');
@@ -436,6 +532,7 @@
 
             if (!progressoSalvo) return;
             
+            // O código agora procura checkboxes em TODOS os dias de treino visíveis ou não
             const todosItens = document.querySelectorAll('.exercicio-item');
             todosItens.forEach(item => {
                 const exercicioKey = item.dataset.exercicio;
@@ -456,7 +553,7 @@
             });
         }
 
-        // --- FUNÇÃO DE RESET (Atualizada para limpar os novos dados) ---
+        // --- FUNÇÃO DE RESET (Limpa todos os dados) ---
 
         function resetarDados() {
             if (confirm("Tem certeza que deseja apagar TODOS os dados de progresso (Peso, Presença e Treino) do aluno?")) {
@@ -478,7 +575,8 @@
         // --- INICIALIZAÇÃO GERAL ---
 
         window.onload = function() {
-            carregarProgressoTreino();
+            // Garante que o Dia A seja exibido e que o progresso seja carregado
+            alternarTreino(); 
             inicializarGrafico(); 
             gerarCalendario();
         };
