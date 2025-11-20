@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -16,7 +15,7 @@
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #000000; /* Fundo Preto */
+            background-color: #000000; 
             color: #f0f0f0; 
         }
 
@@ -38,6 +37,9 @@
             display: grid;
             gap: 20px;
             
+            width: 100%; /* CORREÇÃO MOBILE */
+            justify-content: center; /* CORREÇÃO MOBILE */
+            
             grid-template-columns: 1fr; 
         }
         
@@ -48,6 +50,12 @@
             box-shadow: none; 
             border: 1px solid rgba(255, 255, 255, 0.2); 
         }
+        
+        /* NOVO: Estilo para o CARD de Medidas */
+        #medidas-card {
+            order: 2; /* Garante que ele fique abaixo do gráfico principal em mobile */
+        }
+
 
         /* --- LAYOUT PARA TABLET (2 COLUNAS) --- */
         @media (min-width: 768px) {
@@ -56,6 +64,7 @@
             }
             #chart-card {
                 grid-column: 1 / 3; 
+                order: 1;
             }
         }
 
@@ -66,6 +75,7 @@
             }
             #chart-card {
                 grid-column: auto;
+                order: initial;
             }
         }
         
@@ -86,7 +96,7 @@
         h1 { 
             color: #ff8c00; 
             text-align: center; 
-            margin-bottom: 15px; /* Ajustado para caber o seletor */
+            margin-bottom: 15px; 
         }
 
         h2 { 
@@ -136,21 +146,25 @@
             background-color: rgba(255, 255, 255, 0.15);
         }
 
-        /* Input para registrar peso */
-        .peso-input-container {
+        /* Input para registrar peso e medidas */
+        .input-group {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
+            margin-bottom: 10px;
+            align-items: center;
         }
-        .peso-input-container input[type="number"] {
+        .input-group label {
+            width: 80px; /* Largura fixa para rótulos */
+        }
+        .input-group input[type="number"] {
             padding: 8px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
-            width: 70px;
+            flex-grow: 1; /* Ocupa o espaço restante */
             background-color: rgba(255, 255, 255, 0.1);
             color: #f0f0f0;
         }
-        .peso-input-container button {
+        .input-group button {
             padding: 8px 15px;
             background-color: #ffc107; 
             color: #333;
@@ -183,9 +197,38 @@
             <div class="chart-container">
                 <canvas id="pesoChart"></canvas>
             </div>
-            <div class="peso-input-container">
+            <div class="input-group">
                 <input type="number" id="pesoInput" placeholder="Peso (kg)" step="0.5">
                 <button onclick="adicionarPeso()">Registrar Carga</button>
+            </div>
+        </div>
+        
+        <div id="medidas-card" class="card">
+            <h2>📏 Registro de Medidas</h2>
+            <p style="margin-bottom: 15px;">Acompanhe a evolução corporal.</p>
+
+            <div class="input-group">
+                <label for="pesoCorporalInput">Peso Corp. (kg)</label>
+                <input type="number" id="pesoCorporalInput" placeholder="Ex: 75.5" step="0.1">
+            </div>
+            
+            <div class="input-group">
+                <label for="cinturaInput">Cintura (cm)</label>
+                <input type="number" id="cinturaInput" placeholder="Ex: 80" step="1">
+            </div>
+            
+            <div class="input-group">
+                <label for="bracoInput">Braço D. (cm)</label>
+                <input type="number" id="bracoInput" placeholder="Ex: 35" step="0.5">
+            </div>
+
+            <div class="input-group">
+                <button onclick="registrarMedidas()" style="flex-grow: 1;">Registrar Medidas</button>
+            </div>
+            
+            <h2 style="margin-top: 15px;">Últimos Registros</h2>
+            <div id="ultimasMedidas" style="font-size: 0.9em;">
+                Nenhum registro encontrado.
             </div>
         </div>
 
@@ -321,10 +364,11 @@
 
     <script>
         /* ================================================= */
-        /* === INÍCIO DO JAVASCRIPT AVANÇADO (MULTI-GRÁFICO) === */
+        /* === INÍCIO DO JAVASCRIPT AVANÇADO === */
         /* ================================================= */
         const STORAGE_KEY_TREINO = 'treinoProgresso';
         const STORAGE_KEY_PRESENCA = 'presencaMensal';
+        const STORAGE_KEY_MEDIDAS = 'historicoMedidas'; // NOVA CHAVE PARA MEDIDAS
 
         // Chaves para os gráficos de carga
         const STORAGE_KEYS_PESO = {
@@ -339,7 +383,64 @@
             return document.getElementById('seletorExercicio').value;
         }
 
-        // --- FUNÇÕES DE CONTROLE DE TREINO MULTI-DIAS (NOVO) ---
+        // --- FUNÇÕES DE CONTROLE DE MEDIDAS CORPORAIS (NOVO) ---
+        
+        function carregarUltimasMedidas() {
+            const historico = JSON.parse(localStorage.getItem(STORAGE_KEY_MEDIDAS)) || [];
+            const display = document.getElementById('ultimasMedidas');
+            
+            if (historico.length === 0) {
+                display.innerHTML = 'Nenhum registro encontrado.';
+                return;
+            }
+            
+            const ultima = historico[historico.length - 1];
+            
+            display.innerHTML = `
+                <p><strong>Data:</strong> ${ultima.data}</p>
+                <ul>
+                    <li>Peso Corporal: <strong>${ultima.pesoCorporal} kg</strong></li>
+                    <li>Cintura: <strong>${ultima.cintura} cm</strong></li>
+                    <li>Braço D.: <strong>${ultima.braco} cm</strong></li>
+                </ul>
+            `;
+        }
+
+        function registrarMedidas() {
+            const pesoCorporal = parseFloat(document.getElementById('pesoCorporalInput').value);
+            const cintura = parseFloat(document.getElementById('cinturaInput').value);
+            const braco = parseFloat(document.getElementById('bracoInput').value);
+
+            // Validação mínima
+            if (isNaN(pesoCorporal) || isNaN(cintura) || isNaN(braco) || pesoCorporal <= 0 || cintura <= 0 || braco <= 0) {
+                alert('Por favor, preencha todas as medidas com valores válidos e positivos.');
+                return;
+            }
+
+            const hoje = new Date();
+            const dataFormatada = `${hoje.getDate()}/${hoje.getMonth() + 1}/${hoje.getFullYear()}`;
+
+            let historico = JSON.parse(localStorage.getItem(STORAGE_KEY_MEDIDAS)) || [];
+            
+            historico.push({
+                data: dataFormatada,
+                pesoCorporal: pesoCorporal.toFixed(1),
+                cintura: cintura.toFixed(1),
+                braco: braco.toFixed(1)
+            });
+            
+            localStorage.setItem(STORAGE_KEY_MEDIDAS, JSON.stringify(historico));
+            
+            // Limpa os campos após o registro
+            document.getElementById('pesoCorporalInput').value = '';
+            document.getElementById('cinturaInput').value = '';
+            document.getElementById('bracoInput').value = '';
+
+            carregarUltimasMedidas(); // Atualiza a exibição
+            alert(`Medidas registradas com sucesso para ${dataFormatada}!`);
+        }
+
+        // --- FUNÇÕES DE CONTROLE DE TREINO MULTI-DIAS ---
         
         function alternarTreino() {
             const treinoSelecionado = document.getElementById('seletorTreino').value;
@@ -348,12 +449,10 @@
             diasDeTreino.forEach(dia => {
                 const elementoDia = document.getElementById(`treino-${dia}`);
                 if (elementoDia) {
-                    // Exibe apenas o treino selecionado, ocultando os outros
                     elementoDia.style.display = (dia === treinoSelecionado) ? 'block' : 'none';
                 }
             });
             
-            // Recarrega o progresso para o dia visível, se houver
             carregarProgressoTreino(); 
         }
 
@@ -455,8 +554,8 @@
             alert(`Peso de ${novoPeso}kg registrado para ${nomeExercicio}!`);
         }
         
-        // --- FUNÇÕES DE CONTROLE DE PRESENÇA (Não Alteradas) ---
-
+        // --- FUNÇÕES DE CONTROLE DE PRESENÇA, TREINO, ETC. ---
+        
         function gerarCalendario() {
             const hoje = new Date();
             const ano = hoje.getFullYear();
@@ -510,8 +609,6 @@
             localStorage.setItem(STORAGE_KEY_PRESENCA, JSON.stringify(presencasSalvas));
         }
 
-        // --- FUNÇÕES DE CONTROLE DE PROGRESSO (Atualizada para verificar todos os dias) ---
-
         function marcarConcluido(checkbox) {
             const item = checkbox.closest('.exercicio-item');
             const exercicioKey = item.dataset.exercicio; 
@@ -532,7 +629,6 @@
 
             if (!progressoSalvo) return;
             
-            // O código agora procura checkboxes em TODOS os dias de treino visíveis ou não
             const todosItens = document.querySelectorAll('.exercicio-item');
             todosItens.forEach(item => {
                 const exercicioKey = item.dataset.exercicio;
@@ -553,12 +649,13 @@
             });
         }
 
-        // --- FUNÇÃO DE RESET (Limpa todos os dados) ---
+        // --- FUNÇÃO DE RESET (Limpa todos os dados, incluindo Medidas) ---
 
         function resetarDados() {
-            if (confirm("Tem certeza que deseja apagar TODOS os dados de progresso (Peso, Presença e Treino) do aluno?")) {
+            if (confirm("Tem certeza que deseja apagar TODOS os dados de progresso (Peso, Medidas, Presença e Treino) do aluno?")) {
                 localStorage.removeItem(STORAGE_KEY_TREINO);
                 localStorage.removeItem(STORAGE_KEY_PRESENCA);
+                localStorage.removeItem(STORAGE_KEY_MEDIDAS); // LIMPA MEDIDAS
                 
                 localStorage.removeItem(STORAGE_KEYS_PESO['AgachamentoLivre']);
                 localStorage.removeItem(STORAGE_KEYS_PESO['SupinoReto']);
@@ -568,6 +665,7 @@
                 carregarProgressoTreino();
                 inicializarGrafico();
                 gerarCalendario();
+                carregarUltimasMedidas(); // Atualiza a área de medidas
                 alert("Dados resetados com sucesso!");
             }
         }
@@ -575,10 +673,11 @@
         // --- INICIALIZAÇÃO GERAL ---
 
         window.onload = function() {
-            // Garante que o Dia A seja exibido e que o progresso seja carregado
+            carregarProgressoTreino();
             alternarTreino(); 
             inicializarGrafico(); 
             gerarCalendario();
+            carregarUltimasMedidas(); // CARREGA O ÚLTIMO REGISTRO AO INICIAR
         };
         
         /* ================================================= */
