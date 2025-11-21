@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Treinador - Admin</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* --- CSS DARK MODE (Baseado no do Aluno para consistência) --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #121212; 
+            color: #e0e0e0;
+        }
+
+        h1, h2 { color: #00d4ff; text-align: center; } /* Azul para diferenciar do aluno (Laranja) */
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .container { grid-template-columns: 1fr 2fr; } /* Editor menor, Gráficos maior */
+        }
+
+        .card {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* --- Estilos do Formulário de Edição --- */
+        label { display: block; margin-top: 10px; color: #aaa; font-size: 0.9em; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button.btn-save {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #00d4ff;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button.btn-save:hover { background-color: #00a3cc; }
+
+        /* --- Estilos da Lista de Alunos --- */
+        .aluno-item {
+            padding: 15px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        .aluno-item:hover { background-color: #2c2c2c; }
+        .status-ok { color: #4caf50; font-size: 0.8em; }
+
+        /* --- Grid de Inputs do Treino --- */
+        .treino-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🛡️ Painel do Personal</h1>
+
+    <div class="container">
+        
+        <div class="left-col">
+            <div class="card">
+                <h2>✏️ Editar Treino</h2>
+                
+                <label>Selecione o Aluno:</label>
+                <select id="selectAluno">
+                    <option>João da Silva</option>
+                    <option>Maria Oliveira</option>
+                    <option>Carlos Souza</option>
+                </select>
+
+                <label>Dia do Treino:</label>
+                <select id="selectDia">
+                    <option value="A">Dia A (Peito/Ombro)</option>
+                    <option value="B">Dia B (Costas/Bíceps)</option>
+                    <option value="C">Dia C (Pernas)</option>
+                </select>
+                
+                <hr style="border-color: #333; margin: 20px 0;">
+
+                <div id="editor-container">
+                    <div class="treino-row">
+                        <div>
+                            <label>Exercício</label>
+                            <input type="text" value="Supino Reto">
+                        </div>
+                        <div>
+                            <label>Séries</label>
+                            <input type="text" value="4">
+                        </div>
+                        <div>
+                            <label>Reps</label>
+                            <input type="text" value="10">
+                        </div>
+                    </div>
+                    
+                    <div class="treino-row">
+                        <div>
+                            <label>Exercício</label>
+                            <input type="text" value="Crucifixo">
+                        </div>
+                        <div>
+                            <label>Séries</label>
+                            <input type="text" value="3">
+                        </div>
+                        <div>
+                            <label>Reps</label>
+                            <input type="text" value="12">
+                        </div>
+                    </div>
+                    
+                    <div class="treino-row">
+                        <div>
+                            <label>Exercício</label>
+                            <input type="text" value="Tríceps Pulley">
+                        </div>
+                        <div>
+                            <label>Séries</label>
+                            <input type="text" value="3">
+                        </div>
+                        <div>
+                            <label>Reps</label>
+                            <input type="text" value="15">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-save" onclick="salvarTreino()">💾 Salvar Alterações</button>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="card">
+                <h2>📊 Acompanhamento do Aluno</h2>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <div>
+                        <span style="color: #aaa;">Último treino:</span> <strong>Hoje, 10:30</strong>
+                    </div>
+                    <div>
+                        <span style="color: #aaa;">Frequência (Nov):</span> <strong style="color: #4caf50;">85%</strong>
+                    </div>
+                </div>
+
+                <div style="height: 300px;">
+                    <canvas id="chartAdmin"></canvas>
+                </div>
+                
+                <h3 style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">Últimas Medidas</h3>
+                <table style="width: 100%; text-align: left; font-size: 0.9em;">
+                    <tr style="color: #aaa;">
+                        <th>Data</th>
+                        <th>Peso</th>
+                        <th>Cintura</th>
+                    </tr>
+                    <tr>
+                        <td>19/11</td>
+                        <td>75.5 kg</td>
+                        <td>80 cm</td>
+                    </tr>
+                    <tr>
+                        <td>12/11</td>
+                        <td>76.0 kg</td>
+                        <td>81 cm</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- SIMULAÇÃO DO GRÁFICO DO ALUNO ---
+        const ctx = document.getElementById('chartAdmin').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['01/11', '05/11', '10/11', '15/11', '19/11'],
+                datasets: [
+                    {
+                        label: 'Carga Supino (kg)',
+                        data: [20, 22, 22, 24, 25], // Dados simulados
+                        borderColor: '#00d4ff',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Peso Corporal (kg)',
+                        data: [78, 77.5, 77, 76.2, 75.5], // Dados simulados
+                        borderColor: '#ff4081', // Rosa
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    y: { title: { display: true, text: 'Carga (kg)', color: '#aaa' }, ticks: { color: '#aaa' } },
+                    y1: { 
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: '#ff4081' }
+                    },
+                    x: { ticks: { color: '#aaa' } }
+                },
+                plugins: { legend: { labels: { color: '#e0e0e0' } } }
+            }
+        });
+
+        function salvarTreino() {
+            const aluno = document.getElementById('selectAluno').value;
+            const dia = document.getElementById('selectDia').value;
+            
+            // Em um app real, aqui enviaríamos os dados para o Banco de Dados (Firebase/MySQL)
+            alert(`✅ Treino ${dia} de ${aluno} atualizado com sucesso!\n\n(Nota: Como não temos banco de dados, isso é apenas uma simulação visual da interface do admin).`);
+        }
+    </script>
+</body>
+</html>
