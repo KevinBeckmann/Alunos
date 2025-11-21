@@ -22,25 +22,18 @@
             color: #f0f0f0;
         }
 
-        /* NOVO: Contêiner para o logo e título principal (Ajuste Mobile) */
         .header-content {
             display: flex;
             align-items: center;
-            /* Alinha verticalmente no centro */
             justify-content: center;
-            /* Centraliza horizontalmente no desktop */
             flex-wrap: wrap;
-            /* Permite quebrar a linha em telas pequenas */
             margin-bottom: 30px;
             gap: 20px;
-            /* Espaço entre os itens */
             text-align: center;
-            /* Garante que o texto fique centralizado quando quebra */
         }
 
         .header-content img {
             max-width: 80px;
-            /* Ajustado para um tamanho menor ao lado do texto */
             height: auto;
             border-radius: 10px;
         }
@@ -48,9 +41,7 @@
         .header-content h1 {
             color: #ff8c00;
             margin: 0;
-            /* Remove margens padrão do h1 */
             font-size: 2.2em;
-            /* Ajustado para ficar proporcional */
             line-height: 1.2;
         }
 
@@ -58,18 +49,13 @@
         @media (max-width: 767px) {
             .header-content {
                 justify-content: flex-start;
-                /* Alinha à esquerda no mobile */
                 text-align: left;
-                /* Alinha o texto à esquerda */
             }
 
             .header-content h1 {
                 font-size: 1.8em;
-                /* Fonte menor no mobile */
                 width: 100%;
-                /* Ocupa a largura total abaixo do logo */
                 margin-top: 10px;
-                /* Adiciona espaço entre logo e título quebrado */
             }
         }
 
@@ -79,10 +65,8 @@
             margin: 0 auto;
             display: grid;
             gap: 20px;
-
             width: 100%;
             justify-content: center;
-
             grid-template-columns: 1fr;
         }
 
@@ -94,7 +78,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* CORREÇÃO: Força altura mínima para que o Chart.js desenhe a área */
         .chart-container {
             min-height: 300px;
             position: relative;
@@ -155,14 +138,11 @@
         #seletorExercicio option,
         #seletorTreino option {
             background-color: #1a1a1a;
-            /* Fundo escuro para as opções */
             color: #f0f0f0;
-            /* Texto claro nas opções */
             border: none;
         }
 
         /* --- Estilos de Cores (Laranja para títulos) --- */
-        /* Removido o h1 daqui, pois agora tem estilo próprio no .header-content h1 */
         h2 {
             color: #ff9933;
             margin-top: 0;
@@ -246,8 +226,9 @@
         }
 
         .input-group label {
-            width: 80px;
+            width: 95px; /* Ajustado para acomodar os novos rótulos */
             flex-shrink: 0;
+            font-size: 0.9em;
         }
 
         .input-group input[type="number"] {
@@ -299,7 +280,6 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.9);
-            /* Fundo semi-transparente escuro */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -308,13 +288,11 @@
 
         .modal-content {
             background-color: #0d0d0d;
-            /* AJUSTADO: Fundo do modal AGORA MAIS ESCURO */
             padding: 30px;
             border-radius: 12px;
             width: 90%;
             max-width: 400px;
             box-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
-            /* Sombra laranja */
             text-align: center;
             border: 2px solid #ff8c00;
         }
@@ -324,7 +302,6 @@
             margin-bottom: 20px;
         }
 
-        /* Lembrete: A imagem "logotipo.png" precisa estar no mesmo diretório */
         .modal-content img {
             max-width: 100px;
             margin-bottom: 20px;
@@ -363,7 +340,7 @@
     </style>
 </head>
 
-<body>
+<body onload="obterNomeAluno()">
 
     <div id="modal-nome" class="modal-overlay" style="display: none;">
         <div class="modal-content">
@@ -420,7 +397,31 @@
                 <label for="bracoInput">Braço D. (cm)</label>
                 <input type="number" id="bracoInput" placeholder="Ex: 35" step="0.5">
             </div>
+            
+            <div class="input-group">
+                <label for="toraxInput">Tórax (cm)</label>
+                <input type="number" id="toraxInput" placeholder="Ex: 100" step="1">
+            </div>
 
+            <div class="input-group">
+                <label for="abdomenInput">Abdômen (cm)</label>
+                <input type="number" id="abdomenInput" placeholder="Ex: 85" step="1">
+            </div>
+
+            <div class="input-group">
+                <label for="coxaInput">Coxa D. (cm)</label>
+                <input type="number" id="coxaInput" placeholder="Ex: 55" step="0.5">
+            </div>
+
+            <div class="input-group">
+                <label for="panturrilhaInput">Panturrilha D. (cm)</label>
+                <input type="number" id="panturrilhaInput" placeholder="Ex: 40" step="0.5">
+            </div>
+
+            <div class="input-group">
+                <label for="antebracoInput">Antebraço D. (cm)</label>
+                <input type="number" id="antebracoInput" placeholder="Ex: 30" step="0.5">
+            </div>
             <div class="input-group">
                 <button onclick="registrarMedidas()" style="flex-grow: 1;">Registrar Medidas</button>
             </div>
@@ -639,7 +640,7 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO OBTIDA DO SEU CONSOLE FIREBASE (ptf03-26fdb)
+        // CONFIGURAÇÃO OBTIDA DO SEU CONSOLE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
@@ -693,12 +694,15 @@
             return document.getElementById('seletorExercicio').value;
         }
 
-        function getDataAtualFormatada() {
-            const hoje = new Date();
-            const dia = String(hoje.getDate()).padStart(2, '0');
-            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            const ano = hoje.getFullYear();
+        function getDataAtualFormatada(date = new Date()) {
+            const dia = String(date.getDate()).padStart(2, '0');
+            const mes = String(date.getMonth() + 1).padStart(2, '0');
+            const ano = date.getFullYear();
             return `${dia}/${mes}/${ano}`;
+        }
+        
+        function exibirDataAtual() {
+            document.getElementById('data-atual').textContent = getDataAtualFormatada();
         }
 
         // =================================================================
@@ -714,8 +718,8 @@
             } else {
                 document.getElementById('nome-aluno').textContent = alunoNome;
                 document.getElementById('main-title').textContent = `Seja bem-vindo(a), ${alunoNome.split(' ')[0]}!`;
-                
-                // 💡 CHAMA FUNÇÕES DE LEITURA DO FIREBASE APÓS OBTER O NOME
+
+                // CHAMA FUNÇÕES DE LEITURA DO FIREBASE APÓS OBTER O NOME
                 inicializarApp();
             }
         }
@@ -735,7 +739,7 @@
                 document.getElementById('main-title').textContent = `Seja bem-vindo(a), ${alunoNome.split(' ')[0]}!`;
                 document.getElementById('modal-nome').style.display = 'none';
 
-                // 💡 CHAMA FUNÇÕES DE LEITURA DO FIREBASE APÓS OBTER O NOME
+                // CHAMA FUNÇÕES DE LEITURA DO FIREBASE APÓS OBTER O NOME
                 inicializarApp();
             } else {
                 alert('Por favor, digite seu nome para continuar.');
@@ -749,12 +753,11 @@
         function inicializarApp() {
             exibirDataAtual();
             // Inicia todas as leituras de dados do Firebase
-            inicializarGrafico(); // Cargas
-            carregarUltimasMedidas(); // Medidas
-            alternarTreino(); // Treino (inclui a carga)
-            gerarCalendario(); // Presença
+            inicializarGrafico(); 
+            carregarUltimasMedidas(); 
+            alternarTreino(); 
+            gerarCalendario(); 
         }
-
 
         // =================================================================
         // === PROGRESSÃO DE CARGA (GRÁFICO) - FIREBASE ===
@@ -766,7 +769,7 @@
             const nomeExercicio = document.querySelector(`#seletorExercicio option[value="${exercicioKey}"]`).textContent;
             document.querySelector('#chart-card h2').innerHTML = `📈 Progressão de Carga (${nomeExercicio})`;
 
-            if (!alunoNome) return; // Só carrega se o nome estiver definido
+            if (!alunoNome) return; 
 
             // 1. OBTÉM A REFERÊNCIA NO FIREBASE
             const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.CARGAS) + exercicioPath);
@@ -792,7 +795,7 @@
                 const chartLabels = labels.length > 0 ? labels : ['Data'];
                 const chartData = pesos.length > 0 ? pesos : [0];
 
-                // 4. INICIALIZA O GRÁFICO (código original do Chart.js)
+                // 4. INICIALIZA O GRÁFICO (com tema Dark Mode)
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
@@ -814,367 +817,459 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#f0f0f0' // Cor da legenda (texto)
+                                }
+                            }
+                        },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'Peso (kg)',
-                                    color: '#f0f0f0'
+                                    color: '#f0f0f0' // Cor do título do eixo Y
                                 },
                                 ticks: {
-                                    color: '#f0f0f0'
+                                    color: '#f0f0f0' // Cor dos números do eixo Y
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.2)' // Cor das linhas de grade Y
                                 }
                             },
                             x: {
+                                title: {
+                                    display: true,
+                                    text: 'Data',
+                                    color: '#f0f0f0' // Cor do título do eixo X
+                                },
                                 ticks: {
-                                    color: '#f0f0f0'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: true,
-                                labels: {
-                                    color: '#f0f0f0'
+                                    color: '#f0f0f0' // Cor dos rótulos (datas) do eixo X
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.2)' // Cor das linhas de grade X
                                 }
                             }
                         }
                     }
                 });
-            });
-        }
+            }); 
+        } 
 
         function adicionarPeso() {
             const peso = parseFloat(document.getElementById('pesoInput').value);
             const exercicioKey = obterExercicioSelecionado();
             const exercicioPath = STORAGE_KEYS_PESO[exercicioKey];
+            const dataAtual = getDataAtualFormatada();
 
             if (isNaN(peso) || peso <= 0) {
-                alert('Por favor, insira um peso válido e positivo.');
+                alert('Por favor, insira um peso válido.');
                 return;
             }
+
             if (!alunoNome) {
-                alert('Por favor, insira seu nome primeiro.');
+                alert('Por favor, defina seu nome primeiro.');
                 return;
             }
 
-            const dataFormatada = getDataAtualFormatada();
-
-            const novoRegistro = {
-                data: dataFormatada,
-                peso: peso
-            };
-
-            // 1. OBTÉM A REFERÊNCIA NO FIREBASE
+            // Cria a referência no Firebase para o exercicio
             const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.CARGAS) + exercicioPath);
 
-            // 2. ESCREVE OS DADOS USANDO PUSH (cria um ID único para o registro)
-            firebaseRef.push(novoRegistro)
-                .then(() => {
-                    document.getElementById('pesoInput').value = '';
-                    alert(`Carga de ${peso}kg registrada com sucesso para ${exercicioKey}!`);
-                })
-                .catch(error => {
-                    console.error("Erro ao registrar carga no Firebase:", error);
-                    alert("Erro ao registrar carga. Verifique suas regras de segurança no Firebase.");
-                });
-        }
-
-        // =================================================================
-        // === REGISTRO DE MEDIDAS CORPORAIS - FIREBASE ===
-        // =================================================================
-
-        function carregarUltimasMedidas() {
-            const display = document.getElementById('ultimasMedidas');
-            if (!alunoNome) return;
-
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS));
-
-            // Escuta por mudanças (retorna o objeto de medidas)
-            firebaseRef.limitToLast(1).on('value', (snapshot) => {
-                if (!snapshot.exists()) {
-                    display.innerHTML = 'Nenhum registro encontrado.';
-                    return;
-                }
-                
-                // O snapshot.val() é um objeto {id_firebase: {dados}, ...}
-                // Como limitamos a 1, pegamos o primeiro (e único) valor do objeto
-                const medidasObj = snapshot.val();
-                const ultima = Object.values(medidasObj)[0];
-
-                display.innerHTML = `
-                    <p><strong>Data:</strong> ${ultima.data}</p>
-                    <ul style="list-style: none; padding: 0;">
-                        <li>Peso Corporal: <strong>${ultima.pesoCorporal} kg</strong></li>
-                        <li>Cintura: <strong>${ultima.cintura} cm</strong></li>
-                        <li>Braço D.: <strong>${ultima.braco} cm</strong></li>
-                    </ul>
-                `;
-            }, (error) => {
-                console.error("Erro ao carregar medidas:", error);
-                display.innerHTML = 'Erro ao carregar dados de medidas.';
+            // Salva o novo registro no Firebase, gerando uma chave única (push)
+            firebaseRef.push({
+                peso: peso,
+                data: dataAtual
+            })
+            .then(() => {
+                alert(`Carga de ${peso}kg registrada com sucesso para ${exercicioKey}!`);
+                document.getElementById('pesoInput').value = ''; 
+                // O gráfico é atualizado automaticamente pelo listener
+            })
+            .catch((error) => {
+                console.error("Erro ao registrar peso no Firebase: ", error);
+                alert('Erro ao salvar dados. Verifique o console.');
             });
         }
 
+        // =================================================================
+        // === REGISTRO DE MEDIDAS - FIREBASE ===
+        // =================================================================
+
         function registrarMedidas() {
+            if (!alunoNome) {
+                alert('Por favor, defina seu nome primeiro no modal.');
+                return;
+            }
+
+            // 1. Coleta os valores dos inputs (incluindo os novos)
             const pesoCorporal = parseFloat(document.getElementById('pesoCorporalInput').value);
             const cintura = parseFloat(document.getElementById('cinturaInput').value);
             const braco = parseFloat(document.getElementById('bracoInput').value);
+            const torax = parseFloat(document.getElementById('toraxInput').value);
+            const abdomen = parseFloat(document.getElementById('abdomenInput').value);
+            const coxa = parseFloat(document.getElementById('coxaInput').value);
+            const panturrilha = parseFloat(document.getElementById('panturrilhaInput').value);
+            const antebraco = parseFloat(document.getElementById('antebracoInput').value);
 
-            if (isNaN(pesoCorporal) || isNaN(cintura) || isNaN(braco) || pesoCorporal <= 0 || cintura <= 0 || braco <= 0) {
-                alert('Por favor, preencha todas as medidas com valores válidos e positivos.');
+            const dataAtual = getDataAtualFormatada();
+
+            // 2. Validação simples: pelo menos o peso corporal deve ser preenchido
+            if (isNaN(pesoCorporal) || pesoCorporal <= 0) {
+                alert('O Peso Corporal é obrigatório para o registro.');
                 return;
             }
-            if (!alunoNome) {
-                alert('Por favor, insira seu nome primeiro.');
-                return;
-            }
 
-            const dataFormatada = getDataAtualFormatada();
-
-            const novoRegistro = {
-                data: dataFormatada,
-                pesoCorporal: pesoCorporal.toFixed(1),
-                cintura: cintura.toFixed(1),
-                braco: braco.toFixed(1)
+            // 3. Objeto de dados
+            const medidasRegistro = {
+                data: dataAtual,
+                pesoCorporal: pesoCorporal,
+                cintura: cintura || null, 
+                braco: braco || null,
+                torax: torax || null,
+                abdomen: abdomen || null,
+                coxa: coxa || null,
+                panturrilha: panturrilha || null,
+                antebraco: antebraco || null
             };
 
+            // 4. Salva no Firebase, gerando uma chave única (push) no nó /medidas/
             const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS));
 
-            firebaseRef.push(novoRegistro)
+            firebaseRef.push(medidasRegistro)
                 .then(() => {
+                    alert(`Medidas de ${dataAtual} registradas com sucesso!`);
+                    
+                    // Limpa os inputs após salvar
                     document.getElementById('pesoCorporalInput').value = '';
                     document.getElementById('cinturaInput').value = '';
                     document.getElementById('bracoInput').value = '';
-                    // carregarUltimasMedidas() será chamado automaticamente pelo 'on' do Firebase
-                    alert(`Medidas registradas com sucesso para ${dataFormatada}!`);
-                })
-                .catch(error => {
-                    console.error("Erro ao registrar medidas no Firebase:", error);
-                    alert("Erro ao registrar medidas.");
-                });
-        }
-
-        // =================================================================
-        // === CHECKLIST DE TREINO - FIREBASE ===
-        // =================================================================
-
-        function alternarTreino() {
-            const treinoSelecionado = document.getElementById('seletorTreino').value;
-            const diasDeTreino = ['Dia A', 'Dia B', 'Dia C'];
-
-            diasDeTreino.forEach(dia => {
-                const elementoDia = document.getElementById(`treino-${dia}`);
-                if (elementoDia) {
-                    elementoDia.style.display = (dia === treinoSelecionado) ? 'block' : 'none';
-                }
-            });
-
-            carregarProgressoTreino(treinoSelecionado);
-        }
-
-        function carregarProgressoTreino(diaDeTreino = document.getElementById('seletorTreino').value) {
-            const elementosCheckbox = document.querySelectorAll(`#treino-${diaDeTreino} .checkbox-container input[type="checkbox"]`);
-            if (!alunoNome) {
-                // Desativa os checkboxes se o nome não estiver carregado
-                elementosCheckbox.forEach(cb => cb.checked = false);
-                return;
-            }
-
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.TREINO) + diaDeTreino.replace(/\s/g, ''));
-            
-            // 1. ESCUTA POR MUDANÇAS NO DIA DE TREINO SELECIONADO
-            firebaseRef.on('value', (snapshot) => {
-                const progresso = snapshot.val() || {}; // {Exercicio: true/false, ...}
-
-                elementosCheckbox.forEach(checkbox => {
-                    const listItem = checkbox.closest('.exercicio-item');
-                    const exercicioKey = listItem.getAttribute('data-exercicio');
+                    document.getElementById('toraxInput').value = '';
+                    document.getElementById('abdomenInput').value = '';
+                    document.getElementById('coxaInput').value = '';
+                    document.getElementById('panturrilhaInput').value = '';
+                    document.getElementById('antebracoInput').value = '';
                     
-                    // 2. ATUALIZA O ESTADO DO CHECKBOX E A CLASSE CSS
-                    const concluido = progresso[exercicioKey] === true;
-                    checkbox.checked = concluido;
-                    listItem.classList.toggle('concluido', concluido);
+                    carregarUltimasMedidas(); // Atualiza a exibição
+                })
+                .catch((error) => {
+                    console.error("Erro ao registrar medidas no Firebase: ", error);
+                    alert('Erro ao salvar medidas. Verifique o console.');
                 });
+        }
+
+        function carregarUltimasMedidas() {
+            if (!alunoNome) return;
+
+            const ultimasMedidasDiv = document.getElementById('ultimasMedidas');
+            ultimasMedidasDiv.innerHTML = 'Carregando...';
+
+            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS))
+                .limitToLast(1); 
+
+            firebaseRef.on('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    ultimasMedidasDiv.innerHTML = 'Nenhum registro encontrado.';
+                    return;
+                }
+
+                let ultimaMedida;
+                snapshot.forEach(childSnapshot => {
+                    ultimaMedida = childSnapshot.val();
+                });
+
+                if (ultimaMedida) {
+                    let htmlContent = `
+                        <p><strong>Data:</strong> ${ultimaMedida.data}</p>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li>Peso Corporal: <strong>${ultimaMedida.pesoCorporal || '?'} kg</strong></li>
+                            <li>Cintura: <strong>${ultimaMedida.cintura || '?'} cm</strong></li>
+                            <li>Braço D.: <strong>${ultimaMedida.braco || '?'} cm</strong></li>
+                            <li>Tórax: <strong>${ultimaMedida.torax || '?'} cm</strong></li>
+                            <li>Abdômen: <strong>${ultimaMedida.abdomen || '?'} cm</strong></li>
+                            <li>Coxa D.: <strong>${ultimaMedida.coxa || '?'} cm</strong></li>
+                            <li>Panturrilha D.: <strong>${ultimaMedida.panturrilha || '?'} cm</strong></li>
+                            <li>Antebraço D.: <strong>${ultimaMedida.antebraco || '?'} cm</strong></li>
+                        </ul>
+                    `;
+                    ultimasMedidasDiv.innerHTML = htmlContent;
+                }
             }, (error) => {
-                console.error("Erro ao carregar progresso do treino:", error);
+                console.error("Erro ao carregar medidas:", error);
+                ultimasMedidasDiv.innerHTML = 'Erro ao carregar dados.';
+            });
+        }
+        
+        // =================================================================
+        // === TREINO E PRESENÇA (FUNÇÕES PLACEHOLDER) - FIREBASE ===
+        // =================================================================
+
+        /** * Lógica para carregar o estado dos checkboxes do treino do dia no Firebase.
+         */
+        function carregarEstadoTreino(dia) {
+            if (!alunoNome) return;
+
+            // Chave do Firebase: alunos/{nome}/treino/{data_atual}/{dia}
+            const dataHoje = getDataAtualFormatada().replace(/\//g, '-'); // Formato: DD-MM-AAAA
+            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.TREINO) + dataHoje + '/' + dia);
+            
+            // Listener de tempo real para carregar o estado salvo
+            firebaseRef.on('value', (snapshot) => {
+                const dadosTreino = snapshot.val();
+                const listaUl = document.getElementById(`lista-treino-${dia.toLowerCase().replace('dia ', '')}`);
+                
+                listaUl.querySelectorAll('.exercicio-item').forEach(item => {
+                    const exercicioKey = item.getAttribute('data-exercicio');
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    
+                    if (dadosTreino && dadosTreino[exercicioKey] && dadosTreino[exercicioKey].concluido) {
+                        checkbox.checked = true;
+                        item.classList.add('concluido');
+                    } else {
+                        checkbox.checked = false;
+                        item.classList.remove('concluido');
+                    }
+                });
             });
         }
 
+        /**
+         * Lógica para marcar um exercício como concluído no Firebase.
+         */
         function marcarConcluido(checkbox, dia, exercicio) {
             if (!alunoNome) {
-                alert('Por favor, insira seu nome primeiro.');
-                checkbox.checked = !checkbox.checked; // Reverte o estado do checkbox
+                checkbox.checked = !checkbox.checked; // Reverte a marcação se o nome não estiver
+                alert('Defina seu nome primeiro!');
                 return;
             }
 
-            const concluido = checkbox.checked;
-            const diaFormatado = dia.replace(/\s/g, ''); // Ex: 'DiaA'
-            
-            // 1. REFERÊNCIA DIRETA AO NÓ DO EXERCÍCIO
-            const firebaseRef = database.ref(
-                obterCaminhoAluno(FIREBASE_CHILDS.TREINO) + 
-                `${diaFormatado}/${exercicio}`
-            );
+            const isChecked = checkbox.checked;
+            const dataHoje = getDataAtualFormatada().replace(/\//g, '-');
+            const itemElement = checkbox.closest('.exercicio-item');
 
-            // 2. SALVA O ESTADO
-            firebaseRef.set(concluido)
-                .then(() => {
-                    // O CSS será atualizado automaticamente via `carregarProgressoTreino` 
-                    // que está escutando o nó pai.
-                })
+            // Atualiza o CSS local imediatamente
+            if (isChecked) {
+                itemElement.classList.add('concluido');
+            } else {
+                itemElement.classList.remove('concluido');
+            }
+
+            // Caminho: alunos/{nome}/treino/{data_atual}/{dia}/{exercicio}/concluido
+            const firebasePath = obterCaminhoAluno(FIREBASE_CHILDS.TREINO) + dataHoje + '/' + dia + '/' + exercicio + '/concluido';
+
+            // Salva o estado no Firebase
+            database.ref(firebasePath).set(isChecked)
                 .catch(error => {
-                    console.error("Erro ao salvar progresso do treino:", error);
-                    alert("Erro ao salvar progresso.");
+                    console.error("Erro ao salvar conclusão do treino:", error);
+                    alert('Erro ao salvar no Firebase. Verifique o console.');
                 });
         }
+        
+        /**
+         * Alterna entre Dia A, Dia B e Dia C, e carrega o estado do treino.
+         */
+        function alternarTreino() {
+            const seletor = document.getElementById('seletorTreino');
+            const treinoSelecionado = seletor.value;
+
+            // Oculta todos os dias de treino
+            document.querySelectorAll('.lista-treino-dia').forEach(div => {
+                div.style.display = 'none';
+            });
+
+            // Exibe o dia de treino selecionado
+            const divTreino = document.getElementById(`treino-${treinoSelecionado}`);
+            if (divTreino) {
+                divTreino.style.display = 'block';
+                // Carrega o estado salvo do treino
+                carregarEstadoTreino(treinoSelecionado);
+            }
+        }
+
 
         // =================================================================
         // === PRESENÇA MENSAL - FIREBASE ===
         // =================================================================
 
-        function gerarCalendario(mesDesejado = new Date().getMonth() + 1, anoDesejado = new Date().getFullYear()) {
+        /**
+         * Gera o layout do calendário e carrega o estado de presença do Firebase.
+         */
+        function gerarCalendario() {
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = hoje.getMonth(); 
+            const primeiroDia = new Date(ano, mes, 1);
+            const ultimoDia = new Date(ano, mes + 1, 0);
+            const numDias = ultimoDia.getDate();
+            const diaDaSemanaInicio = primeiroDia.getDay(); // 0 (Dom) a 6 (Sáb)
+            
             const tabelaBody = document.querySelector('#tabela-presenca tbody');
             tabelaBody.innerHTML = '';
             
-            // 1. Lógica de Geração da Tabela (Mantida a sua lógica original)
-            const primeiroDia = new Date(anoDesejado, mesDesejado - 1, 1);
-            const diasNoMes = new Date(anoDesejado, mesDesejado, 0).getDate();
-            let diaDaSemana = primeiroDia.getDay(); // 0=Dom, 1=Seg, ...
-            let diaAtual = 1;
-            let row = tabelaBody.insertRow();
-
-            for (let i = 0; i < diaDaSemana; i++) {
-                row.insertCell().textContent = '';
-            }
-
-            for (let i = 1; i <= diasNoMes; i++) {
-                if (diaDaSemana === 7) {
-                    diaDaSemana = 0;
-                    row = tabelaBody.insertRow();
-                }
-                const cell = row.insertCell();
-                cell.textContent = i;
-                cell.setAttribute('data-dia', i);
-                cell.onclick = function () { marcarPresenca(this, mesDesejado, anoDesejado); };
-                diaDaSemana++;
-            }
+            let diaContador = 1;
             
-            // 2. Carregar o Estado da Presença do Firebase
+            // Se não houver nome, não tenta carregar do Firebase
             if (alunoNome) {
-                carregarEstadoPresenca(mesDesejado, anoDesejado);
+                carregarPresencaFirebase(ano, mes, tabelaBody, numDias, diaDaSemanaInicio);
+            } else {
+                 // Cria a estrutura sem marcar presença
+                criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio);
             }
         }
 
-        function carregarEstadoPresenca(mes, ano) {
-            const mesAnoKey = `${mes}-${ano}`;
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA) + mesAnoKey);
+        /**
+         * Função auxiliar para criar a estrutura da tabela, usada se o nome não estiver disponível.
+         */
+        function criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio, presencaSalva = {}) {
+            let diaContador = 1;
 
-            // Escuta por mudanças
-            firebaseRef.on('value', (snapshot) => {
-                const presencaSalva = snapshot.val() || {}; // {1: true, 5: false, ...}
-                
-                // Itera sobre todas as células de dia
-                document.querySelectorAll('#tabela-presenca td[data-dia]').forEach(cell => {
-                    const dia = cell.getAttribute('data-dia');
-                    const estado = presencaSalva[dia];
+            for (let i = 0; i < 6; i++) { // Máximo de 6 semanas
+                let linha = tabelaBody.insertRow();
+                for (let j = 0; j < 7; j++) { // 7 dias da semana
+                    let celula = linha.insertCell();
 
-                    // Remove classes para recarregar o estado
-                    cell.classList.remove('presente');
-
-                    if (estado === true) {
-                        cell.classList.add('presente');
+                    if (i === 0 && j < diaDaSemanaInicio) {
+                        // Células vazias antes do dia 1 do mês
+                        celula.innerHTML = '';
+                    } else if (diaContador <= numDias) {
+                        // Células com dias do mês
+                        celula.innerHTML = diaContador;
+                        
+                        // Formato de chave: YYYY-MM-DD (ex: 2025-11-21)
+                        const dataChave = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(diaContador).padStart(2, '0')}`;
+                        
+                        // Verifica se o dia está salvo como presente
+                        if (presencaSalva[dataChave]) {
+                            celula.classList.add('presente');
+                        }
+                        
+                        celula.setAttribute('data-dia', diaContador);
+                        celula.onclick = function() { alternarPresenca(this); };
+                        
+                        diaContador++;
+                    } else {
+                        // Células vazias após o último dia do mês
+                        celula.innerHTML = '';
                     }
-                    // Se estado for false ou undefined, ele permanece como está (vazio/ausente)
-                });
+                }
+                if (diaContador > numDias) break; 
+            }
+        }
+
+        /**
+         * Carrega os dados de presença do Firebase e renderiza o calendário.
+         */
+        function carregarPresencaFirebase(ano, mes, tabelaBody, numDias, diaDaSemanaInicio) {
+            const mesFormatado = String(mes + 1).padStart(2, '0');
+            // Caminho no Firebase: alunos/{nome}/presenca/{ano}/{mes}
+            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA) + ano + '/' + mesFormatado);
+
+            // Escuta em tempo real
+            firebaseRef.on('value', (snapshot) => {
+                const presencaSalva = snapshot.val() || {};
+                tabelaBody.innerHTML = ''; // Limpa antes de reconstruir
+                criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio, presencaSalva);
             }, (error) => {
                 console.error("Erro ao carregar presença:", error);
+                // Em caso de erro, apenas constrói a estrutura básica
+                criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio);
             });
         }
 
-        function marcarPresenca(cell, mes, ano) {
+
+        /**
+         * Alterna o estado de presença de uma célula do calendário e salva no Firebase.
+         */
+        function alternarPresenca(celula) {
             if (!alunoNome) {
-                alert('Por favor, insira seu nome primeiro.');
-                return;
-            }
-
-            const dia = cell.getAttribute('data-dia');
-            const mesAnoKey = `${mes}-${ano}`;
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA) + `${mesAnoKey}/${dia}`);
-
-            // Determina o novo estado:
-            // Se já for 'presente', o próximo clique remove (define como null para limpar)
-            // Se for 'ausente' ou 'vazio', o próximo clique marca 'presente' (define como true)
-            const isPresente = cell.classList.contains('presente');
-            const novoEstado = isPresente ? null : true; // O null remove o nó do Firebase
-
-            firebaseRef.set(novoEstado)
-                .then(() => {
-                    // O carregarEstadoPresenca() já trata a atualização visual
-                })
-                .catch(error => {
-                    console.error("Erro ao marcar presença:", error);
-                    alert("Erro ao marcar presença.");
-                });
-        }
-        
-        // =================================================================
-        // === RESETAR DADOS - FIREBASE ===
-        // =================================================================
-
-        function resetarDados(tipo) {
-            if (!alunoNome) {
-                alert('Por favor, insira seu nome primeiro.');
+                alert('Por favor, defina seu nome primeiro.');
                 return;
             }
             
-            let path = '';
-            let confirmMsg = '';
+            const dia = celula.getAttribute('data-dia');
+            if (!dia) return; // Se não for um dia válido
 
-            switch (tipo) {
-                case 'cargas':
-                    path = obterCaminhoAluno(FIREBASE_CHILDS.CARGAS);
-                    confirmMsg = 'Tem certeza que deseja resetar todo o histórico de carga (peso) para TODOS os exercícios?';
-                    break;
-                case 'medidas':
-                    path = obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS);
-                    confirmMsg = 'Tem certeza que deseja resetar todo o histórico de medidas corporais?';
-                    break;
-                case 'treino_presenca':
-                    path = obterCaminhoAluno(''); // Limpar ambos os nós raiz
-                    confirmMsg = 'Tem certeza que deseja resetar o checklist de treino E o calendário de presença?';
-                    break;
-                default:
-                    return;
+            const isPresente = celula.classList.contains('presente');
+            const data = new Date();
+            const ano = data.getFullYear();
+            const mesFormatado = String(data.getMonth() + 1).padStart(2, '0');
+            const diaFormatado = String(dia).padStart(2, '0');
+
+            // Formato da chave: YYYY/MM/DD (ex: 2025/11/21)
+            const firebasePath = obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA) + ano + '/' + mesFormatado + '/' + ano + '-' + mesFormatado + '-' + diaFormatado;
+            
+            // Inverte o estado
+            const novoEstado = !isPresente; 
+
+            // Atualiza o Firebase (true se presente, remove o nó se ausente)
+            if (novoEstado) {
+                database.ref(firebasePath).set(true)
+                    .catch(error => console.error("Erro ao marcar presença:", error));
+            } else {
+                database.ref(firebasePath).remove()
+                    .catch(error => console.error("Erro ao desmarcar presença:", error));
+            }
+            // A atualização visual ocorre via listener do Firebase em carregarPresencaFirebase
+        }
+
+        // =================================================================
+        // === FUNÇÃO DE RESETAR DADOS (MANUTENÇÃO) ===
+        // =================================================================
+
+        /**
+         * Remove todos os dados do aluno para a categoria especificada.
+         * @param {string} tipo - 'cargas', 'medidas', ou 'treino_presenca'
+         */
+        function resetarDados(tipo) {
+            if (!alunoNome) {
+                alert('Nenhum aluno logado para resetar dados.');
+                return;
             }
 
-            if (confirm(confirmMsg)) {
-                // Remove o nó completo do Firebase
-                database.ref(path).remove()
+            let caminhoParaReset = '';
+            let confirmacao = '';
+
+            if (tipo === 'cargas') {
+                caminhoParaReset = obterCaminhoAluno(FIREBASE_CHILDS.CARGAS);
+                confirmacao = 'Tem certeza que deseja apagar TODO o histórico de Cargas? Esta ação é irreversível!';
+            } else if (tipo === 'medidas') {
+                caminhoParaReset = obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS);
+                confirmacao = 'Tem certeza que deseja apagar TODO o histórico de Medidas? Esta ação é irreversível!';
+            } else if (tipo === 'treino_presenca') {
+                 // Reseta ambos, treino e presença
+                const confirmTreino = 'Tem certeza que deseja apagar TODO o histórico de Treino (checklists) e Presença? Esta ação é irreversível!';
+                if (confirm(confirmTreino)) {
+                    database.ref(obterCaminhoAluno(FIREBASE_CHILDS.TREINO)).remove()
+                        .then(() => database.ref(obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA)).remove())
+                        .then(() => alert('Histórico de Treino e Presença apagado com sucesso!'))
+                        .catch(error => console.error("Erro ao resetar:", error));
+                    return;
+                } else {
+                    return;
+                }
+            } else {
+                return;
+            }
+            
+            if (confirm(confirmacao)) {
+                database.ref(caminhoParaReset).remove()
                     .then(() => {
-                        alert(`Dados de ${tipo} resetados com sucesso!`);
-                        // Recarrega o estado atual da interface
-                        inicializarApp(); 
+                        alert(`Dados de ${tipo} apagados com sucesso!`);
+                        // Força a atualização dos componentes visuais
+                        if (tipo === 'cargas') inicializarGrafico();
+                        if (tipo === 'medidas') carregarUltimasMedidas();
                     })
                     .catch(error => {
                         console.error("Erro ao resetar dados:", error);
-                        alert("Erro ao resetar dados.");
+                        alert('Ocorreu um erro ao tentar apagar os dados.');
                     });
             }
         }
 
-
-        // =================================================================
-        // === FUNÇÕES DE INÍCIO ===
-        // =================================================================
-
-        function exibirDataAtual() {
-            document.getElementById('data-atual').textContent = getDataAtualFormatada();
-        }
-
-        // 1. Inicia o processo de obtenção do nome (o que desencadeia a leitura do Firebase)
-        document.addEventListener('DOMContentLoaded', obterNomeAluno);
+        // Garante que o modal de nome seja exibido ao carregar a página
+        // A chamada é feita no body tag: <body onload="obterNomeAluno()">
     </script>
 </body>
+
 </html>
