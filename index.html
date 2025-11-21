@@ -117,6 +117,14 @@
             padding-right: 30px;
         }
 
+        /* NOVO: ESTILO PARA AS OPÇÕES DENTRO DO SELETOR (para escurecer o fundo) */
+        #seletorExercicio option,
+        #seletorTreino option {
+            background-color: #1a1a1a; /* Fundo escuro para as opções */
+            color: #f0f0f0; /* Texto claro nas opções */
+            border: none;
+        }
+
         /* --- Estilos de Cores (Laranja para títulos) --- */
         h1,
         h2 {
@@ -198,14 +206,12 @@
             gap: 10px;
             margin-bottom: 10px;
             align-items: center;
-            /* Melhoria no alinhamento */
             flex-wrap: nowrap;
         }
 
         .input-group label {
             width: 80px;
             flex-shrink: 0;
-            /* Impede que o label diminua */
         }
 
         .input-group input[type="number"] {
@@ -231,6 +237,71 @@
             background-color: #e0a800;
         }
 
+        /* --- ESTILOS DO MODAL PERSONALIZADO --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            /* Fundo semi-transparente escuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #0d0d0d;
+            /* AJUSTADO: Fundo do modal AGORA MAIS ESCURO */
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+            /* Sombra laranja */
+            text-align: center;
+            border: 2px solid #ff8c00;
+        }
+
+        .modal-content h3 {
+            color: #ff8c00;
+            margin-bottom: 20px;
+        }
+
+        .modal-content img {
+            max-width: 100px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        #nomeModalInput {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ff8c00;
+            border-radius: 4px;
+            background-color: #333;
+            color: #f0f0f0;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        #botaoSalvarNome {
+            background-color: #ff8c00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        #botaoSalvarNome:hover {
+            background-color: #e07b00;
+        }
+
         /* ================================================= */
         /* === FIM DO CSS === */
         /* ================================================= */
@@ -239,6 +310,15 @@
 
 <body>
 
+    <div id="modal-nome" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <img src="logotipo.png" alt="Logo PTF3">
+            <h3>Bem-vindo(a) ao seu Dashboard!</h3>
+            <p>Por favor, insira seu nome para personalizarmos sua área:</p>
+            <input type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva">
+            <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
+        </div>
+    </div>
     <div class="logo-container">
         <img src="logotipo.png" alt="Logo PTF3">
     </div>
@@ -305,7 +385,11 @@
             </select>
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
-            <p><strong>Aluno(a):</strong> João da Silva | <strong>Data:</strong> 19/11/2025</p>
+            <p>
+                <strong>Aluno(a):</strong> <span id="nome-aluno">Carregando...</span>
+                |
+                <strong>Data:</strong> <span id="data-atual"></span>
+            </p>
 
             <div id="treino-Dia A" class="lista-treino-dia">
                 <h3>Dia A: Peito, Ombros e Tríceps</h3>
@@ -393,6 +477,7 @@
 
                 </ul>
             </div>
+
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
                 <h3>Dia B: Costas e Bíceps</h3>
                 <ul id="lista-treino-b" class="lista-treino" style="list-style: none; padding: 0;">
@@ -496,11 +581,12 @@
 
     <script>
         /* ================================================= */
-        /* === INÍCIO DO JAVASCRIPT AVANÇADO (COM CORREÇÕES) === */
+        /* === INÍCIO DO JAVASCRIPT AVANÇADO (COM MODAL E DATA) === */
         /* ================================================= */
         const STORAGE_KEY_TREINO = 'treinoProgresso';
         const STORAGE_KEY_PRESENCA = 'presencaMensal';
-        const STORAGE_KEY_MEDIDAS = 'historicoMedidas'; // NOVA CHAVE PARA MEDIDAS
+        const STORAGE_KEY_MEDIDAS = 'historicoMedidas';
+        const STORAGE_KEY_NOME = 'nomeAluno'; // CHAVE PARA NOME
 
         // Chaves para os gráficos de carga
         const STORAGE_KEYS_PESO = {
@@ -515,7 +601,57 @@
             return document.getElementById('seletorExercicio').value;
         }
 
-        // --- FUNÇÕES DE CONTROLE DE MEDIDAS CORPORAIS (NOVO) ---
+        // --- FUNÇÕES DE CONTROLE DO NOME DO ALUNO (COM MODAL) ---
+
+        function obterNomeAluno() {
+            let nome = localStorage.getItem(STORAGE_KEY_NOME);
+
+            if (!nome) {
+                // Se o nome não estiver salvo, abre o modal
+                abrirModalNome();
+                // Exibe um texto temporário enquanto espera o input
+                document.getElementById('nome-aluno').textContent = "Aguardando seu nome...";
+            } else {
+                // Se o nome estiver salvo, exibe na página
+                document.getElementById('nome-aluno').textContent = nome;
+            }
+        }
+
+        function abrirModalNome() {
+            document.getElementById('modal-nome').style.display = 'flex';
+            // Opcional: Focar no campo de input
+            document.getElementById('nomeModalInput').focus();
+        }
+
+        function salvarNomeModal() {
+            let nomeInput = document.getElementById('nomeModalInput').value;
+
+            if (nomeInput && nomeInput.trim() !== "") {
+                let nome = nomeInput.trim();
+                localStorage.setItem(STORAGE_KEY_NOME, nome);
+                document.getElementById('nome-aluno').textContent = nome;
+                // Fecha o modal após salvar
+                document.getElementById('modal-nome').style.display = 'none';
+                alert(`Bem-vindo(a), ${nome}!`);
+            } else {
+                alert('Por favor, digite seu nome para continuar.');
+            }
+        }
+
+        // --- FUNÇÃO PARA EXIBIR DATA ATUAL ---
+        function exibirDataAtual() {
+            const hoje = new Date();
+            // String.padStart(2, '0') garante que o dia/mês tenham 2 dígitos (ex: 09)
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            // getMonth() retorna 0 para Janeiro, então adicionamos +1
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const ano = hoje.getFullYear();
+            const dataFormatada = `${dia}/${mes}/${ano}`;
+
+            document.getElementById('data-atual').textContent = dataFormatada;
+        }
+
+        // --- FUNÇÕES DE CONTROLE DE MEDIDAS CORPORAIS ---
 
         function carregarUltimasMedidas() {
             const historico = JSON.parse(localStorage.getItem(STORAGE_KEY_MEDIDAS)) || [];
@@ -550,7 +686,11 @@
             }
 
             const hoje = new Date();
-            const dataFormatada = `${hoje.getDate()}/${hoje.getMonth() + 1}/${hoje.getFullYear()}`;
+            // Reutilizando a lógica de formatação de data para o histórico
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const ano = hoje.getFullYear();
+            const dataFormatada = `${dia}/${mes}/${ano}`;
 
             let historico = JSON.parse(localStorage.getItem(STORAGE_KEY_MEDIDAS)) || [];
 
@@ -690,7 +830,10 @@
             const nomeExercicio = document.querySelector(`#seletorExercicio option[value="${exercicioKey}"]`).textContent;
 
             const hoje = new Date();
-            const dataFormatada = `${hoje.getDate()}/${hoje.getMonth() + 1}`;
+            // Formata a data para DD/MM
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dataFormatada = `${dia}/${mes}`;
 
             let dadosSalvos = JSON.parse(localStorage.getItem(storageKey)) || [];
 
@@ -699,6 +842,7 @@
                 peso: novoPeso
             });
 
+            // Limita a exibição dos últimos 16 registros
             if (dadosSalvos.length > 16) {
                 dadosSalvos = dadosSalvos.slice(dadosSalvos.length - 16);
             }
@@ -714,9 +858,9 @@
         function gerarCalendario() {
             const hoje = new Date();
             const ano = hoje.getFullYear();
-            const mes = hoje.getMonth();
+            const mes = hoje.getMonth(); // 0 a 11
             const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-            const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+            const primeiroDiaSemana = new Date(ano, mes, 1).getDay(); // 0 (Dom) a 6 (Sáb)
 
             let tabelaCorpo = document.querySelector('#tabela-presenca tbody');
             tabelaCorpo.innerHTML = '';
@@ -732,10 +876,12 @@
                     if (i === 0 && j < primeiroDiaSemana) {
                         celula.innerHTML = '';
                     } else if (diaDoMes <= diasNoMes) {
+                        // Data no formato AAAA-M-D para salvar no localStorage
                         const dataCompleta = `${ano}-${mes + 1}-${diaDoMes}`;
                         celula.innerHTML = diaDoMes;
                         celula.dataset.data = dataCompleta;
                         celula.onclick = function () {
+                            // Alternar presença
                             alternarPresenca(this, dataCompleta);
                         };
 
@@ -806,19 +952,24 @@
             });
         }
 
-        // --- FUNÇÃO DE RESET (Limpa todos os dados, incluindo Medidas) ---
+        // --- FUNÇÃO DE RESET (Limpa todos os dados) ---
 
         function resetarDados() {
-            if (confirm("Tem certeza que deseja apagar TODOS os dados de progresso (Peso, Medidas, Presença e Treino) do aluno?")) {
+            if (confirm("Tem certeza que deseja apagar TODOS os dados de progresso (Nome, Peso, Medidas, Presença e Treino) do aluno?")) {
+                // Remove dados do aluno e progresso
+                localStorage.removeItem(STORAGE_KEY_NOME);
                 localStorage.removeItem(STORAGE_KEY_TREINO);
                 localStorage.removeItem(STORAGE_KEY_PRESENCA);
-                localStorage.removeItem(STORAGE_KEY_MEDIDAS); // LIMPA MEDIDAS
+                localStorage.removeItem(STORAGE_KEY_MEDIDAS);
 
+                // Remove dados de peso por exercício
                 localStorage.removeItem(STORAGE_KEYS_PESO['AgachamentoLivre']);
                 localStorage.removeItem(STORAGE_KEYS_PESO['SupinoReto']);
                 localStorage.removeItem(STORAGE_KEYS_PESO['PuxadaFrontal']);
 
                 // Recarrega o estado visual
+                obterNomeAluno(); // Força a re-entrada do nome
+                exibirDataAtual();
                 alternarTreino();
                 gerarCalendario();
                 inicializarGrafico();
@@ -830,11 +981,12 @@
 
         // === INICIALIZAÇÃO ===
         window.onload = function () {
+            obterNomeAluno();
+            exibirDataAtual(); // Garante que a data atual seja exibida
             gerarCalendario();
             carregarUltimasMedidas();
             inicializarGrafico();
-            // Carrega o progresso após o treino A já estar visível
-            alternarTreino(); 
+            alternarTreino();
         };
         /* ================================================= */
         /* === FIM DO JAVASCRIPT === */
