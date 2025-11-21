@@ -683,17 +683,59 @@
         /* ================================================= */
         /* === FIM DO JAVASCRIPT AVANÇADO === */
         /* ================================================= */
-    </script>
-<br><br>
-    <div style="text-align: center; margin-top: 30px; border-top: 1px solid #444; padding-top: 20px;">
-        <h3>Área Restrita</h3>
-        <a href="professorotf03.html">
-            <button style="padding: 15px 30px; font-size: 16px; background-color: #222; color: #00d4ff; border: 2px solid #00d4ff; border-radius: 8px; cursor: pointer;">
-                👨‍🏫 ACESSAR PAINEL DO PROFESSOR
-            </button>
-        </a>
-    </div>
-    <br><br>
-    </body>
+   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+<script>
+    // **PASSO 2: Sua Configuração ÚNICA do Firebase**
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlKydyL4QgEpEj1YqBr2xCs0F3am1o82ef0",
+      authDomain: "ptf03-26fdb.firebaseapp.com",
+      databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com", // Sua URL
+      projectId: "ptf03-26fdb",
+      storageBucket: "ptf03-26fdb.firebasestorage.app",
+      messagingSenderId: "1020981883676",
+      appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+    };
+
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    // Referência ao banco de dados Realtime
+    const database = firebase.database();
+    
+    // Referência aos elementos do formulário (Garanta que seu HTML tem esses IDs!)
+    const formulario = document.getElementById('formulario-medidas');
+    const pesoInput = document.getElementById('peso');
+    const cinturaInput = document.getElementById('cintura');
+    const bracoInput = document.getElementById('braco');
+
+    // **PASSO 3: Função para Salvar no Banco**
+    formulario.addEventListener('submit', function(e) {
+        e.preventDefault(); // Impede o recarregamento da página
+
+        const dataRegistro = new Date().toISOString().split('T')[0]; // Ex: 2025-11-20
+        const horaRegistro = new Date().toLocaleTimeString(); // Ex: 12:30:00
+
+        const medidas = {
+            peso: pesoInput.value,
+            cintura: cinturaInput.value,
+            braco: bracoInput.value,
+            data: dataRegistro,
+            hora: horaRegistro
+        };
+
+        // Envia os dados para a estrutura 'medidas_alunos' no Firebase
+        database.ref('medidas_alunos').push(medidas)
+            .then(() => {
+                alert("Medidas registradas com sucesso! Verifique o Realtime Database.");
+                formulario.reset(); // Limpa o formulário
+            })
+            .catch((error) => {
+                console.error("Erro ao salvar dados: ", error);
+                alert("Erro ao registrar medidas. Verifique a URL do Firebase e as Regras.");
+            });
+    });
+
 </html>
 
