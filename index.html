@@ -1,14 +1,3 @@
-Com prazer! O código que você forneceu tem a estrutura completa de um Dashboard do Aluno para uma academia, incluindo a lógica do Firebase (embora não totalmente integrada às funções existentes).
-
-O principal erro no seu código é a duplicação da tag <script> no final e a não integração da lógica de salvar do Firebase à função registrarMedidas(). Além disso, a referência do evento de click no botão de registro do Firebase estava incorreta, pois a função original já era chamada via onclick.
-
-A correção mais importante é integrar o salvamento no Firebase à função registrarMedidas(), que já é chamada pelo botão.
-
-🛠️ Código HTML/CSS/JavaScript Corrigido e Completo
-Substituí o trecho duplicado de JavaScript e adicionei a lógica do Firebase à função registrarMedidas(), garantindo que os dados sejam salvos no localStorage e no Realtime Database do Firebase ao mesmo tempo.
-
-HTML
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
