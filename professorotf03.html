@@ -4,14 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Treinador - Admin</title>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+
     <style>
         /* --- CSS DARK MODE (Baseado no do Aluno para consistência) --- */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #121212; 
+            background-color: #121212; /* Fundo escuro */
             color: #e0e0e0;
         }
 
@@ -65,7 +69,7 @@
         }
         button.btn-save:hover { background-color: #00a3cc; }
 
-        /* --- Estilos da Lista de Alunos --- */
+        /* --- Estilos da Lista de Alunos (Não usada na v. atual, mas mantida no CSS) --- */
         .aluno-item {
             padding: 15px;
             border-bottom: 1px solid #333;
@@ -99,10 +103,7 @@
                 
                 <label>Selecione o Aluno:</label>
                 <select id="selectAluno">
-                    <option>João da Silva</option>
-                    <option>Maria Oliveira</option>
-                    <option>Carlos Souza</option>
-                </select>
+                    </select>
 
                 <label>Dia do Treino:</label>
                 <select id="selectDia">
@@ -114,50 +115,7 @@
                 <hr style="border-color: #333; margin: 20px 0;">
 
                 <div id="editor-container">
-                    <div class="treino-row">
-                        <div>
-                            <label>Exercício</label>
-                            <input type="text" value="Supino Reto">
-                        </div>
-                        <div>
-                            <label>Séries</label>
-                            <input type="text" value="4">
-                        </div>
-                        <div>
-                            <label>Reps</label>
-                            <input type="text" value="10">
-                        </div>
-                    </div>
-                    
-                    <div class="treino-row">
-                        <div>
-                            <label>Exercício</label>
-                            <input type="text" value="Crucifixo">
-                        </div>
-                        <div>
-                            <label>Séries</label>
-                            <input type="text" value="3">
-                        </div>
-                        <div>
-                            <label>Reps</label>
-                            <input type="text" value="12">
-                        </div>
-                    </div>
-                    
-                    <div class="treino-row">
-                        <div>
-                            <label>Exercício</label>
-                            <input type="text" value="Tríceps Pulley">
-                        </div>
-                        <div>
-                            <label>Séries</label>
-                            <input type="text" value="3">
-                        </div>
-                        <div>
-                            <label>Reps</label>
-                            <input type="text" value="15">
-                        </div>
-                    </div>
+                    <p style="color: #aaa;">Selecione um aluno e um dia para carregar o treino.</p>
                 </div>
 
                 <button class="btn-save" onclick="salvarTreino()">💾 Salvar Alterações</button>
@@ -166,13 +124,15 @@
 
         <div class="right-col">
             <div class="card">
-                <h2>📊 Acompanhamento do Aluno</h2>
+                <h2 id="titulo-acompanhamento">📊 Acompanhamento do Aluno</h2>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                     <div>
-                        <span style="color: #aaa;">Último treino:</span> <strong>Hoje, 10:30</strong>
-                    </div>
-                    <div>
-                        <span style="color: #aaa;">Frequência (Nov):</span> <strong style="color: #4caf50;">85%</strong>
+                        <span style="color: #aaa;">Gráfico:</span> 
+                        <select id="selectGrafico" onchange="inicializarGraficoAluno(this.value)">
+                            <option value="AgachamentoLivre">Agachamento Livre</option>
+                            <option value="SupinoReto">Supino Reto</option>
+                            <option value="PuxadaFrontal">Puxada Frontal</option>
+                        </select>
                     </div>
                 </div>
 
@@ -180,23 +140,18 @@
                     <canvas id="chartAdmin"></canvas>
                 </div>
                 
-                <h3 style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">Últimas Medidas</h3>
+                <h3 style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">Últimas Medidas (Peso e Cintura)</h3>
                 <table style="width: 100%; text-align: left; font-size: 0.9em;">
-                    <tr style="color: #aaa;">
-                        <th>Data</th>
-                        <th>Peso</th>
-                        <th>Cintura</th>
-                    </tr>
-                    <tr>
-                        <td>19/11</td>
-                        <td>75.5 kg</td>
-                        <td>80 cm</td>
-                    </tr>
-                    <tr>
-                        <td>12/11</td>
-                        <td>76.0 kg</td>
-                        <td>81 cm</td>
-                    </tr>
+                    <thead>
+                        <tr style="color: #aaa;">
+                            <th>Data</th>
+                            <th>Peso</th>
+                            <th>Cintura</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-medidas-admin">
+                        <tr><td colspan="3">Nenhum aluno selecionado.</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -204,55 +159,332 @@
     </div>
 
     <script>
-        // --- SIMULAÇÃO DO GRÁFICO DO ALUNO ---
-        const ctx = document.getElementById('chartAdmin').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['01/11', '05/11', '10/11', '15/11', '19/11'],
-                datasets: [
-                    {
-                        label: 'Carga Supino (kg)',
-                        data: [20, 22, 22, 24, 25], // Dados simulados
-                        borderColor: '#00d4ff',
-                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Peso Corporal (kg)',
-                        data: [78, 77.5, 77, 76.2, 75.5], // Dados simulados
-                        borderColor: '#ff4081', // Rosa
-                        borderDash: [5, 5],
-                        tension: 0.4,
-                        yAxisID: 'y1'
+        // =================================================================
+        // === CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELAS SUAS CHAVES) ===
+        // =================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
+            authDomain: "ptf03-26fdb.firebaseapp.com",
+            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+            projectId: "ptf03-26fdb",
+            storageBucket: "ptf03-26fdb.firebaseapp.com",
+            messagingSenderId: "1020981883676",
+            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+        };
+
+        // Inicializa o Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // Caminhos principais
+        const CAMINHO_ALUNOS = 'alunos/';
+        let alunoSelecionadoNome = '';
+        let pesoChart; // Variável para o gráfico
+
+        // =================================================================
+        // === AUXILIARES E CONVERSÃO DE NOME ===
+        // =================================================================
+
+        /**
+         * Converte o nome legível (ex: "João da Silva") para o formato de chave do Firebase (ex: "João_da_Silva").
+         */
+        function formatarNomeParaChave(nome) {
+            if (!nome) return '';
+            // Converte para Title Case e substitui espaços por '_'
+            return nome.trim().split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join('_');
+        }
+
+        /**
+         * Retorna o caminho completo para o nó do Firebase do aluno selecionado.
+         */
+        function obterCaminhoAluno(childKey) {
+            const nomeFormatado = formatarNomeParaChave(alunoSelecionadoNome);
+            return `${CAMINHO_ALUNOS}${nomeFormatado}/${childKey}`;
+        }
+
+        // =================================================================
+        // === 1. CARREGAR LISTA DE ALUNOS (Inicialização) ===
+        // =================================================================
+
+        function carregarListaDeAlunos() {
+            const selectAluno = document.getElementById('selectAluno');
+            selectAluno.innerHTML = '<option disabled selected>Carregando...</option>';
+
+            // 1. Lê o nó principal 'alunos/' (todos os alunos)
+            database.ref(CAMINHO_ALUNOS).once('value', (snapshot) => {
+                const todosAlunos = snapshot.val();
+                selectAluno.innerHTML = ''; // Limpa o "Carregando..."
+                
+                if (!todosAlunos) {
+                    selectAluno.innerHTML = '<option disabled selected>Nenhum aluno encontrado.</option>';
+                    document.getElementById('editor-container').innerHTML = '<p style="color: #aaa;">Nenhum aluno registrado no banco de dados.</p>';
+                    return;
+                }
+
+                let primeiroAlunoNome = null;
+                
+                // Itera sobre os alunos no Firebase (a chave é o nome formatado)
+                for (const nomeAlunoFormatado in todosAlunos) {
+                    // Converte de volta para nome legível
+                    const nomeLegivel = nomeAlunoFormatado.replace(/_/g, ' '); 
+                    
+                    const option = document.createElement('option');
+                    option.value = nomeLegivel;
+                    option.textContent = nomeLegivel;
+                    selectAluno.appendChild(option);
+
+                    if (!primeiroAlunoNome) {
+                        primeiroAlunoNome = nomeLegivel;
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    y: { title: { display: true, text: 'Carga (kg)', color: '#aaa' }, ticks: { color: '#aaa' } },
-                    y1: { 
-                        position: 'right',
-                        grid: { drawOnChartArea: false },
-                        ticks: { color: '#ff4081' }
-                    },
-                    x: { ticks: { color: '#aaa' } }
-                },
-                plugins: { legend: { labels: { color: '#e0e0e0' } } }
-            }
-        });
+                }
+                
+                // 2. Seleciona o primeiro aluno e carrega seus dados
+                if (primeiroAlunoNome) {
+                    alunoSelecionadoNome = primeiroAlunoNome;
+                    selectAluno.value = primeiroAlunoNome;
+                    carregarDadosDoAlunoSelecionado();
+                }
+
+                // 3. Adiciona o listener de mudança
+                selectAluno.onchange = (e) => {
+                    alunoSelecionadoNome = e.target.value;
+                    carregarDadosDoAlunoSelecionado();
+                };
+                
+            }, (error) => {
+                selectAluno.innerHTML = `<option disabled>Erro ao carregar lista (${error.message})</option>`;
+                console.error("Erro ao carregar lista de alunos:", error);
+            });
+        }
+        
+        // =================================================================
+        // === 2. CARREGAR DADOS DO ALUNO SELECIONADO ===
+        // =================================================================
+
+        function carregarDadosDoAlunoSelecionado() {
+            if (!alunoSelecionadoNome) return;
+            
+            // 1. Carrega o treino do aluno selecionado (Dia A por padrão)
+            carregarTreinoDia();
+            
+            // 2. Carrega o histórico de medidas
+            carregarHistoricoMedidas();
+
+            // 3. Inicializa o gráfico (usaremos o valor do seletor)
+            const exercicioInicial = document.getElementById('selectGrafico').value;
+            inicializarGraficoAluno(exercicioInicial);
+            
+            // Atualiza o título
+            document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento de ${alunoSelecionadoNome.split(' ')[0]}`;
+        }
+        
+        // =================================================================
+        // === 3. EDIÇÃO E SALVAMENTO DO TREINO ===
+        // =================================================================
+
+        function carregarTreinoDia() {
+            const dia = document.getElementById('selectDia').value; // 'A', 'B' ou 'C'
+            const editorContainer = document.getElementById('editor-container');
+            editorContainer.innerHTML = 'Carregando treino...';
+            
+            // Caminho: alunos/{nome}/treinoModel/{dia}
+            const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
+
+            // Carrega o modelo de treino salvo
+            firebaseRef.once('value', (snapshot) => {
+                const treinoModel = snapshot.val();
+                
+                editorContainer.innerHTML = ''; // Limpa
+                
+                if (treinoModel && Array.isArray(treinoModel)) {
+                    // Renderiza os exercícios existentes
+                    treinoModel.forEach(exercicio => {
+                        adicionarLinhaExercicio(editorContainer, exercicio.nome, exercicio.series, exercicio.reps);
+                    });
+                } else {
+                    // Se não houver treino, adiciona uma linha vazia padrão
+                    adicionarLinhaExercicio(editorContainer, '', '', '');
+                }
+                
+                // Adiciona um botão para adicionar mais linhas
+                const btnAdd = document.createElement('button');
+                btnAdd.textContent = '➕ Adicionar Exercício';
+                btnAdd.onclick = () => adicionarLinhaExercicio(editorContainer, '', '', '');
+                btnAdd.style.cssText = 'padding: 8px; margin-top: 10px; background-color: #333; color: white; border: none; border-radius: 4px; cursor: pointer;';
+                editorContainer.appendChild(btnAdd);
+
+            }, (error) => {
+                editorContainer.innerHTML = `<p style="color: #dc3545;">Erro ao carregar treino: ${error.message}</p>`;
+            });
+        }
+
+        function adicionarLinhaExercicio(container, nome = '', series = '', reps = '') {
+            const row = document.createElement('div');
+            row.className = 'treino-row';
+            row.innerHTML = `
+                <div>
+                    <label>Exercício</label>
+                    <input type="text" class="input-exercicio" value="${nome}" placeholder="Nome do exercício">
+                </div>
+                <div>
+                    <label>Séries</label>
+                    <input type="text" class="input-series" value="${series}" placeholder="Ex: 4">
+                </div>
+                <div>
+                    <label>Reps</label>
+                    <input type="text" class="input-reps" value="${reps}" placeholder="Ex: 12">
+                </div>
+            `;
+            // Insere a nova linha antes do botão 'Adicionar Exercício' (se ele existir)
+            container.insertBefore(row, container.querySelector('button') || null);
+        }
 
         function salvarTreino() {
-            const aluno = document.getElementById('selectAluno').value;
+            if (!alunoSelecionadoNome) {
+                alert('Selecione um aluno primeiro.');
+                return;
+            }
+
             const dia = document.getElementById('selectDia').value;
+            const editorContainer = document.getElementById('editor-container');
+            const linhas = editorContainer.querySelectorAll('.treino-row');
             
-            // Em um app real, aqui enviaríamos os dados para o Banco de Dados (Firebase/MySQL)
-            alert(`✅ Treino ${dia} de ${aluno} atualizado com sucesso!\n\n(Nota: Como não temos banco de dados, isso é apenas uma simulação visual da interface do admin).`);
+            const novoTreino = [];
+            
+            linhas.forEach(linha => {
+                const exercicio = linha.querySelector('.input-exercicio').value.trim();
+                const series = linha.querySelector('.input-series').value.trim();
+                const reps = linha.querySelector('.input-reps').value.trim();
+
+                if (exercicio && series && reps) { // Apenas salva linhas preenchidas
+                    novoTreino.push({
+                        nome: exercicio,
+                        series: series,
+                        reps: reps
+                    });
+                }
+            });
+            
+            if (novoTreino.length === 0) {
+                 if (!confirm("Você está salvando um treino vazio. Deseja continuar? Isso apagará o treino atual do aluno para este dia.")) {
+                    return;
+                }
+            }
+
+            // Caminho: alunos/{nome}/treinoModel/{dia}
+            const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
+
+            firebaseRef.set(novoTreino)
+                .then(() => {
+                    alert(`✅ Treino ${dia} de ${alunoSelecionadoNome} atualizado e publicado com sucesso!`);
+                })
+                .catch((error) => {
+                    console.error("Erro ao salvar treino:", error);
+                    alert(`❌ Erro ao salvar treino: ${error.message}`);
+                });
         }
+        
+        // Listener para carregar o treino correto ao mudar o dia
+        document.getElementById('selectDia').addEventListener('change', carregarTreinoDia);
+
+
+        // =================================================================
+        // === 4. VISUALIZAÇÃO DE DADOS (Medidas e Gráfico) ===
+        // =================================================================
+
+        function carregarHistoricoMedidas() {
+            const tableBody = document.getElementById('tabela-medidas-admin');
+            tableBody.innerHTML = '<tr><td colspan="3">Carregando histórico...</td></tr>';
+            
+            // Caminho: alunos/{nome}/medidas/ (limita aos 10 últimos)
+            const firebaseRef = database.ref(obterCaminhoAluno('medidas')).limitToLast(10);
+
+            firebaseRef.once('value', (snapshot) => {
+                const medidas = snapshot.val();
+                tableBody.innerHTML = '';
+                
+                if (!medidas) {
+                    tableBody.innerHTML = '<tr><td colspan="3">Nenhum registro de medidas.</td></tr>';
+                    return;
+                }
+
+                // Inverte a ordem para mostrar o mais recente primeiro na tabela
+                const medidasArray = Object.values(medidas).reverse(); 
+                
+                medidasArray.forEach(m => {
+                    // Adaptação: mostra Data, Peso e Cintura
+                    const dataCurta = m.data ? m.data.substring(0, 5) : '?'; // DD/MM
+                    const row = tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${dataCurta}</td>
+                        <td>${m.pesoCorporal || '?'} kg</td>
+                        <td>${m.cintura || '?'} cm</td>
+                    `;
+                });
+            });
+        }
+
+        function inicializarGraficoAluno(exercicioKey) {
+            if (pesoChart) {
+                pesoChart.destroy();
+            }
+            
+            // Caminho: alunos/{nome}/cargas/{exercicioKey}
+            const exercicioPath = exercicioKey.replace(/ /g, '_'); // Ex: AgachamentoLivre
+            const firebaseRef = database.ref(obterCaminhoAluno('cargas') + exercicioPath);
+
+            firebaseRef.once('value', (snapshot) => {
+                const dadosSalvos = [];
+                snapshot.forEach(childSnapshot => {
+                    dadosSalvos.push(childSnapshot.val());
+                });
+
+                const labels = dadosSalvos.map(d => d.data.substring(0, 5)); // DD/MM
+                const pesos = dadosSalvos.map(d => d.peso);
+
+                const ctx = document.getElementById('chartAdmin').getContext('2d');
+                
+                pesoChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels.length > 0 ? labels : ['Data'],
+                        datasets: [{
+                            label: `Carga ${exercicioKey} (kg)`,
+                            data: pesos.length > 0 ? pesos : [0],
+                            borderColor: '#00d4ff',
+                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                            pointBackgroundColor: '#00d4ff',
+                            pointBorderColor: '#fff',
+                            tension: 0.4,
+                            fill: true,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                title: { display: true, text: 'Carga (kg)', color: '#aaa' }, 
+                                ticks: { color: '#aaa' } 
+                            },
+                            x: { ticks: { color: '#aaa' } }
+                        },
+                        plugins: { legend: { labels: { color: '#e0e0e0' } } }
+                    }
+                });
+            });
+        }
+
+
+        // =================================================================
+        // === INICIALIZAÇÃO ===
+        // =================================================================
+
+        document.addEventListener('DOMContentLoaded', carregarListaDeAlunos);
     </script>
 </body>
 </html>
