@@ -20,25 +20,56 @@
             color: #f0f0f0;
         }
 
-        /* ESTILOS DA LOGO */
-        .logo-container {
-            text-align: center;
+        /* NOVO: Contêiner para o logo e título principal (Ajuste Mobile) */
+        .header-content {
+            display: flex;
+            align-items: center;
+            /* Alinha verticalmente no centro */
+            justify-content: center;
+            /* Centraliza horizontalmente no desktop */
+            flex-wrap: wrap;
+            /* Permite quebrar a linha em telas pequenas */
             margin-bottom: 30px;
+            gap: 20px;
+            /* Espaço entre os itens */
+            text-align: center;
+            /* Garante que o texto fique centralizado quando quebra */
         }
 
-        .logo-container img {
-            max-width: 150px;
+        .header-content img {
+            max-width: 80px;
+            /* Ajustado para um tamanho menor ao lado do texto */
             height: auto;
             border-radius: 10px;
         }
 
-        /* Estilo para o H1 principal */
-        #main-title {
+        .header-content h1 {
             color: #ff8c00;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+            margin: 0;
+            /* Remove margens padrão do h1 */
+            font-size: 2.2em;
+            /* Ajustado para ficar proporcional */
+            line-height: 1.2;
         }
+
+        /* Ajuste para mobile: alinhar logo e título à esquerda */
+        @media (max-width: 767px) {
+            .header-content {
+                justify-content: flex-start;
+                /* Alinha à esquerda no mobile */
+                text-align: left;
+                /* Alinha o texto à esquerda */
+            }
+
+            .header-content h1 {
+                font-size: 1.8em;
+                /* Fonte menor no mobile */
+                width: 100%;
+                /* Ocupa a largura total abaixo do logo */
+                margin-top: 10px; /* Adiciona espaço entre logo e título quebrado */
+            }
+        }
+
 
         .container {
             max-width: 1200px;
@@ -128,7 +159,7 @@
         }
 
         /* --- Estilos de Cores (Laranja para títulos) --- */
-        h1,
+        /* Removido o h1 daqui, pois agora tem estilo próprio no .header-content h1 */
         h2 {
             color: #ff9933;
             margin-top: 0;
@@ -290,8 +321,9 @@
             margin-bottom: 20px;
         }
 
+        /* Lembrete: A imagem "logotipo.png" precisa estar no mesmo diretório */
         .modal-content img {
-            max-width: 100px;
+            max-width: 100px; 
             margin-bottom: 20px;
             border-radius: 5px;
         }
@@ -339,11 +371,11 @@
             <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
         </div>
     </div>
-    <div class="logo-container">
-        <img src="logotipo.png" alt="Logo PTF3">
-    </div>
 
-    <h1 id="main-title">💻Seja bem-vindo ao seu Espaço.</h1>
+    <div class="header-content">
+        <img src="logotipo.png" alt="Logo PTF3">
+        <h1 id="main-title">Seja bem-vindo ao seu Espaço.</h1>
+    </div>
 
     <div class="container">
 
@@ -595,7 +627,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                </tbody>
+                    </tbody>
             </table>
             <button class="reset-btn" onclick="resetarDados('treino_presenca')">Resetar Treino e Presença</button>
         </div>
@@ -603,9 +635,6 @@
     </div>
 
     <script>
-        /* ================================================= */
-        /* === INÍCIO DO JAVASCRIPT AVANÇADO (COM MODAL E DATA) === */
-        /* ================================================= */
         const STORAGE_KEY_TREINO = 'treinoProgresso';
         const STORAGE_KEY_PRESENCA = 'presencaMensal';
         const STORAGE_KEY_MEDIDAS = 'historicoMedidas';
@@ -637,6 +666,8 @@
             } else {
                 // Se o nome estiver salvo, exibe na página
                 document.getElementById('nome-aluno').textContent = nome;
+                // Atualiza o título principal
+                document.getElementById('main-title').textContent = `Seja bem-vindo(a), ${nome.split(' ')[0]}!`;
             }
         }
 
@@ -650,12 +681,12 @@
             let nomeInput = document.getElementById('nomeModalInput').value;
 
             if (nomeInput && nomeInput.trim() !== "") {
-                let nome = nomeInput.trim();
+                let nome = nomeInput.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '); // Capitaliza
                 localStorage.setItem(STORAGE_KEY_NOME, nome);
                 document.getElementById('nome-aluno').textContent = nome;
+                document.getElementById('main-title').textContent = `Seja bem-vindo(a), ${nome.split(' ')[0]}!`;
                 // Fecha o modal após salvar
                 document.getElementById('modal-nome').style.display = 'none';
-                alert(`Bem-vindo(a), ${nome}!`);
             } else {
                 alert('Por favor, digite seu nome para continuar.');
             }
@@ -781,36 +812,46 @@
                     datasets: [{
                         label: `Carga Máxima ${nomeExercicio} (kg)`,
                         data: chartData,
-                        borderColor: '#ff8c00',
-                        backgroundColor: 'rgba(255, 140, 0, 0.2)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: pesos.length > 0 ? 5 : 0, // Oculta o ponto de dado se não houver registros
+                        borderColor: '#ff8c00', // Laranja Sólido
+                        backgroundColor: 'rgba(255, 140, 0, 0.4)', // Laranja com transparência
+                        pointBackgroundColor: '#ff8c00', // Laranja Sólido
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#ff8c00',
+                        borderWidth: 3,
+                        tension: 0.4, // Curva suave na linha
+                        fill: true, // Preenche a área abaixo da linha
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: false, // Permite que o chart container defina a altura
                     scales: {
                         y: {
-                            beginAtZero: true, // Começa em zero para gráficos sem dados
+                            beginAtZero: true,
                             title: {
                                 display: true,
                                 text: 'Peso (kg)',
                                 color: '#f0f0f0'
                             },
                             ticks: {
-                                color: '#f0f0f0'
+                                color: '#f0f0f0',
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         },
                         x: {
-                            ticks: {
+                            title: {
+                                display: true,
+                                text: 'Data',
                                 color: '#f0f0f0'
                             },
-                            // Oculta o rótulo 'Data' se for o placeholder
+                            ticks: {
+                                color: '#f0f0f0',
+                            },
                             grid: {
-                                display: pesos.length > 0,
+                                color: 'rgba(255, 255, 255, 0.1)'
                             }
                         }
                     },
@@ -823,215 +864,186 @@
                     }
                 }
             });
-
-            // NOVO: Adiciona texto de aviso quando não há dados
-            if (pesos.length === 0) {
-                // Posiciona o texto no centro do canvas
-                const centerX = (pesoChart.chartArea.left + pesoChart.chartArea.right) / 2;
-                const centerY = (pesoChart.chartArea.top + pesoChart.chartArea.bottom) / 2;
-
-                ctx.save();
-                ctx.font = '20px Arial';
-                ctx.fillStyle = '#ff9933';
-                ctx.textAlign = 'center';
-                ctx.fillText('NENHUM REGISTRO DE CARGA', centerX, centerY);
-                ctx.restore();
-            }
         }
 
         function adicionarPeso() {
-            const input = document.getElementById('pesoInput');
-            const novoPeso = parseFloat(input.value);
+            const pesoInput = document.getElementById('pesoInput');
+            const peso = parseFloat(pesoInput.value);
 
-            if (isNaN(novoPeso) || novoPeso <= 0) {
-                alert('Por favor, insira um peso válido.');
+            if (isNaN(peso) || peso <= 0) {
+                alert('Por favor, insira um peso válido e positivo.');
                 return;
             }
 
             const exercicioKey = obterExercicioSelecionado();
             const storageKey = STORAGE_KEYS_PESO[exercicioKey];
-            const nomeExercicio = document.querySelector(`#seletorExercicio option[value="${exercicioKey}"]`).textContent;
 
             const hoje = new Date();
-            // Formata a data para DD/MM
-            const dia = String(hoje.getDate()).padStart(2, '0');
-            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-            const dataFormatada = `${dia}/${mes}`;
+            const dataFormatada = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}`;
 
             let dadosSalvos = JSON.parse(localStorage.getItem(storageKey)) || [];
 
+            // Adiciona o novo registro (peso e data)
             dadosSalvos.push({
                 data: dataFormatada,
-                peso: novoPeso
+                peso: peso
             });
 
-            // Limita a exibição dos últimos 16 registros
-            if (dadosSalvos.length > 16) {
-                dadosSalvos = dadosSalvos.slice(dadosSalvos.length - 16);
-            }
-
             localStorage.setItem(storageKey, JSON.stringify(dadosSalvos));
-            input.value = '';
-            inicializarGrafico();
-            alert(`Peso de ${novoPeso}kg registrado para ${nomeExercicio}!`);
+            pesoInput.value = ''; // Limpa o campo
+            inicializarGrafico(); // Atualiza o gráfico
         }
 
-        // --- FUNÇÕES DE CONTROLE DE PRESENÇA, TREINO, ETC. ---
 
-        function gerarCalendario() {
+        // --- FUNÇÕES DE CONTROLE DE PRESENÇA E TREINO CONCLUÍDO ---
+
+        function inicializarTabelaPresenca() {
             const hoje = new Date();
-            const ano = hoje.getFullYear();
-            const mes = hoje.getMonth(); // 0 a 11
-            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-            const primeiroDiaSemana = new Date(ano, mes, 1).getDay(); // 0 (Dom) a 6 (Sáb)
+            // A data atual é 21 de Novembro de 2025. Para fins de demonstração,
+            // usaremos Novembro de 2025.
+            const mesAtual = 10; // 0 (Janeiro) a 11 (Dezembro). Novembro é 10.
+            const anoAtual = 2025;
+            
+            // Pega o primeiro dia do mês (0: Domingo, 1: Segunda, etc.)
+            const primeiroDiaMes = new Date(anoAtual, mesAtual, 1).getDay();
+            // Pega o último dia do mês (último dia de Novembro/2025 é 30)
+            const ultimoDiaMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
 
-            let tabelaCorpo = document.querySelector('#tabela-presenca tbody');
-            tabelaCorpo.innerHTML = '';
+            const tabela = document.getElementById('tabela-presenca').getElementsByTagName('tbody')[0];
+            tabela.innerHTML = ''; // Limpa a tabela
 
-            // CORREÇÃO: Garante que JSON.parse() está sendo usado corretamente.
-            const presencasSalvas = JSON.parse(localStorage.getItem(STORAGE_KEY_PRESENCA)) || {};
-            let diaDoMes = 1;
+            let linha = tabela.insertRow();
+            let diaContador = 1;
 
-            for (let i = 0; i < 6; i++) {
-                let linha = tabelaCorpo.insertRow();
-                for (let j = 0; j < 7; j++) {
-                    let celula = linha.insertCell();
+            // Insere células vazias até o primeiro dia do mês
+            for (let i = 0; i < primeiroDiaMes; i++) {
+                linha.insertCell();
+            }
 
-                    if (i === 0 && j < primeiroDiaSemana) {
-                        celula.innerHTML = '';
-                    } else if (diaDoMes <= diasNoMes) {
-                        // Data no formato AAAA-M-D para salvar no localStorage
-                        const dataCompleta = `${ano}-${mes + 1}-${diaDoMes}`;
-                        celula.innerHTML = diaDoMes;
-                        celula.dataset.data = dataCompleta;
-                        celula.onclick = function () {
-                            // Alternar presença
-                            alternarPresenca(this, dataCompleta);
-                        };
+            // Carrega os dados de presença salvos
+            let presencaSalva = JSON.parse(localStorage.getItem(STORAGE_KEY_PRESENCA)) || {};
 
-                        if (presencasSalvas[dataCompleta]) {
-                            celula.classList.add('presente');
-                        }
-
-                        diaDoMes++;
-                    } else {
-                        celula.innerHTML = '';
-                    }
+            // Preenche os dias do mês
+            for (let i = 1; i <= ultimoDiaMes; i++) {
+                if (linha.cells.length === 7) {
+                    linha = tabela.insertRow();
                 }
-                if (diaDoMes > diasNoMes) break;
+
+                const celula = linha.insertCell();
+                celula.textContent = i;
+                celula.dataset.dia = i;
+
+                // Formata a chave no LocalStorage (Ex: 21-11-2025)
+                const chaveData = `${i}-${mesAtual + 1}-${anoAtual}`;
+
+                if (presencaSalva[chaveData]) {
+                    celula.classList.add('presente');
+                }
+
+                // Adiciona o evento de clique para marcar/desmarcar
+                celula.onclick = function () {
+                    marcarPresenca(chaveData, this);
+                };
+
+                diaContador++;
             }
         }
 
-        function alternarPresenca(celula, dataCompleta) {
-            celula.classList.toggle('presente');
-
-            let presencasSalvas = JSON.parse(localStorage.getItem(STORAGE_KEY_PRESENCA)) || {};
+        function marcarPresenca(chaveData, celula) {
+            let presencaSalva = JSON.parse(localStorage.getItem(STORAGE_KEY_PRESENCA)) || {};
 
             if (celula.classList.contains('presente')) {
-                presencasSalvas[dataCompleta] = true;
+                // Desmarca
+                celula.classList.remove('presente');
+                delete presencaSalva[chaveData];
             } else {
-                delete presencasSalvas[dataCompleta];
+                // Marca
+                celula.classList.add('presente');
+                presencaSalva[chaveData] = true;
             }
 
-            localStorage.setItem(STORAGE_KEY_PRESENCA, JSON.stringify(presencasSalvas));
+            localStorage.setItem(STORAGE_KEY_PRESENCA, JSON.stringify(presencaSalva));
         }
 
         function marcarConcluido(checkbox) {
-            const item = checkbox.closest('.exercicio-item');
-            const exercicioKey = item.dataset.exercicio;
+            const exercicioItem = checkbox.closest('.exercicio-item');
+            const exercicioNome = exercicioItem.dataset.exercicio;
+            const treinoDia = document.getElementById('seletorTreino').value;
+            const concluido = checkbox.checked;
 
-            if (checkbox.checked) {
-                item.classList.add('concluido');
+            if (concluido) {
+                exercicioItem.classList.add('concluido');
             } else {
-                item.classList.remove('concluido');
+                exercicioItem.classList.remove('concluido');
             }
 
             let progresso = JSON.parse(localStorage.getItem(STORAGE_KEY_TREINO)) || {};
-            progresso[exercicioKey] = checkbox.checked;
+            if (!progresso[treinoDia]) {
+                progresso[treinoDia] = {};
+            }
+
+            progresso[treinoDia][exercicioNome] = concluido;
             localStorage.setItem(STORAGE_KEY_TREINO, JSON.stringify(progresso));
         }
 
         function carregarProgressoTreino() {
-            const progressoSalvo = JSON.parse(localStorage.getItem(STORAGE_KEY_TREINO));
+            const treinoDia = document.getElementById('seletorTreino').value;
+            const progresso = JSON.parse(localStorage.getItem(STORAGE_KEY_TREINO)) || {};
+            const progressoDoDia = progresso[treinoDia] || {};
 
-            if (!progressoSalvo) return;
+            // Pega a lista de exercícios visível (do dia A, B ou C)
+            const listaExercicios = document.querySelector(`#treino-${treinoDia} .lista-treino`);
 
-            const todosItens = document.querySelectorAll('.exercicio-item');
-            todosItens.forEach(item => {
-                const exercicioKey = item.dataset.exercicio;
-
-                if (progressoSalvo.hasOwnProperty(exercicioKey)) {
-                    const estaConcluido = progressoSalvo[exercicioKey];
+            if (listaExercicios) {
+                listaExercicios.querySelectorAll('.exercicio-item').forEach(item => {
+                    const exercicioNome = item.dataset.exercicio;
                     const checkbox = item.querySelector('input[type="checkbox"]');
 
-                    if (checkbox) {
-                        checkbox.checked = estaConcluido;
-                        if (estaConcluido) {
-                            item.classList.add('concluido');
-                        } else {
-                            item.classList.remove('concluido');
-                        }
+                    if (progressoDoDia[exercicioNome]) {
+                        item.classList.add('concluido');
+                        checkbox.checked = true;
+                    } else {
+                        item.classList.remove('concluido');
+                        checkbox.checked = false;
                     }
-                }
-            });
+                });
+            }
         }
 
-        // --- FUNÇÃO DE RESET (Limpa dados específicos) ---
+        // --- FUNÇÃO GLOBAL DE RESET ---
 
         function resetarDados(tipo) {
-            let mensagem = "";
-            let keys_to_remove = [];
-            let keys_to_reset = [];
-
-            // Determina quais chaves serão removidas com base no tipo
-            if (tipo === 'medidas') {
-                mensagem = "Tem certeza que deseja apagar o histórico de MEDIDAS CORPORAIS?";
-                keys_to_remove = [STORAGE_KEY_MEDIDAS];
-                keys_to_reset = [carregarUltimasMedidas];
-            } else if (tipo === 'carga') {
-                mensagem = "Tem certeza que deseja apagar o histórico de CARGA para TODOS os exercícios?";
-                // Adiciona todas as chaves de peso dos exercícios
-                keys_to_remove = Object.values(STORAGE_KEYS_PESO);
-                keys_to_reset = [inicializarGrafico];
-            } else if (tipo === 'treino_presenca') {
-                mensagem = "Tem certeza que deseja apagar o histórico de TREINO e PRESENÇA?";
-                keys_to_remove = [STORAGE_KEY_TREINO, STORAGE_KEY_PRESENCA];
-                keys_to_reset = [alternarTreino, gerarCalendario];
-            } else {
-                // Fallback para resetar TUDO
-                mensagem = "Tem certeza que deseja apagar TODOS os dados de progresso (Nome, Peso, Medidas, Presença e Treino) do aluno?";
-                keys_to_remove = [STORAGE_KEY_NOME, STORAGE_KEY_TREINO, STORAGE_KEY_PRESENCA, STORAGE_KEY_MEDIDAS, ...Object.values(STORAGE_KEYS_PESO)];
-                keys_to_reset = [obterNomeAluno, exibirDataAtual, alternarTreino, gerarCalendario, inicializarGrafico, carregarUltimasMedidas];
+            if (!confirm(`Tem certeza que deseja resetar o histórico de ${tipo}? Esta ação é irreversível.`)) {
+                return;
             }
 
-            if (confirm(mensagem)) {
-                // 1. Remove os dados do localStorage
-                keys_to_remove.forEach(key => {
-                    localStorage.removeItem(key);
-                });
-
-                // 2. Recarrega o estado visual dos elementos afetados
-                keys_to_reset.forEach(func => {
-                    // Chama a função de recarregamento
-                    func();
-                });
-
-                alert("Dados resetados com sucesso!");
+            if (tipo === 'carga') {
+                Object.values(STORAGE_KEYS_PESO).forEach(key => localStorage.removeItem(key));
+                inicializarGrafico();
+                alert('Histórico de carga resetado com sucesso.');
+            } else if (tipo === 'treino_presenca') {
+                localStorage.removeItem(STORAGE_KEY_TREINO);
+                localStorage.removeItem(STORAGE_KEY_PRESENCA);
+                carregarProgressoTreino(); // Limpa checkboxes
+                inicializarTabelaPresenca(); // Limpa presença
+                alert('Progresso de treino e presença resetados com sucesso.');
+            } else if (tipo === 'medidas') {
+                localStorage.removeItem(STORAGE_KEY_MEDIDAS);
+                carregarUltimasMedidas();
+                alert('Histórico de medidas resetado com sucesso.');
             }
         }
 
-        // === INICIALIZAÇÃO ===
-        window.onload = function () {
-            obterNomeAluno();
-            exibirDataAtual(); // Garante que a data atual seja exibida
-            gerarCalendario();
+        // --- FUNÇÃO PRINCIPAL DE INICIALIZAÇÃO ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            obterNomeAluno(); // Verifica o nome ou abre o modal
+            exibirDataAtual();
+            alternarTreino(); // Carrega o primeiro dia de treino (Dia A) e o progresso
+            inicializarGrafico(); // Inicializa o gráfico de Agachamento Livre
+            inicializarTabelaPresenca();
             carregarUltimasMedidas();
-            inicializarGrafico();
-            alternarTreino();
-        };
-        /* ================================================= */
-        /* === FIM DO JAVASCRIPT === */
-        /* ================================================= */
+        });
     </script>
 </body>
 
