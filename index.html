@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -200,12 +199,13 @@
             margin-bottom: 10px;
             align-items: center;
             /* Melhoria no alinhamento */
-            flex-wrap: nowrap; 
+            flex-wrap: nowrap;
         }
 
         .input-group label {
             width: 80px;
-            flex-shrink: 0; /* Impede que o label diminua */
+            flex-shrink: 0;
+            /* Impede que o label diminua */
         }
 
         .input-group input[type="number"] {
@@ -310,36 +310,89 @@
             <div id="treino-Dia A" class="lista-treino-dia">
                 <h3>Dia A: Peito, Ombros e Tríceps</h3>
                 <ul id="lista-treino-a" class="lista-treino" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" data-exercicio="Supino Reto">
+
+                    <li class="exercicio-item" data-exercicio="Esteira">
                         <div class="exercicio-info">
-                            <strong>Supino Reto com Barra</strong>
-                            <span>4 Séries de 10 Repetições | Intervalo: 60s</span>
+                            <strong>Esteira</strong>
+                            <span>30 Minutos | 1 Vez</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this)">
                         </div>
                     </li>
-                    <li class="exercicio-item" data-exercicio="Agachamento Livre">
+
+                    <li class="exercicio-item" data-exercicio="SupinoInclinadoHalteres">
                         <div class="exercicio-info">
-                            <strong>Agachamento Livre</strong>
-                            <span>4 Séries de 8 Repetições | Intervalo: 90s</span>
+                            <strong>Supino Inclinado c/ Halteres</strong>
+                            <span>4 Séries de 12 Repetições | Intervalo: 90s</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this)">
                         </div>
                     </li>
-                    <li class="exercicio-item" data-exercicio="Tríceps Pulley">
+
+                    <li class="exercicio-item" data-exercicio="CrucifixoInclinado">
                         <div class="exercicio-info">
-                            <strong>Tríceps Pulley</strong>
-                            <span>3 Séries de 15 Repetições | Intervalo: 45s</span>
+                            <strong>Crucifixo Inclinado c/ Halteres</strong>
+                            <span>4 Séries de 12 Repetições | Intervalo: 60s</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this)">
                         </div>
                     </li>
+
+                    <li class="exercicio-item" data-exercicio="CrossOver">
+                        <div class="exercicio-info">
+                            <strong>Cross Over</strong>
+                            <span>4 Séries de 12 Repetições | Intervalo: 60s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+
+                    <li class="exercicio-item" data-exercicio="TricepsCorda">
+                        <div class="exercicio-info">
+                            <strong>Tríceps Corda (Pulley)</strong>
+                            <span>4 Séries de 12 Repetições | Intervalo: 45s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+
+                    <li class="exercicio-item" data-exercicio="TricepsBarrinha">
+                        <div class="exercicio-info">
+                            <strong>Tríceps c/ Barra Reta (Pulley)</strong>
+                            <span>4 Séries de 12 Repetições | Intervalo: 45s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+
+                    <li class="exercicio-item" data-exercicio="TricepsSentado">
+                        <div class="exercicio-info">
+                            <strong>Tríceps Testa Sentado c/ Halteres</strong>
+                            <span>4 Séries de 12 Repetições | Intervalo: 45s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+
+                    <li class="exercicio-item" data-exercicio="AbsSupra">
+                        <div class="exercicio-info">
+                            <strong>Abdominal Supra</strong>
+                            <span>5 Séries de 20 Repetições | Intervalo: 30s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
+
                 </ul>
             </div>
-
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
                 <h3>Dia B: Costas e Bíceps</h3>
                 <ul id="lista-treino-b" class="lista-treino" style="list-style: none; padding: 0;">
@@ -351,18 +404,16 @@
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this)">
                         </div>
-                    </li> 
-                </li class="exercicio-item" data-exercicio="Puxada Frontal">
-<li class="exercicio-item" data-exercicio="Remada Curvada">
-    <div class="exercicio-info">
-        <strong>Remada Curvada com Barra</strong>
-        <span>4 Séries de 10 Repetições | Intervalo: 90s</span>
-    </div>
-    <div class="checkbox-container">
-        <input type="checkbox" onchange="marcarConcluido(this)">
-    </div>
-</li>
-<li class="exercicio-item" data-exercicio="Remada Cavalinho">
+                    </li>
+                    <li class="exercicio-item" data-exercicio="Remada Curvada">
+                        <div class="exercicio-info">
+                            <strong>Remada Curvada com Barra</strong>
+                            <span>4 Séries de 10 Repetições | Intervalo: 90s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this)">
+                        </div>
+                    </li>
                     <li class="exercicio-item" data-exercicio="Remada Cavalinho">
                         <div class="exercicio-info">
                             <strong>Remada Cavalinho</strong>
@@ -555,7 +606,7 @@
             if (pesoChart) {
                 pesoChart.destroy();
             }
-            
+
             // CORREÇÃO: Usar rótulo 'Sem Dados' se a lista estiver vazia para forçar o desenho do gráfico
             const chartLabels = labels.length > 0 ? labels : ['Data'];
             const chartData = pesos.length > 0 ? pesos : [0]; // Garante que o gráfico desenhe o eixo Y em zero
@@ -767,30 +818,28 @@
                 localStorage.removeItem(STORAGE_KEYS_PESO['SupinoReto']);
                 localStorage.removeItem(STORAGE_KEYS_PESO['PuxadaFrontal']);
 
-
-                carregarProgressoTreino();
-                inicializarGrafico();
+                // Recarrega o estado visual
+                alternarTreino();
                 gerarCalendario();
-                carregarUltimasMedidas(); // Atualiza a área de medidas
-                alert("Dados resetados com sucesso!");
+                inicializarGrafico();
+                carregarUltimasMedidas();
+
+                alert("Todos os dados foram resetados!");
             }
         }
 
-        // --- INICIALIZAÇÃO GERAL ---
-
+        // === INICIALIZAÇÃO ===
         window.onload = function () {
-            carregarProgressoTreino();
-            alternarTreino();
-            inicializarGrafico();
             gerarCalendario();
-            carregarUltimasMedidas(); // CARREGA O ÚLTIMO REGISTRO AO INICIAR
+            carregarUltimasMedidas();
+            inicializarGrafico();
+            // Carrega o progresso após o treino A já estar visível
+            alternarTreino(); 
         };
-
         /* ================================================= */
-        /* === FIM DO JAVASCRIPT AVANÇADO === */
+        /* === FIM DO JAVASCRIPT === */
         /* ================================================= */
     </script>
-
 </body>
 
 </html>
