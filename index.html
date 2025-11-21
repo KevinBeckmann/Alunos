@@ -117,11 +117,13 @@
             padding-right: 30px;
         }
 
-        /* NOVO: ESTILO PARA AS OPÇÕES DENTRO DO SELETOR (para escurecer o fundo) */
+        /* ESTILO PARA AS OPÇÕES DENTRO DO SELETOR (para escurecer o fundo) */
         #seletorExercicio option,
         #seletorTreino option {
-            background-color: #1a1a1a; /* Fundo escuro para as opções */
-            color: #f0f0f0; /* Texto claro nas opções */
+            background-color: #1a1a1a;
+            /* Fundo escuro para as opções */
+            color: #f0f0f0;
+            /* Texto claro nas opções */
             border: none;
         }
 
@@ -237,6 +239,24 @@
             background-color: #e0a800;
         }
 
+        /* --- ESTILOS DOS BOTÕES DE RESET --- */
+        .card button.reset-btn {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .card button.reset-btn:hover {
+            background-color: #c9302c;
+        }
+
+
         /* --- ESTILOS DO MODAL PERSONALIZADO --- */
         .modal-overlay {
             position: fixed;
@@ -343,6 +363,8 @@
                 <input type="number" id="pesoInput" placeholder="Peso (kg)" step="0.5">
                 <button onclick="adicionarPeso()">Registrar Carga</button>
             </div>
+
+            <button class="reset-btn" onclick="resetarDados('carga')">Resetar Histórico de Carga</button>
         </div>
 
         <div id="medidas-card" class="card">
@@ -372,6 +394,9 @@
             <div id="ultimasMedidas" style="font-size: 0.9em;">
                 Nenhum registro encontrado.
             </div>
+
+            <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
+
         </div>
 
         <div id="treino-card" class="card">
@@ -572,9 +597,7 @@
                 <tbody>
                 </tbody>
             </table>
-            <button
-                style="margin-top: 15px; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;"
-                onclick="resetarDados()">Resetar Dados (Peso e Presença)</button>
+            <button class="reset-btn" onclick="resetarDados('treino_presenca')">Resetar Treino e Presença</button>
         </div>
 
     </div>
@@ -865,6 +888,7 @@
             let tabelaCorpo = document.querySelector('#tabela-presenca tbody');
             tabelaCorpo.innerHTML = '';
 
+            // CORREÇÃO: Garante que JSON.parse() está sendo usado corretamente.
             const presencasSalvas = JSON.parse(localStorage.getItem(STORAGE_KEY_PRESENCA)) || {};
             let diaDoMes = 1;
 
@@ -952,30 +976,47 @@
             });
         }
 
-        // --- FUNÇÃO DE RESET (Limpa todos os dados) ---
+        // --- FUNÇÃO DE RESET (Limpa dados específicos) ---
 
-        function resetarDados() {
-            if (confirm("Tem certeza que deseja apagar TODOS os dados de progresso (Nome, Peso, Medidas, Presença e Treino) do aluno?")) {
-                // Remove dados do aluno e progresso
-                localStorage.removeItem(STORAGE_KEY_NOME);
-                localStorage.removeItem(STORAGE_KEY_TREINO);
-                localStorage.removeItem(STORAGE_KEY_PRESENCA);
-                localStorage.removeItem(STORAGE_KEY_MEDIDAS);
+        function resetarDados(tipo) {
+            let mensagem = "";
+            let keys_to_remove = [];
+            let keys_to_reset = [];
 
-                // Remove dados de peso por exercício
-                localStorage.removeItem(STORAGE_KEYS_PESO['AgachamentoLivre']);
-                localStorage.removeItem(STORAGE_KEYS_PESO['SupinoReto']);
-                localStorage.removeItem(STORAGE_KEYS_PESO['PuxadaFrontal']);
+            // Determina quais chaves serão removidas com base no tipo
+            if (tipo === 'medidas') {
+                mensagem = "Tem certeza que deseja apagar o histórico de MEDIDAS CORPORAIS?";
+                keys_to_remove = [STORAGE_KEY_MEDIDAS];
+                keys_to_reset = [carregarUltimasMedidas];
+            } else if (tipo === 'carga') {
+                mensagem = "Tem certeza que deseja apagar o histórico de CARGA para TODOS os exercícios?";
+                // Adiciona todas as chaves de peso dos exercícios
+                keys_to_remove = Object.values(STORAGE_KEYS_PESO);
+                keys_to_reset = [inicializarGrafico];
+            } else if (tipo === 'treino_presenca') {
+                mensagem = "Tem certeza que deseja apagar o histórico de TREINO e PRESENÇA?";
+                keys_to_remove = [STORAGE_KEY_TREINO, STORAGE_KEY_PRESENCA];
+                keys_to_reset = [alternarTreino, gerarCalendario];
+            } else {
+                // Fallback para resetar TUDO
+                mensagem = "Tem certeza que deseja apagar TODOS os dados de progresso (Nome, Peso, Medidas, Presença e Treino) do aluno?";
+                keys_to_remove = [STORAGE_KEY_NOME, STORAGE_KEY_TREINO, STORAGE_KEY_PRESENCA, STORAGE_KEY_MEDIDAS, ...Object.values(STORAGE_KEYS_PESO)];
+                keys_to_reset = [obterNomeAluno, exibirDataAtual, alternarTreino, gerarCalendario, inicializarGrafico, carregarUltimasMedidas];
+            }
 
-                // Recarrega o estado visual
-                obterNomeAluno(); // Força a re-entrada do nome
-                exibirDataAtual();
-                alternarTreino();
-                gerarCalendario();
-                inicializarGrafico();
-                carregarUltimasMedidas();
+            if (confirm(mensagem)) {
+                // 1. Remove os dados do localStorage
+                keys_to_remove.forEach(key => {
+                    localStorage.removeItem(key);
+                });
 
-                alert("Todos os dados foram resetados!");
+                // 2. Recarrega o estado visual dos elementos afetados
+                keys_to_reset.forEach(func => {
+                    // Chama a função de recarregamento
+                    func();
+                });
+
+                alert("Dados resetados com sucesso!");
             }
         }
 
