@@ -21,6 +21,27 @@
 
         h1, h2 { color: #00d4ff; text-align: center; } 
         
+        /* NOVO: Estilo para o cabeçalho com logo e texto */
+        .main-header {
+            display: flex; /* Para alinhar o logo e o texto na mesma linha */
+            align-items: center; /* Centraliza verticalmente */
+            justify-content: center; /* Centraliza horizontalmente */
+            margin-bottom: 20px;
+        }
+
+        .main-header img {
+            max-width: 40px; /* Tamanho do logo ao lado do texto */
+            height: auto;
+            margin-right: 10px; /* Espaçamento entre o logo e o texto */
+        }
+
+        .main-header h1 {
+            margin: 0; /* Remove margem padrão do h1 */
+            color: #00d4ff;
+            font-size: 2em; /* Ajuste o tamanho da fonte conforme necessário */
+        }
+
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -30,7 +51,7 @@
         }
 
         @media (min-width: 1024px) {
-            .container { grid-template-columns: 1fr 2fr; } /* Editor menor, Gráficos maior */
+            .container { grid-template-columns: 1fr 2fr; }
         }
 
         .card {
@@ -78,11 +99,20 @@
             padding-bottom: 10px;
             border-bottom: 1px dashed #333;
         }
+
+        /* Estilos para a lista de frequência */
+        #lista-presenca li {
+            padding: 5px 0;
+            border-bottom: 1px dotted #333;
+        }
     </style>
 </head>
 <body>
 
-    <h1>🛡️ Painel do Personal</h1>
+    <div class="main-header">
+        <img src="imagens/logo.png" alt="Logo do Personal" />
+        <h1>Painel do Personal</h1>
+    </div>
 
     <div class="container">
         
@@ -145,13 +175,22 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2>📅 Frequência e Presença</h2>
+                <div id="status-frequencia" style="color: #00d4ff; font-weight: bold; margin-bottom: 15px;">
+                    Selecione um aluno para ver o histórico.
+                </div>
+                <ul id="lista-presenca" style="list-style-type: none; padding: 0;">
+                    </ul>
+            </div>
+            </div>
 
     </div>
 
     <script>
         // =================================================================
-        // === CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELAS SUAS CHAVES) ===
+        // === CONFIGURAÇÃO DO FIREBASE (SUAS CHAVES) ===
         // =================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
@@ -163,40 +202,31 @@
             appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
         };
 
-        // Inicializa o Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // Caminhos principais
         const CAMINHO_ALUNOS = 'alunos/';
         let alunoSelecionadoNome = '';
-        let pesoChart; // Variável para o gráfico
+        let pesoChart;
 
         // =================================================================
         // === AUXILIARES E CONVERSÃO DE NOME ===
         // =================================================================
 
-        /**
-         * Converte o nome legível (ex: "João da Silva") para o formato de chave do Firebase (ex: "João_da_Silva").
-         */
         function formatarNomeParaChave(nome) {
             if (!nome) return '';
-            // Converte para Title Case e substitui espaços por '_'
             return nome.trim().split(' ')
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                 .join('_');
         }
 
-        /**
-         * Retorna o caminho completo para o nó do Firebase do aluno selecionado.
-         */
         function obterCaminhoAluno(childKey) {
-            const nomeFormatado = formatarNomeParaChave(alunoSelecionadoNome);
+            const nomeFormatado = formatarNomeParaChave(alunoSelecionadoNome); 
             return `${CAMINHO_ALUNOS}${nomeFormatado}/${childKey}`;
         }
 
         // =================================================================
-        // === 1. CARREGAR LISTA DE ALUNOS (Inicialização) ===
+        // === 1. CARREGAR LISTA DE ALUNOS ===
         // =================================================================
 
         function carregarListaDeAlunos() {
@@ -252,17 +282,13 @@
         function carregarDadosDoAlunoSelecionado() {
             if (!alunoSelecionadoNome) return;
             
-            // 1. Carrega o treino do aluno selecionado (Dia A por padrão)
             carregarTreinoDia();
-            
-            // 2. Carrega o histórico de medidas
             carregarHistoricoMedidas();
-
-            // 3. Inicializa o gráfico (usaremos o valor do seletor)
+            carregarHistoricoPresenca(); 
+            
             const exercicioInicial = document.getElementById('selectGrafico').value;
             inicializarGraficoAluno(exercicioInicial);
             
-            // Atualiza o título
             document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento de ${alunoSelecionadoNome.split(' ')[0]}`;
         }
         
@@ -271,30 +297,24 @@
         // =================================================================
 
         function carregarTreinoDia() {
-            const dia = document.getElementById('selectDia').value; // 'A', 'B' ou 'C'
+            const dia = document.getElementById('selectDia').value;
             const editorContainer = document.getElementById('editor-container');
             editorContainer.innerHTML = 'Carregando treino...';
             
-            // Caminho: alunos/{nome}/treinoModel/{dia}
             const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
 
-            // Carrega o modelo de treino salvo
             firebaseRef.once('value', (snapshot) => {
                 const treinoModel = snapshot.val();
-                
-                editorContainer.innerHTML = ''; // Limpa
+                editorContainer.innerHTML = '';
                 
                 if (treinoModel && Array.isArray(treinoModel)) {
-                    // Renderiza os exercícios existentes
                     treinoModel.forEach(exercicio => {
                         adicionarLinhaExercicio(editorContainer, exercicio.nome, exercicio.series, exercicio.reps);
                     });
                 } else {
-                    // Se não houver treino, adiciona uma linha vazia
                     adicionarLinhaExercicio(editorContainer, '', '', '');
                 }
                 
-                // Adiciona um botão para adicionar mais linhas
                 const btnAdd = document.createElement('button');
                 btnAdd.textContent = '➕ Adicionar Exercício';
                 btnAdd.onclick = () => adicionarLinhaExercicio(editorContainer, '', '', '');
@@ -333,8 +353,7 @@
             }
 
             const dia = document.getElementById('selectDia').value;
-            const editorContainer = document.getElementById('editor-container');
-            const linhas = editorContainer.querySelectorAll('.treino-row');
+            const linhas = document.getElementById('editor-container').querySelectorAll('.treino-row');
             
             const novoTreino = [];
             
@@ -343,12 +362,8 @@
                 const series = linha.querySelector('.input-series').value.trim();
                 const reps = linha.querySelector('.input-reps').value.trim();
 
-                if (exercicio && series && reps) { // Apenas salva linhas preenchidas
-                    novoTreino.push({
-                        nome: exercicio,
-                        series: series,
-                        reps: reps
-                    });
+                if (exercicio && series && reps) {
+                    novoTreino.push({ nome: exercicio, series: series, reps: reps });
                 }
             });
             
@@ -358,7 +373,6 @@
                 }
             }
 
-            // Caminho: alunos/{nome}/treinoModel/{dia}
             const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
 
             firebaseRef.set(novoTreino)
@@ -371,7 +385,6 @@
                 });
         }
         
-        // Listener para carregar o treino correto ao mudar o dia
         document.getElementById('selectDia').addEventListener('change', carregarTreinoDia);
 
 
@@ -383,7 +396,6 @@
             const tableBody = document.getElementById('tabela-medidas-admin');
             tableBody.innerHTML = '<tr><td colspan="3">Carregando histórico...</td></tr>';
             
-            // Caminho: alunos/{nome}/medidas/ (limita aos 10 últimos)
             const firebaseRef = database.ref(obterCaminhoAluno('medidas')).limitToLast(10);
 
             firebaseRef.once('value', (snapshot) => {
@@ -395,11 +407,10 @@
                     return;
                 }
 
-                // Inverte a ordem para mostrar o mais recente primeiro na tabela
                 const medidasArray = Object.values(medidas).reverse(); 
                 
                 medidasArray.forEach(m => {
-                    const dataCurta = m.data ? m.data.substring(0, 5) : '?'; // DD/MM
+                    const dataCurta = m.data ? m.data.substring(0, 5) : '?';
                     const row = tableBody.insertRow();
                     row.innerHTML = `
                         <td>${dataCurta}</td>
@@ -415,8 +426,7 @@
                 pesoChart.destroy();
             }
             
-            // Caminho: alunos/{nome}/cargas/{exercicioKey}
-            const exercicioPath = exercicioKey.replace(/ /g, '_'); // Ex: AgachamentoLivre
+            const exercicioPath = exercicioKey.replace(/ /g, '_');
             const firebaseRef = database.ref(obterCaminhoAluno('cargas') + exercicioPath);
 
             firebaseRef.once('value', (snapshot) => {
@@ -425,7 +435,7 @@
                     dadosSalvos.push(childSnapshot.val());
                 });
 
-                const labels = dadosSalvos.map(d => d.data.substring(0, 5)); // DD/MM
+                const labels = dadosSalvos.map(d => d.data.substring(0, 5));
                 const pesos = dadosSalvos.map(d => d.peso);
 
                 const ctx = document.getElementById('chartAdmin').getContext('2d');
@@ -460,6 +470,50 @@
                         plugins: { legend: { labels: { color: '#e0e0e0' } } }
                     }
                 });
+            });
+        }
+        
+        // =================================================================
+        // === 5. CARREGAR FREQUÊNCIA ===
+        // =================================================================
+
+        function carregarHistoricoPresenca() {
+            const listaPresenca = document.getElementById('lista-presenca');
+            const statusDiv = document.getElementById('status-frequencia');
+            listaPresenca.innerHTML = '';
+            statusDiv.textContent = 'Carregando frequência...';
+            
+            if (!alunoSelecionadoNome) {
+                statusDiv.textContent = 'Selecione um aluno para ver o histórico.';
+                return;
+            }
+            
+            const firebaseRef = database.ref(obterCaminhoAluno('presenca'));
+
+            firebaseRef.once('value', (snapshot) => {
+                const presenca = snapshot.val();
+                
+                if (!presenca) {
+                    statusDiv.textContent = '⚠️ Nenhum registro de presença encontrado.';
+                    return;
+                }
+
+                const datas = Object.keys(presenca);
+                
+                statusDiv.textContent = `✅ Total de Presenças Registradas: ${datas.length} vezes`;
+                
+                datas.reverse().forEach(chaveData => {
+                    const dataLegivel = chaveData.replace(/-/g, '/'); 
+                    
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span style="display: flex; justify-content: space-between;">
+                            <span>✅ Data:</span> <span>${dataLegivel}</span>
+                        </span>
+                    `;
+                    listaPresenca.appendChild(li);
+                });
+
             });
         }
 
