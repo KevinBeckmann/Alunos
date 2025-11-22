@@ -10,6 +10,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+
     <style>
         /* ================================================= */
         /* === INÍCIO DO CSS: DARK MODE, 3 COLUNAS E RESPONSIVO === */
@@ -20,6 +21,20 @@
             padding: 20px;
             background-color: #000000;
             color: #f0f0f0;
+        }
+
+        /* Navegação Simples */
+        nav {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        nav a {
+            color: #ff8c00;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        nav a:hover {
+            text-decoration: underline;
         }
 
         .header-content {
@@ -45,7 +60,6 @@
             line-height: 1.2;
         }
 
-        /* Ajuste para mobile: alinhar logo e título à esquerda */
         @media (max-width: 767px) {
             .header-content {
                 justify-content: flex-start;
@@ -58,7 +72,6 @@
                 margin-top: 10px;
             }
         }
-
 
         .container {
             max-width: 1200px;
@@ -84,8 +97,6 @@
             margin-bottom: 20px;
         }
 
-
-        /* NOVO: Estilo para o CARD de Medidas */
         #medidas-card {
             order: 2;
         }
@@ -95,7 +106,6 @@
             .container {
                 grid-template-columns: 1fr 1fr;
             }
-
             #chart-card {
                 grid-column: 1 / 3;
                 order: 1;
@@ -107,14 +117,13 @@
             .container {
                 grid-template-columns: 1fr 1fr 1fr;
             }
-
             #chart-card {
                 grid-column: auto;
                 order: initial;
             }
         }
 
-        /* ESTILOS DOS SELECTS */
+        /* SELECTS */
         #seletorExercicio,
         #seletorTreino {
             padding: 8px;
@@ -126,15 +135,13 @@
             width: 100%;
             box-sizing: border-box;
             font-size: 1em;
-            /* Melhoria visual (removendo estilo nativo e adicionando seta) */
             appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg fill="#ff9933" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23ff9933" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
             background-repeat: no-repeat;
             background-position: right 8px center;
             padding-right: 30px;
         }
 
-        /* ESTILO PARA AS OPÇÕES DENTRO DO SELETOR (para escurecer o fundo) */
         #seletorExercicio option,
         #seletorTreino option {
             background-color: #1a1a1a;
@@ -142,7 +149,6 @@
             border: none;
         }
 
-        /* --- Estilos de Cores (Laranja para títulos) --- */
         h2 {
             color: #ff9933;
             margin-top: 0;
@@ -150,9 +156,10 @@
         }
 
         #treino-card h2 {
-            margin-top: 30px;
+            margin-top: 0; /* Ajustado */
         }
 
+        /* TREINO LISTA */
         .exercicio-item {
             display: flex;
             justify-content: space-between;
@@ -181,17 +188,17 @@
         }
 
         .concluido {
-            background-color: #387038;
-            opacity: 0.7;
+            background-color: rgba(56, 112, 56, 0.5); /* Verde escuro transparente */
             text-decoration: line-through;
             color: #a0a0a0;
         }
 
-        /* --- Estilos da Tabela de Presença --- */
+        /* TABELA PRESENÇA */
         .presenca-table {
             width: 100%;
             border-collapse: collapse;
             text-align: center;
+            margin-top: 10px;
         }
 
         .presenca-table th,
@@ -204,11 +211,12 @@
 
         .presenca-table th {
             background-color: #ff8c00;
-            color: white;
+            color: #000;
+            font-weight: bold;
         }
 
         .presente {
-            background-color: #5cb85c !important;
+            background-color: #28a745 !important;
             color: white;
         }
 
@@ -216,7 +224,7 @@
             background-color: rgba(255, 255, 255, 0.15);
         }
 
-        /* Input para registrar peso e medidas */
+        /* INPUTS */
         .input-group {
             display: flex;
             gap: 10px;
@@ -226,9 +234,10 @@
         }
 
         .input-group label {
-            width: 95px; /* Ajustado para acomodar os novos rótulos */
+            width: 110px; 
             flex-shrink: 0;
             font-size: 0.9em;
+            color: #ccc;
         }
 
         .input-group input[type="number"] {
@@ -238,6 +247,7 @@
             flex-grow: 1;
             background-color: rgba(255, 255, 255, 0.1);
             color: #f0f0f0;
+            width: 100%;
         }
 
         .input-group button {
@@ -247,6 +257,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-weight: bold;
             transition: background-color 0.3s;
         }
 
@@ -254,11 +265,11 @@
             background-color: #e0a800;
         }
 
-        /* --- ESTILOS DOS BOTÕES DE RESET --- */
+        /* RESET BUTTONS */
         .card button.reset-btn {
             margin-top: 15px;
             padding: 10px;
-            background-color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.8);
             color: white;
             border: none;
             border-radius: 4px;
@@ -271,8 +282,7 @@
             background-color: #c9302c;
         }
 
-
-        /* --- ESTILOS DO MODAL PERSONALIZADO --- */
+        /* MODAL */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -287,14 +297,14 @@
         }
 
         .modal-content {
-            background-color: #0d0d0d;
+            background-color: #1a1a1a;
             padding: 30px;
             border-radius: 12px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
             text-align: center;
-            border: 2px solid #ff8c00;
+            border: 1px solid #ff8c00;
         }
 
         .modal-content h3 {
@@ -310,24 +320,27 @@
 
         #nomeModalInput {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ff8c00;
             border-radius: 4px;
             background-color: #333;
             color: #f0f0f0;
             box-sizing: border-box;
             margin-bottom: 20px;
+            font-size: 1.1em;
         }
 
         #botaoSalvarNome {
             background-color: #ff8c00;
             color: #000;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 1em;
             transition: background-color 0.3s;
+            width: 100%;
         }
 
         #botaoSalvarNome:hover {
@@ -340,15 +353,14 @@
     </style>
 </head>
 
-<body onload="obterNomeAluno()"> 
+<body onload="obterNomeAluno()">
 
- <nav>
-<a href="professor03.html">Acessar a Página do Professor</a>
-</nav>
+    <nav>
+        <a href="professor03.html">Acessar Área do Professor</a>
+    </nav>
 
     <div id="modal-nome" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <img src="logotipo.png" alt="Logo PTF3">
             <h3>Bem-vindo(a) ao seu Dashboard!</h3>
             <p>Por favor, insira seu nome para personalizarmos sua área:</p>
             <input type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva">
@@ -357,35 +369,36 @@
     </div>
 
     <div class="header-content">
-        <img src="logotipo.png" alt="Logo PTF3">
         <h1 id="main-title">Seja bem-vindo ao seu Espaço.</h1>
     </div>
 
     <div class="container">
 
         <div id="chart-card" class="card">
-            <h2>📈 Progressão de Carga (Agachamento Livre)</h2>
+            <h2>📈 Progressão de Carga</h2>
 
             <label for="seletorExercicio">Visualizar Exercício:</label>
             <select id="seletorExercicio" onchange="inicializarGrafico()">
                 <option value="AgachamentoLivre">Agachamento Livre</option>
                 <option value="SupinoReto">Supino Reto</option>
                 <option value="PuxadaFrontal">Puxada Frontal</option>
+                <option value="LevantamentoTerra">Levantamento Terra</option>
             </select>
             <div class="chart-container">
                 <canvas id="pesoChart"></canvas>
             </div>
             <div class="input-group">
-                <input type="number" id="pesoInput" placeholder="Peso (kg)" step="0.5">
-                <button onclick="adicionarPeso()">Registrar Carga</button>
+                <label for="pesoInput">Carga (kg):</label>
+                <input type="number" id="pesoInput" placeholder="Ex: 20" step="0.5">
+                <button onclick="adicionarPeso()">Registrar</button>
             </div>
 
-            <button class="reset-btn" onclick="resetarDados('cargas')">Resetar Histórico de Carga</button>
+            <button class="reset-btn" onclick="resetarDados('cargas')">Resetar Histórico deste Exercício</button>
         </div>
 
         <div id="medidas-card" class="card">
             <h2>📏 Registro de Medidas</h2>
-            <p style="margin-bottom: 15px;">Acompanhe sua evolução corporal.</p>
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc;">Acompanhe sua evolução corporal.</p>
 
             <div class="input-group">
                 <label for="pesoCorporalInput">Peso Corp. (kg)</label>
@@ -418,48 +431,45 @@
             </div>
 
             <div class="input-group">
-                <label for="panturrilhaInput">Panturrilha D. (cm)</label>
+                <label for="panturrilhaInput">Panturrilha (cm)</label>
                 <input type="number" id="panturrilhaInput" placeholder="Ex: 40" step="0.5">
             </div>
 
             <div class="input-group">
-                <label for="antebracoInput">Antebraço D. (cm)</label>
+                <label for="antebracoInput">Antebraço (cm)</label>
                 <input type="number" id="antebracoInput" placeholder="Ex: 30" step="0.5">
             </div>
             <div class="input-group">
-                <button onclick="registrarMedidas()" style="flex-grow: 1;">Registrar Medidas</button>
+                <button onclick="registrarMedidas()" style="width:100%">Salvar Medidas</button>
             </div>
 
-            <h3 style="margin-top: 15px; color: #ff9933;">Últimos Registros</h3>
-            <div id="ultimasMedidas" style="font-size: 0.9em;">
-                Nenhum registro encontrado.
+            <hr style="border-color: rgba(255,255,255,0.1);">
+            <h3 style="margin-top: 15px; color: #ff9933; font-size: 1.1em;">Último Registro:</h3>
+            <div id="ultimasMedidas" style="font-size: 0.9em; line-height: 1.6;">
+                <em style="color: #999;">Nenhum registro encontrado.</em>
             </div>
 
-            <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
-
+            <button class="reset-btn" onclick="resetarDados('medidas')">Apagar Todas Medidas</button>
         </div>
 
         <div id="treino-card" class="card">
-            <h2>🏋️ Treino de Força</h2>
+            <h2>🏋️ Treino do Dia</h2>
 
-            <label for="seletorTreino">Selecionar Dia:</label>
+            <label for="seletorTreino">Selecionar Ficha:</label>
             <select id="seletorTreino" onchange="alternarTreino()">
-                <option value="Dia A">Dia A</option>
-                <option value="Dia B">Dia B</option>
-                <option value="Dia C">Dia C</option>
+                <option value="Dia A">Dia A - Peito/Ombro/Tríceps</option>
+                <option value="Dia B">Dia B - Costas/Bíceps</option>
+                <option value="Dia C">Dia C - Pernas</option>
             </select>
-            <hr style="border-color: rgba(255, 255, 255, 0.2);">
+            <hr style="border-color: rgba(255, 255, 255, 0.2); margin: 20px 0;">
 
-            <p>
-                <strong>Aluno(a):</strong> <span id="nome-aluno">Carregando...</span>
-                |
+            <p style="font-size: 0.9em;">
+                <strong>Aluno:</strong> <span id="nome-aluno" style="color: #ff8c00;">...</span><br>
                 <strong>Data:</strong> <span id="data-atual"></span>
             </p>
 
             <div id="treino-Dia A" class="lista-treino-dia">
-                <h3>Dia A: Peito, Ombros e Tríceps</h3>
                 <ul id="lista-treino-a" class="lista-treino" style="list-style: none; padding: 0;">
-
                     <li class="exercicio-item" data-exercicio="Esteira">
                         <div class="exercicio-info">
                             <strong>Esteira</strong>
@@ -469,87 +479,33 @@
                             <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'Esteira')">
                         </div>
                     </li>
-
-                    <li class="exercicio-item" data-exercicio="SupinoInclinadoHalteres">
+                    <li class="exercicio-item" data-exercicio="SupinoInclinado">
                         <div class="exercicio-info">
-                            <strong>Supino Inclinado c/ Halteres</strong>
-                            <span>4 Séries de 12 Repetições | Intervalo: 90s</span>
+                            <strong>Supino Inclinado</strong>
+                            <span>4x12 | 90s</span>
                         </div>
                         <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'SupinoInclinadoHalteres')">
+                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'SupinoInclinado')">
                         </div>
                     </li>
-
-                    <li class="exercicio-item" data-exercicio="CrucifixoInclinado">
+                    <li class="exercicio-item" data-exercicio="Crucifixo">
                         <div class="exercicio-info">
-                            <strong>Crucifixo Inclinado c/ Halteres</strong>
-                            <span>4 Séries de 12 Repetições | Intervalo: 60s</span>
+                            <strong>Crucifixo</strong>
+                            <span>4x12 | 60s</span>
                         </div>
                         <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'CrucifixoInclinado')">
+                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'Crucifixo')">
                         </div>
                     </li>
-
-                    <li class="exercicio-item" data-exercicio="CrossOver">
-                        <div class="exercicio-info">
-                            <strong>Cross Over</strong>
-                            <span>4 Séries de 12 Repetições | Intervalo: 60s</span>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'CrossOver')">
-                        </div>
-                    </li>
-
-                    <li class="exercicio-item" data-exercicio="TricepsCorda">
-                        <div class="exercicio-info">
-                            <strong>Tríceps Corda (Pulley)</strong>
-                            <span>4 Séries de 12 Repetições | Intervalo: 45s</span>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'TricepsCorda')">
-                        </div>
-                    </li>
-
-                    <li class="exercicio-item" data-exercicio="TricepsBarrinha">
-                        <div class="exercicio-info">
-                            <strong>Tríceps c/ Barra Reta (Pulley)</strong>
-                            <span>4 Séries de 12 Repetições | Intervalo: 45s</span>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'TricepsBarrinha')">
-                        </div>
-                    </li>
-
-                    <li class="exercicio-item" data-exercicio="TricepsSentado">
-                        <div class="exercicio-info">
-                            <strong>Tríceps Testa Sentado c/ Halteres</strong>
-                            <span>4 Séries de 12 Repetições | Intervalo: 45s</span>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'TricepsSentado')">
-                        </div>
-                    </li>
-
-                    <li class="exercicio-item" data-exercicio="AbsSupra">
-                        <div class="exercicio-info">
-                            <strong>Abdominal Supra</strong>
-                            <span>5 Séries de 20 Repetições | Intervalo: 30s</span>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'AbsSupra')">
-                        </div>
-                    </li>
-
                 </ul>
             </div>
 
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
-                <h3>Dia B: Costas e Bíceps</h3>
                 <ul id="lista-treino-b" class="lista-treino" style="list-style: none; padding: 0;">
                     <li class="exercicio-item" data-exercicio="PuxadaFrontal">
                         <div class="exercicio-info">
-                            <strong>Puxada Frontal (Máquina)</strong>
-                            <span>4 Séries de 12 Repetições | Intervalo: 60s</span>
+                            <strong>Puxada Frontal</strong>
+                            <span>4x12 | 60s</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this, 'Dia B', 'PuxadaFrontal')">
@@ -557,26 +513,17 @@
                     </li>
                     <li class="exercicio-item" data-exercicio="RemadaCurvada">
                         <div class="exercicio-info">
-                            <strong>Remada Curvada com Barra</strong>
-                            <span>4 Séries de 10 Repetições | Intervalo: 90s</span>
+                            <strong>Remada Curvada</strong>
+                            <span>4x10 | 90s</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this, 'Dia B', 'RemadaCurvada')">
                         </div>
                     </li>
-                    <li class="exercicio-item" data-exercicio="RemadaCavalinho">
+                     <li class="exercicio-item" data-exercicio="RoscaDireta">
                         <div class="exercicio-info">
-                            <strong>Remada Cavalinho</strong>
-                            <span>4 Séries de 10 Repetições | Intervalo: 90s</span>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia B', 'RemadaCavalinho')">
-                        </div>
-                    </li>
-                    <li class="exercicio-item" data-exercicio="RoscaDireta">
-                        <div class="exercicio-info">
-                            <strong>Rosca Direta com Barra</strong>
-                            <span>3 Séries de 12 Repetições | Intervalo: 45s</span>
+                            <strong>Rosca Direta</strong>
+                            <span>3x12 | 45s</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this, 'Dia B', 'RoscaDireta')">
@@ -586,30 +533,29 @@
             </div>
 
             <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
-                <h3>Dia C: Pernas (Ênfase Quadríceps)</h3>
                 <ul id="lista-treino-c" class="lista-treino" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" data-exercicio="Extensora">
-                        <div class="exercicio-info">
-                            <strong>Cadeira Extensora</strong>
-                            <span>5 Séries de 15 Repetições | Intervalo: 45s</span>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia C', 'Extensora')">
-                        </div>
-                    </li>
                     <li class="exercicio-item" data-exercicio="LegPress">
                         <div class="exercicio-info">
                             <strong>Leg Press 45°</strong>
-                            <span>4 Séries de 10 Repetições | Intervalo: 90s</span>
+                            <span>4x10 | 90s</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this, 'Dia C', 'LegPress')">
                         </div>
                     </li>
-                    <li class="exercicio-item" data-exercicio="Panturrilha">
+                    <li class="exercicio-item" data-exercicio="CadeiraExtensora">
                         <div class="exercicio-info">
-                            <strong>Elevação de Panturrilha em Pé</strong>
-                            <span>4 Séries de 15 Repetições | Intervalo: 60s</span>
+                            <strong>Cadeira Extensora</strong>
+                            <span>4x15 | 60s</span>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this, 'Dia C', 'CadeiraExtensora')">
+                        </div>
+                    </li>
+                     <li class="exercicio-item" data-exercicio="Panturrilha">
+                        <div class="exercicio-info">
+                            <strong>Panturrilha em Pé</strong>
+                            <span>4x15 | 60s</span>
                         </div>
                         <div class="checkbox-container">
                             <input type="checkbox" onchange="marcarConcluido(this, 'Dia C', 'Panturrilha')">
@@ -622,29 +568,33 @@
 
         <div id="presenca-card" class="card">
             <h2>🗓️ Presença Mensal</h2>
-            <p>Clique nas datas para marcar sua presença/falta.</p>
+            <p style="font-size: 0.9em; color: #ccc;">Clique no dia para marcar presença.</p>
             <table class="presenca-table" id="tabela-presenca">
                 <thead>
                     <tr>
-                        <th>Dom</th>
-                        <th>Seg</th>
-                        <th>Ter</th>
-                        <th>Qua</th>
-                        <th>Qui</th>
-                        <th>Sex</th>
-                        <th>Sáb</th>
+                        <th>D</th>
+                        <th>S</th>
+                        <th>T</th>
+                        <th>Q</th>
+                        <th>Q</th>
+                        <th>S</th>
+                        <th>S</th>
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody id="calendario-body">
+                    </tbody>
             </table>
-            <button class="reset-btn" onclick="resetarDados('treino_presenca')">Resetar Treino e Presença</button>
+            <div style="margin-top: 10px; font-size: 0.8em; text-align: center; color: #888;">
+                * Exibindo mês atual
+            </div>
         </div>
 
     </div>
 
     <script>
-        // CONFIGURAÇÃO OBTIDA DO SEU CONSOLE FIREBASE
+        // ==========================================================
+        // CONFIGURAÇÃO FIREBASE
+        // ==========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
@@ -659,71 +609,31 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // CHAVES FIREBASE: Usamos o nome do aluno como o nó principal no banco de dados.
-        const FIREBASE_PATH_USUARIO = 'alunos/'; // Caminho base: alunos/{nome do aluno}
-        const FIREBASE_CHILDS = {
-            TREINO: '/treino/',
-            PRESENCA: '/presenca/',
-            MEDIDAS: '/medidas/',
-            CARGAS: '/cargas/'
-        };
-
-        // Chaves locais (ainda usadas para o nome e mapeamento de exercícios)
+        // Variáveis Globais
         const STORAGE_KEY_NOME = 'nomeAluno';
-        const STORAGE_KEYS_PESO = {
+        const FIREBASE_PATH_USUARIO = 'alunos/';
+        let alunoNome = '';
+        let pesoChart;
+
+        // Mapeamento para nomes no banco
+        const EXERCICIO_KEYS = {
             'AgachamentoLivre': 'agachamentoLivre',
             'SupinoReto': 'supinoReto',
             'PuxadaFrontal': 'puxadaFrontal',
+            'LevantamentoTerra': 'levantamentoTerra'
         };
 
-        let pesoChart;
-        let alunoNome = ''; // Variável para armazenar o nome após o modal
-
-        // =================================================================
-        // === FUNÇÕES DE INFRAESTRUTURA E AUXILIARES ===
-        // =================================================================
-
-        /**
-         * Retorna o caminho completo para o nó do Firebase para o aluno logado.
-         * Ex: 'alunos/Joao_Silva/medidas/'
-         */
-        function obterCaminhoAluno(childKey) {
-            const nome = localStorage.getItem(STORAGE_KEY_NOME) || 'Anonimo';
-            // Substitui espaços por _ para usar como chave de nó do Firebase
-            const nomeFormatado = nome.replace(/\s/g, '_');
-            return `${FIREBASE_PATH_USUARIO}${nomeFormatado}${childKey}`;
-        }
-
-        function obterExercicioSelecionado() {
-            return document.getElementById('seletorExercicio').value;
-        }
-
-        function getDataAtualFormatada(date = new Date()) {
-            const dia = String(date.getDate()).padStart(2, '0');
-            const mes = String(date.getMonth() + 1).padStart(2, '0');
-            const ano = date.getFullYear();
-            return `${dia}/${mes}/${ano}`;
-        }
-        
-        function exibirDataAtual() {
-            document.getElementById('data-atual').textContent = getDataAtualFormatada();
-        }
-
-        // =================================================================
-        // === CONTROLE DO NOME DO ALUNO (COM MODAL) ===
-        // =================================================================
+        // ==========================================================
+        // 1. GESTÃO DE NOME E INICIALIZAÇÃO
+        // ==========================================================
 
         function obterNomeAluno() {
             alunoNome = localStorage.getItem(STORAGE_KEY_NOME);
-
             if (!alunoNome) {
                 abrirModalNome();
-                document.getElementById('nome-aluno').textContent = "Aguardando seu nome...";
+                document.getElementById('nome-aluno').textContent = "...";
             } else {
-                document.getElementById('nome-aluno').textContent = alunoNome;
-                document.getElementById('main-title').textContent = `Seja bem-vindo(a), ${alunoNome.split(' ')[0]}!`;
-
-                // CHAMA FUNÇÕES DE LEITURA DO FIREBASE APÓS OBTER O NOME
+                atualizarInterfaceUsuario();
                 inicializarApp();
             }
         }
@@ -735,299 +645,229 @@
 
         function salvarNomeModal() {
             let nomeInput = document.getElementById('nomeModalInput').value;
-
             if (nomeInput && nomeInput.trim() !== "") {
+                // Formata para Primeira Letra Maiúscula
                 alunoNome = nomeInput.trim().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
                 localStorage.setItem(STORAGE_KEY_NOME, alunoNome);
-                document.getElementById('nome-aluno').textContent = alunoNome;
-                document.getElementById('main-title').textContent = `Seja bem-vindo(a), ${alunoNome.split(' ')[0]}!`;
                 document.getElementById('modal-nome').style.display = 'none';
-
-                // CHAMA FUNÇÕES DE LEITURA DO FIREBASE APÓS OBTER O NOME
+                
+                atualizarInterfaceUsuario();
                 inicializarApp();
             } else {
-                alert('Por favor, digite seu nome para continuar.');
+                alert('Por favor, digite seu nome.');
             }
         }
-        
-        // =================================================================
-        // === FUNÇÃO DE INICIALIZAÇÃO PRINCIPAL ===
-        // =================================================================
-        
-        function inicializarApp() {
+
+        function atualizarInterfaceUsuario() {
+            document.getElementById('nome-aluno').textContent = alunoNome;
+            document.getElementById('main-title').textContent = `Olá, ${alunoNome.split(' ')[0]}!`;
             exibirDataAtual();
-            // Inicia todas as leituras de dados do Firebase
-            inicializarGrafico(); 
-            carregarUltimasMedidas(); 
-            alternarTreino(); 
-            gerarCalendario(); 
         }
 
-        // =================================================================
-        // === PROGRESSÃO DE CARGA (GRÁFICO) - FIREBASE ===
-        // =================================================================
+        function exibirDataAtual() {
+            const date = new Date();
+            document.getElementById('data-atual').textContent = date.toLocaleDateString('pt-BR');
+        }
+
+        function inicializarApp() {
+            inicializarGrafico();
+            carregarUltimasMedidas();
+            alternarTreino(); // Carrega o estado dos checkboxes
+            gerarCalendario();
+        }
+
+        function getFirebasePath(subPath) {
+            const nomeSanitized = alunoNome.replace(/[.#$/\[\]]/g, '_'); // Remove caracteres inválidos
+            return `${FIREBASE_PATH_USUARIO}${nomeSanitized}/${subPath}`;
+        }
+
+        // ==========================================================
+        // 2. GRÁFICOS (CHART.JS) E CARGAS
+        // ==========================================================
 
         function inicializarGrafico() {
-            const exercicioKey = obterExercicioSelecionado();
-            const exercicioPath = STORAGE_KEYS_PESO[exercicioKey];
-            const nomeExercicio = document.querySelector(`#seletorExercicio option[value="${exercicioKey}"]`).textContent;
-            document.querySelector('#chart-card h2').innerHTML = `📈 Progressão de Carga (${nomeExercicio})`;
+            const exercicioSelect = document.getElementById('seletorExercicio');
+            const exercicioKey = exercicioSelect.value;
+            const exercicioNome = exercicioSelect.options[exercicioSelect.selectedIndex].text;
+            const dbPath = getFirebasePath(`cargas/${EXERCICIO_KEYS[exercicioKey]}`);
 
-            if (!alunoNome) return; 
+            document.querySelector('#chart-card h2').innerHTML = `📈 Carga: ${exercicioNome}`;
 
-            // 1. OBTÉM A REFERÊNCIA NO FIREBASE
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.CARGAS) + exercicioPath);
+            // Listener em tempo real
+            database.ref(dbPath).on('value', (snapshot) => {
+                const dados = [];
+                snapshot.forEach(child => dados.push(child.val()));
 
-            // 2. ESCUTA POR MUDANÇAS EM TEMPO REAL
-            firebaseRef.on('value', (snapshot) => {
-                const dadosSalvos = [];
-                // Transforma o objeto de registros do Firebase em um array
-                snapshot.forEach(childSnapshot => {
-                    dadosSalvos.push(childSnapshot.val());
-                });
+                // Prepara dados
+                const labels = dados.map(d => d.data);
+                const values = dados.map(d => d.peso);
 
-                // 3. PROCESSA OS DADOS PARA O GRÁFICO
-                const labels = dadosSalvos.map(d => d.data);
-                const pesos = dadosSalvos.map(d => d.peso);
-
-                const ctx = document.getElementById('pesoChart').getContext('2d');
-
-                if (pesoChart) {
-                    pesoChart.destroy();
-                }
-
-                const chartLabels = labels.length > 0 ? labels : ['Data'];
-                const chartData = pesos.length > 0 ? pesos : [0];
-
-                // 4. INICIALIZA O GRÁFICO (com tema Dark Mode)
-                pesoChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [{
-                            label: `Carga Máxima ${nomeExercicio} (kg)`,
-                            data: chartData,
-                            borderColor: '#ff8c00',
-                            backgroundColor: 'rgba(255, 140, 0, 0.4)',
-                            pointBackgroundColor: '#ff8c00',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: '#ff8c00',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: true,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#f0f0f0' // Cor da legenda (texto)
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Peso (kg)',
-                                    color: '#f0f0f0' // Cor do título do eixo Y
-                                },
-                                ticks: {
-                                    color: '#f0f0f0' // Cor dos números do eixo Y
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.2)' // Cor das linhas de grade Y
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Data',
-                                    color: '#f0f0f0' // Cor do título do eixo X
-                                },
-                                ticks: {
-                                    color: '#f0f0f0' // Cor dos rótulos (datas) do eixo X
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.2)' // Cor das linhas de grade X
-                                }
-                            }
-                        }
-                    }
-                });
-            }); 
-        } 
-
-        function adicionarPeso() {
-            const peso = parseFloat(document.getElementById('pesoInput').value);
-            const exercicioKey = obterExercicioSelecionado();
-            const exercicioPath = STORAGE_KEYS_PESO[exercicioKey];
-            const dataAtual = getDataAtualFormatada();
-
-            if (isNaN(peso) || peso <= 0) {
-                alert('Por favor, insira um peso válido.');
-                return;
-            }
-
-            if (!alunoNome) {
-                alert('Por favor, defina seu nome primeiro.');
-                return;
-            }
-
-            // Cria a referência no Firebase para o exercicio
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.CARGAS) + exercicioPath);
-
-            // Salva o novo registro no Firebase, gerando uma chave única (push)
-            firebaseRef.push({
-                peso: peso,
-                data: dataAtual
-            })
-            .then(() => {
-                alert(`Carga de ${peso}kg registrada com sucesso para ${exercicioKey}!`);
-                document.getElementById('pesoInput').value = ''; 
-                // O gráfico é atualizado automaticamente pelo listener
-            })
-            .catch((error) => {
-                console.error("Erro ao registrar peso no Firebase: ", error);
-                alert('Erro ao salvar dados. Verifique o console.');
+                renderizarChart(labels, values, exercicioNome);
             });
         }
 
-        // =================================================================
-        // === REGISTRO DE MEDIDAS - FIREBASE ===
-        // =================================================================
+        function renderizarChart(labels, dataValues, labelName) {
+            const ctx = document.getElementById('pesoChart').getContext('2d');
 
-        function registrarMedidas() {
-            if (!alunoNome) {
-                alert('Por favor, defina seu nome primeiro no modal.');
-                return;
+            if (pesoChart) {
+                pesoChart.destroy();
             }
 
-            // 1. Coleta os valores dos inputs (incluindo os novos)
-            const pesoCorporal = parseFloat(document.getElementById('pesoCorporalInput').value);
-            const cintura = parseFloat(document.getElementById('cinturaInput').value);
-            const braco = parseFloat(document.getElementById('bracoInput').value);
-            const torax = parseFloat(document.getElementById('toraxInput').value);
-            const abdomen = parseFloat(document.getElementById('abdomenInput').value);
-            const coxa = parseFloat(document.getElementById('coxaInput').value);
-            const panturrilha = parseFloat(document.getElementById('panturrilhaInput').value);
-            const antebraco = parseFloat(document.getElementById('antebracoInput').value);
+            pesoChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length ? labels : ['Início'],
+                    datasets: [{
+                        label: 'Peso (kg)',
+                        data: dataValues.length ? dataValues : [0],
+                        borderColor: '#ff8c00',
+                        backgroundColor: 'rgba(255, 140, 0, 0.2)',
+                        pointBackgroundColor: '#ff8c00',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f0f0f0' } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#ccc' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        }
+                    }
+                }
+            });
+        }
 
-            const dataAtual = getDataAtualFormatada();
+        function adicionarPeso() {
+            const peso = document.getElementById('pesoInput').value;
+            const exercicioKey = document.getElementById('seletorExercicio').value;
 
-            // 2. Validação simples: pelo menos o peso corporal deve ser preenchido
-            if (isNaN(pesoCorporal) || pesoCorporal <= 0) {
-                alert('O Peso Corporal é obrigatório para o registro.');
-                return;
-            }
+            if (!peso) return alert("Digite o peso!");
 
-            // 3. Objeto de dados
-            const medidasRegistro = {
-                data: dataAtual,
-                pesoCorporal: pesoCorporal,
-                cintura: cintura || null, 
-                braco: braco || null,
-                torax: torax || null,
-                abdomen: abdomen || null,
-                coxa: coxa || null,
-                panturrilha: panturrilha || null,
-                antebraco: antebraco || null
+            const novoRegistro = {
+                data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                peso: parseFloat(peso)
             };
 
-            // 4. Salva no Firebase, gerando uma chave única (push) no nó /medidas/
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS));
-
-            firebaseRef.push(medidasRegistro)
+            const dbPath = getFirebasePath(`cargas/${EXERCICIO_KEYS[exercicioKey]}`);
+            database.ref(dbPath).push(novoRegistro)
                 .then(() => {
-                    alert(`Medidas de ${dataAtual} registradas com sucesso!`);
-                    
-                    // Limpa os inputs após salvar
-                    document.getElementById('pesoCorporalInput').value = '';
-                    document.getElementById('cinturaInput').value = '';
-                    document.getElementById('bracoInput').value = '';
-                    document.getElementById('toraxInput').value = '';
-                    document.getElementById('abdomenInput').value = '';
-                    document.getElementById('coxaInput').value = '';
-                    document.getElementById('panturrilhaInput').value = '';
-                    document.getElementById('antebracoInput').value = '';
-                    
-                    carregarUltimasMedidas(); // Atualiza a exibição
+                    document.getElementById('pesoInput').value = '';
+                    alert('Carga registrada!');
                 })
-                .catch((error) => {
-                    console.error("Erro ao registrar medidas no Firebase: ", error);
-                    alert('Erro ao salvar medidas. Verifique o console.');
+                .catch(erro => console.error(erro));
+        }
+
+        // ==========================================================
+        // 3. MEDIDAS CORPORAIS
+        // ==========================================================
+
+        function registrarMedidas() {
+            const medidas = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                peso: document.getElementById('pesoCorporalInput').value,
+                cintura: document.getElementById('cinturaInput').value,
+                braco: document.getElementById('bracoInput').value,
+                torax: document.getElementById('toraxInput').value,
+                abdomen: document.getElementById('abdomenInput').value,
+                coxa: document.getElementById('coxaInput').value,
+                panturrilha: document.getElementById('panturrilhaInput').value,
+                antebraco: document.getElementById('antebracoInput').value
+            };
+
+            // Validação simples (pelo menos o peso)
+            if (!medidas.peso) return alert("Pelo menos o Peso Corporal é obrigatório.");
+
+            const dbPath = getFirebasePath('medidas');
+            database.ref(dbPath).push(medidas)
+                .then(() => {
+                    alert("Medidas salvas com sucesso!");
+                    // Limpar inputs
+                    document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
+                    carregarUltimasMedidas();
                 });
         }
 
         function carregarUltimasMedidas() {
-            if (!alunoNome) return;
+            const dbPath = getFirebasePath('medidas');
+            
+            // Pega apenas o último registro
+            database.ref(dbPath).limitToLast(1).once('value', (snapshot) => {
+                const divDisplay = document.getElementById('ultimasMedidas');
+                divDisplay.innerHTML = ''; 
 
-            const ultimasMedidasDiv = document.getElementById('ultimasMedidas');
-            ultimasMedidasDiv.innerHTML = 'Carregando...';
-
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS))
-                .limitToLast(1); 
-
-            firebaseRef.on('value', (snapshot) => {
                 if (!snapshot.exists()) {
-                    ultimasMedidasDiv.innerHTML = 'Nenhum registro encontrado.';
+                    divDisplay.innerHTML = '<em style="color: #999;">Nenhum registro encontrado.</em>';
                     return;
                 }
 
-                let ultimaMedida;
-                snapshot.forEach(childSnapshot => {
-                    ultimaMedida = childSnapshot.val();
+                snapshot.forEach(child => {
+                    const m = child.val();
+                    let html = `<strong>Data: ${m.data}</strong><br>`;
+                    if(m.peso) html += `Peso: ${m.peso}kg | `;
+                    if(m.cintura) html += `Cintura: ${m.cintura}cm | `;
+                    if(m.braco) html += `Braço: ${m.braco}cm<br>`;
+                    if(m.abdomen) html += `Abdômen: ${m.abdomen}cm | `;
+                    if(m.coxa) html += `Coxa: ${m.coxa}cm`;
+                    
+                    divDisplay.innerHTML = html;
                 });
-
-                if (ultimaMedida) {
-                    let htmlContent = `
-                        <p><strong>Data:</strong> ${ultimaMedida.data}</p>
-                        <ul style="list-style: none; padding-left: 0;">
-                            <li>Peso Corporal: <strong>${ultimaMedida.pesoCorporal || '?'} kg</strong></li>
-                            <li>Cintura: <strong>${ultimaMedida.cintura || '?'} cm</strong></li>
-                            <li>Braço D.: <strong>${ultimaMedida.braco || '?'} cm</strong></li>
-                            <li>Tórax: <strong>${ultimaMedida.torax || '?'} cm</strong></li>
-                            <li>Abdômen: <strong>${ultimaMedida.abdomen || '?'} cm</strong></li>
-                            <li>Coxa D.: <strong>${ultimaMedida.coxa || '?'} cm</strong></li>
-                            <li>Panturrilha D.: <strong>${ultimaMedida.panturrilha || '?'} cm</strong></li>
-                            <li>Antebraço D.: <strong>${ultimaMedida.antebraco || '?'} cm</strong></li>
-                        </ul>
-                    `;
-                    ultimasMedidasDiv.innerHTML = htmlContent;
-                }
-            }, (error) => {
-                console.error("Erro ao carregar medidas:", error);
-                ultimasMedidasDiv.innerHTML = 'Erro ao carregar dados.';
             });
         }
-        
-        // =================================================================
-        // === TREINO E PRESENÇA (FUNÇÕES PLACEHOLDER) - FIREBASE ===
-        // =================================================================
 
-        /** * Lógica para carregar o estado dos checkboxes do treino do dia no Firebase.
-         */
-        function carregarEstadoTreino(dia) {
-            if (!alunoNome) return;
+        // ==========================================================
+        // 4. TREINO (CHECKBOXES)
+        // ==========================================================
 
-            // Chave do Firebase: alunos/{nome}/treino/{data_atual}/{dia}
-            const dataHoje = getDataAtualFormatada().replace(/\//g, '-'); // Formato: DD-MM-AAAA
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.TREINO) + dataHoje + '/' + dia);
+        function alternarTreino() {
+            const diaSelecionado = document.getElementById('seletorTreino').value;
             
-            // Listener de tempo real para carregar o estado salvo
-            firebaseRef.on('value', (snapshot) => {
-                const dadosTreino = snapshot.val();
-                const listaUl = document.getElementById(`lista-treino-${dia.toLowerCase().replace('dia ', '')}`);
+            // Esconde todos e mostra o selecionado
+            document.querySelectorAll('.lista-treino-dia').forEach(div => div.style.display = 'none');
+            document.getElementById(`treino-${diaSelecionado}`).style.display = 'block';
+
+            // Carregar estado dos checkboxes do Firebase para esse dia
+            carregarCheckboxes(diaSelecionado);
+        }
+
+        function marcarConcluido(checkbox, dia, exercicioId) {
+            const li = checkbox.closest('li');
+            if (checkbox.checked) {
+                li.classList.add('concluido');
+            } else {
+                li.classList.remove('concluido');
+            }
+
+            // Salvar estado no Firebase (sobrescreve o valor boolean)
+            const dbPath = getFirebasePath(`treino_status/${dia}/${exercicioId}`);
+            database.ref(dbPath).set(checkbox.checked);
+        }
+
+        function carregarCheckboxes(dia) {
+            const dbPath = getFirebasePath(`treino_status/${dia}`);
+            database.ref(dbPath).once('value', (snapshot) => {
+                const status = snapshot.val() || {};
                 
-                listaUl.querySelectorAll('.exercicio-item').forEach(item => {
-                    const exercicioKey = item.getAttribute('data-exercicio');
+                // Itera sobre os exercícios do dia visível
+                const container = document.getElementById(`treino-${dia}`);
+                const items = container.querySelectorAll('.exercicio-item');
+
+                items.forEach(item => {
+                    const id = item.getAttribute('data-exercicio');
                     const checkbox = item.querySelector('input[type="checkbox"]');
                     
-                    if (dadosTreino && dadosTreino[exercicioKey] && dadosTreino[exercicioKey].concluido) {
+                    if (status[id] === true) {
                         checkbox.checked = true;
                         item.classList.add('concluido');
                     } else {
@@ -1038,241 +878,116 @@
             });
         }
 
-        /**
-         * Lógica para marcar um exercício como concluído no Firebase.
-         */
-        function marcarConcluido(checkbox, dia, exercicio) {
-            if (!alunoNome) {
-                checkbox.checked = !checkbox.checked; // Reverte a marcação se o nome não estiver
-                alert('Defina seu nome primeiro!');
-                return;
-            }
+        // ==========================================================
+        // 5. PRESENÇA (CALENDÁRIO)
+        // ==========================================================
 
-            const isChecked = checkbox.checked;
-            const dataHoje = getDataAtualFormatada().replace(/\//g, '-');
-            const itemElement = checkbox.closest('.exercicio-item');
-
-            // Atualiza o CSS local imediatamente
-            if (isChecked) {
-                itemElement.classList.add('concluido');
-            } else {
-                itemElement.classList.remove('concluido');
-            }
-
-            // Caminho: alunos/{nome}/treino/{data_atual}/{dia}/{exercicio}/concluido
-            const firebasePath = obterCaminhoAluno(FIREBASE_CHILDS.TREINO) + dataHoje + '/' + dia + '/' + exercicio + '/concluido';
-
-            // Salva o estado no Firebase
-            database.ref(firebasePath).set(isChecked)
-                .catch(error => {
-                    console.error("Erro ao salvar conclusão do treino:", error);
-                    alert('Erro ao salvar no Firebase. Verifique o console.');
-                });
-        }
-        
-        /**
-         * Alterna entre Dia A, Dia B e Dia C, e carrega o estado do treino.
-         */
-        function alternarTreino() {
-            const seletor = document.getElementById('seletorTreino');
-            const treinoSelecionado = seletor.value;
-
-            // Oculta todos os dias de treino
-            document.querySelectorAll('.lista-treino-dia').forEach(div => {
-                div.style.display = 'none';
-            });
-
-            // Exibe o dia de treino selecionado
-            const divTreino = document.getElementById(`treino-${treinoSelecionado}`);
-            if (divTreino) {
-                divTreino.style.display = 'block';
-                // Carrega o estado salvo do treino
-                carregarEstadoTreino(treinoSelecionado);
-            }
-        }
-
-
-        // =================================================================
-        // === PRESENÇA MENSAL - FIREBASE ===
-        // =================================================================
-
-        /**
-         * Gera o layout do calendário e carrega o estado de presença do Firebase.
-         */
         function gerarCalendario() {
+            const tbody = document.getElementById('calendario-body');
+            tbody.innerHTML = '';
+
             const hoje = new Date();
             const ano = hoje.getFullYear();
-            const mes = hoje.getMonth(); 
-            const primeiroDia = new Date(ano, mes, 1);
-            const ultimoDia = new Date(ano, mes + 1, 0);
-            const numDias = ultimoDia.getDate();
-            const diaDaSemanaInicio = primeiroDia.getDay(); // 0 (Dom) a 6 (Sáb)
-            
-            const tabelaBody = document.querySelector('#tabela-presenca tbody');
-            tabelaBody.innerHTML = '';
-            
+            const mes = hoje.getMonth(); // 0 a 11
+
+            const primeiroDiaMes = new Date(ano, mes, 1).getDay(); // 0 (Dom) a 6 (Sab)
+            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
             let diaContador = 1;
-            
-            // Se não houver nome, não tenta carregar do Firebase
-            if (alunoNome) {
-                carregarPresencaFirebase(ano, mes, tabelaBody, numDias, diaDaSemanaInicio);
-            } else {
-                 // Cria a estrutura sem marcar presença
-                criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio);
-            }
-        }
+            let html = '';
 
-        /**
-         * Função auxiliar para criar a estrutura da tabela, usada se o nome não estiver disponível.
-         */
-        function criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio, presencaSalva = {}) {
-            let diaContador = 1;
-
-            for (let i = 0; i < 6; i++) { // Máximo de 6 semanas
-                let linha = tabelaBody.insertRow();
-                for (let j = 0; j < 7; j++) { // 7 dias da semana
-                    let celula = linha.insertCell();
-
-                    if (i === 0 && j < diaDaSemanaInicio) {
-                        // Células vazias antes do dia 1 do mês
-                        celula.innerHTML = '';
-                    } else if (diaContador <= numDias) {
-                        // Células com dias do mês
-                        celula.innerHTML = diaContador;
-                        
-                        // Formato de chave: YYYY-MM-DD (ex: 2025-11-21)
-                        const dataChave = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(diaContador).padStart(2, '0')}`;
-                        
-                        // Verifica se o dia está salvo como presente
-                        if (presencaSalva[dataChave]) {
-                            celula.classList.add('presente');
-                        }
-                        
-                        celula.setAttribute('data-dia', diaContador);
-                        celula.onclick = function() { alternarPresenca(this); };
-                        
-                        diaContador++;
+            // Loop para criar semanas (linhas)
+            for (let i = 0; i < 6; i++) {
+                html += '<tr>';
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < primeiroDiaMes) {
+                        html += '<td></td>'; // Célula vazia antes do dia 1
+                    } else if (diaContador > diasNoMes) {
+                        html += '<td></td>'; // Célula vazia depois do fim do mês
                     } else {
-                        // Células vazias após o último dia do mês
-                        celula.innerHTML = '';
+                        // Formato de chave para o Firebase: DD-MM-AAAA
+                        const chaveData = `${String(diaContador).padStart(2,'0')}-${String(mes+1).padStart(2,'0')}-${ano}`;
+                        html += `<td id="dia-${chaveData}" onclick="alternarPresenca('${chaveData}')">${diaContador}</td>`;
+                        diaContador++;
                     }
                 }
-                if (diaContador > numDias) break; 
+                html += '</tr>';
+                if (diaContador > diasNoMes) break;
+            }
+            tbody.innerHTML = html;
+
+            carregarPresencas(mes + 1, ano);
+        }
+
+        function alternarPresenca(dataKey) {
+            const td = document.getElementById(`dia-${dataKey}`);
+            const dbPath = getFirebasePath(`presenca/${dataKey}`);
+            
+            // Verifica se já está marcado visualmente para decidir o toggle
+            const estaPresente = td.classList.contains('presente');
+
+            if (estaPresente) {
+                // Remove
+                database.ref(dbPath).remove().then(() => td.classList.remove('presente'));
+            } else {
+                // Adiciona
+                database.ref(dbPath).set(true).then(() => td.classList.add('presente'));
             }
         }
 
-        /**
-         * Carrega os dados de presença do Firebase e renderiza o calendário.
-         */
-        function carregarPresencaFirebase(ano, mes, tabelaBody, numDias, diaDaSemanaInicio) {
-            const mesFormatado = String(mes + 1).padStart(2, '0');
-            // Caminho no Firebase: alunos/{nome}/presenca/{ano}/{mes}
-            const firebaseRef = database.ref(obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA) + ano + '/' + mesFormatado);
+        function carregarPresencas(mes, ano) {
+            // Carrega toda a presença do usuário e filtra visualmente
+            const dbPath = getFirebasePath('presenca');
+            database.ref(dbPath).once('value', (snapshot) => {
+                if (!snapshot.exists()) return;
 
-            // Escuta em tempo real
-            firebaseRef.on('value', (snapshot) => {
-                const presencaSalva = snapshot.val() || {};
-                tabelaBody.innerHTML = ''; // Limpa antes de reconstruir
-                criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio, presencaSalva);
-            }, (error) => {
-                console.error("Erro ao carregar presença:", error);
-                // Em caso de erro, apenas constrói a estrutura básica
-                criarEstruturaCalendario(tabelaBody, numDias, diaDaSemanaInicio);
+                const presencas = snapshot.val();
+                Object.keys(presencas).forEach(dataKey => {
+                    // dataKey é "DD-MM-AAAA"
+                    const partes = dataKey.split('-');
+                    // Se for do mês/ano atual do calendário exibido
+                    if (parseInt(partes[1]) === mes && parseInt(partes[2]) === ano) {
+                        const td = document.getElementById(`dia-${dataKey}`);
+                        if (td) td.classList.add('presente');
+                    }
+                });
             });
         }
 
+        // ==========================================================
+        // 6. FUNÇÕES DE RESET
+        // ==========================================================
 
-        /**
-         * Alterna o estado de presença de uma célula do calendário e salva no Firebase.
-         */
-        function alternarPresenca(celula) {
-            if (!alunoNome) {
-                alert('Por favor, defina seu nome primeiro.');
-                return;
-            }
-            
-            const dia = celula.getAttribute('data-dia');
-            if (!dia) return; // Se não for um dia válido
-
-            const isPresente = celula.classList.contains('presente');
-            const data = new Date();
-            const ano = data.getFullYear();
-            const mesFormatado = String(data.getMonth() + 1).padStart(2, '0');
-            const diaFormatado = String(dia).padStart(2, '0');
-
-            // Formato da chave: YYYY/MM/DD (ex: 2025/11/21)
-            const firebasePath = obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA) + ano + '/' + mesFormatado + '/' + ano + '-' + mesFormatado + '-' + diaFormatado;
-            
-            // Inverte o estado
-            const novoEstado = !isPresente; 
-
-            // Atualiza o Firebase (true se presente, remove o nó se ausente)
-            if (novoEstado) {
-                database.ref(firebasePath).set(true)
-                    .catch(error => console.error("Erro ao marcar presença:", error));
-            } else {
-                database.ref(firebasePath).remove()
-                    .catch(error => console.error("Erro ao desmarcar presença:", error));
-            }
-            // A atualização visual ocorre via listener do Firebase em carregarPresencaFirebase
-        }
-
-        // =================================================================
-        // === FUNÇÃO DE RESETAR DADOS (MANUTENÇÃO) ===
-        // =================================================================
-
-        /**
-         * Remove todos os dados do aluno para a categoria especificada.
-         * @param {string} tipo - 'cargas', 'medidas', ou 'treino_presenca'
-         */
         function resetarDados(tipo) {
-            if (!alunoNome) {
-                alert('Nenhum aluno logado para resetar dados.');
-                return;
-            }
+            let confirmacao = confirm(`Tem certeza que deseja apagar os dados de: ${tipo.toUpperCase()}? Essa ação não pode ser desfeita.`);
+            if (!confirmacao) return;
 
-            let caminhoParaReset = '';
-            let confirmacao = '';
-
+            let path = '';
             if (tipo === 'cargas') {
-                caminhoParaReset = obterCaminhoAluno(FIREBASE_CHILDS.CARGAS);
-                confirmacao = 'Tem certeza que deseja apagar TODO o histórico de Cargas? Esta ação é irreversível!';
+                const exercicio = document.getElementById('seletorExercicio').value;
+                path = `cargas/${EXERCICIO_KEYS[exercicio]}`;
             } else if (tipo === 'medidas') {
-                caminhoParaReset = obterCaminhoAluno(FIREBASE_CHILDS.MEDIDAS);
-                confirmacao = 'Tem certeza que deseja apagar TODO o histórico de Medidas? Esta ação é irreversível!';
+                path = 'medidas';
             } else if (tipo === 'treino_presenca') {
-                 // Reseta ambos, treino e presença
-                const confirmTreino = 'Tem certeza que deseja apagar TODO o histórico de Treino (checklists) e Presença? Esta ação é irreversível!';
-                if (confirm(confirmTreino)) {
-                    database.ref(obterCaminhoAluno(FIREBASE_CHILDS.TREINO)).remove()
-                        .then(() => database.ref(obterCaminhoAluno(FIREBASE_CHILDS.PRESENCA)).remove())
-                        .then(() => alert('Histórico de Treino e Presença apagado com sucesso!'))
-                        .catch(error => console.error("Erro ao resetar:", error));
-                    return;
-                } else {
-                    return;
-                }
-            } else {
-                return;
+                // Exemplo de reset composto (opcional)
+                // Para simplicidade, aqui não implementado botão específico no HTML para isso,
+                // mas você pode criar um botão que chama resetarDados('geral')
+                return; 
             }
-            
-            if (confirm(confirmacao)) {
-                database.ref(caminhoParaReset).remove()
+
+            if (path) {
+                const dbPath = getFirebasePath(path);
+                database.ref(dbPath).remove()
                     .then(() => {
-                        alert(`Dados de ${tipo} apagados com sucesso!`);
-                        // Força a atualização dos componentes visuais
-                        if (tipo === 'cargas') inicializarGrafico();
-                        if (tipo === 'medidas') carregarUltimasMedidas();
+                        alert('Dados apagados com sucesso.');
+                        // Atualiza tela
+                        if(tipo === 'cargas') inicializarGrafico();
+                        if(tipo === 'medidas') carregarUltimasMedidas();
                     })
-                    .catch(error => {
-                        console.error("Erro ao resetar dados:", error);
-                        alert('Ocorreu um erro ao tentar apagar os dados.');
-                    });
+                    .catch(err => alert('Erro ao apagar: ' + err.message));
             }
         }
 
-        // Garante que o modal de nome seja exibido ao carregar a página
-        // A chamada é feita no body tag: <body onload="obterNomeAluno()">
     </script>
 </body>
 
