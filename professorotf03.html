@@ -21,26 +21,24 @@
 
         h1, h2 { color: #00d4ff; text-align: center; } 
         
-        /* NOVO: Estilo para o cabeçalho com logo e texto */
         .main-header {
-            display: flex; /* Para alinhar o logo e o texto na mesma linha */
-            align-items: center; /* Centraliza verticalmente */
-            justify-content: center; /* Centraliza horizontalmente */
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
             margin-bottom: 20px;
         }
 
         .main-header img {
-            max-width: 40px; /* Tamanho do logo ao lado do texto */
+            max-width: 40px; 
             height: auto;
-            margin-right: 10px; /* Espaçamento entre o logo e o texto */
+            margin-right: 10px; 
         }
 
         .main-header h1 {
-            margin: 0; /* Remove margem padrão do h1 */
+            margin: 0; 
             color: #00d4ff;
-            font-size: 2em; /* Ajuste o tamanho da fonte conforme necessário */
+            font-size: 2em; 
         }
-
 
         .container {
             max-width: 1200px;
@@ -90,15 +88,29 @@
         }
         button.btn-save:hover { background-color: #00a3cc; }
 
-        /* --- Grid de Inputs do Treino --- */
+        /* --- Grid de Inputs do Treino (CORRIGIDO PARA TER 4 COLUNAS) --- */
         .treino-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
+            /* Garante 4 colunas: Exercício, Série, Reps, Botão Remover */
+            grid-template-columns: 2fr 1fr 1fr auto; 
             gap: 10px;
             margin-bottom: 10px;
             padding-bottom: 10px;
             border-bottom: 1px dashed #333;
+            align-items: end; /* Alinha os itens na base, importante para o botão */
         }
+        .btn-remover {
+            padding: 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            /* Garante que o botão tenha a altura correta */
+            height: 40px; 
+            margin-bottom: 5px; 
+        }
+
 
         /* Estilos para a lista de frequência */
         #lista-presenca li {
@@ -153,6 +165,7 @@
                             <option value="AgachamentoLivre">Agachamento Livre</option>
                             <option value="SupinoReto">Supino Reto</option>
                             <option value="PuxadaFrontal">Puxada Frontal</option>
+                            <option value="OutroExercicio">Outro Exercício (Ajustar)</option>
                         </select>
                     </div>
                 </div>
@@ -184,15 +197,16 @@
                 <ul id="lista-presenca" style="list-style-type: none; padding: 0;">
                     </ul>
             </div>
-            </div>
+        </div>
 
     </div>
 
     <script>
         // =================================================================
-        // === CONFIGURAÇÃO DO FIREBASE (SUAS CHAVES) ===
+        // === CONFIGURAÇÃO DO FIREBASE (VERIFIQUE E MANTENHA SUAS CHAVES CORRETAS) ===
         // =================================================================
         const firebaseConfig = {
+            // As chaves a seguir devem ser as suas chaves corretas e completas
             apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
             databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
@@ -207,14 +221,16 @@
         
         const CAMINHO_ALUNOS = 'alunos/';
         let alunoSelecionadoNome = '';
-        let pesoChart;
+        let pesoChart; // Variável global para armazenar a instância do Chart.js
 
         // =================================================================
-        // === AUXILIARES E CONVERSÃO DE NOME ===
+        // === AUXILIARES E CONVERSÃO DE NOME (CRÍTICO PARA PRECISAO) ===
         // =================================================================
 
         function formatarNomeParaChave(nome) {
+            // Garante que o nome usado para a chave do Firebase seja exatamente o mesmo do painel.
             if (!nome) return '';
+            // Se você usa apenas o primeiro nome como chave no Firebase, modifique esta função.
             return nome.trim().split(' ')
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                 .join('_');
@@ -222,15 +238,39 @@
 
         function obterCaminhoAluno(childKey) {
             const nomeFormatado = formatarNomeParaChave(alunoSelecionadoNome); 
+            // Exemplo de retorno: 'alunos/Maria_Silva/medidas'
             return `${CAMINHO_ALUNOS}${nomeFormatado}/${childKey}`;
         }
 
         // =================================================================
-        // === 1. CARREGAR LISTA DE ALUNOS ===
+        // === FUNÇÃO CENTRAL DE SINCRONIZAÇÃO (CORREÇÃO DE IMPRECISÃO) ===
+        // =================================================================
+
+        function carregarDadosDoAlunoSelecionado() {
+            if (!alunoSelecionadoNome) return;
+            
+            // 1. Recarrega o editor de treino
+            carregarTreinoDia();
+            
+            // 2. Recarrega o histórico de acompanhamento
+            carregarHistoricoMedidas();
+            carregarHistoricoPresenca(); 
+            
+            // 3. Recarrega e redesenha o gráfico
+            const exercicioInicial = document.getElementById('selectGrafico').value;
+            inicializarGraficoAluno(exercicioInicial); 
+            
+            document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento de ${alunoSelecionadoNome.split(' ')[0]}`;
+        }
+
+
+        // =================================================================
+        // === 1. CARREGAR LISTA DE ALUNOS E ATIVAR LISTENERS ===
         // =================================================================
 
         function carregarListaDeAlunos() {
             const selectAluno = document.getElementById('selectAluno');
+            const selectDia = document.getElementById('selectDia');
             selectAluno.innerHTML = '<option disabled selected>Carregando...</option>';
 
             database.ref(CAMINHO_ALUNOS).once('value', (snapshot) => {
@@ -239,13 +279,14 @@
                 
                 if (!todosAlunos) {
                     selectAluno.innerHTML = '<option disabled selected>Nenhum aluno encontrado.</option>';
-                    document.getElementById('editor-container').innerHTML = '<p style="color: #aaa;">Nenhum aluno registrado no banco de dados.</p>';
+                    document.getElementById('editor-container').innerHTML = '<p style="color: #dc3545;">Nenhum aluno registrado no banco de dados no caminho /alunos/.</p>';
                     return;
                 }
 
                 let primeiroAlunoNome = null;
                 
                 for (const nomeAlunoFormatado in todosAlunos) {
+                    // Reverte a chave para um nome legível: "Maria_Silva" -> "Maria Silva"
                     const nomeLegivel = nomeAlunoFormatado.replace(/_/g, ' '); 
                     
                     const option = document.createElement('option');
@@ -261,44 +302,33 @@
                 if (primeiroAlunoNome) {
                     alunoSelecionadoNome = primeiroAlunoNome;
                     selectAluno.value = primeiroAlunoNome;
-                    carregarDadosDoAlunoSelecionado();
+                    // Carrega dados do primeiro aluno automaticamente
+                    carregarDadosDoAlunoSelecionado(); 
                 }
 
+                // EVENT LISTENERS (GARANTE A SINCRONIZAÇÃO A CADA TROCA)
                 selectAluno.onchange = (e) => {
                     alunoSelecionadoNome = e.target.value;
-                    carregarDadosDoAlunoSelecionado();
+                    carregarDadosDoAlunoSelecionado(); 
                 };
                 
+                selectDia.onchange = carregarTreinoDia; 
+                
             }, (error) => {
-                selectAluno.innerHTML = `<option disabled>Erro ao carregar lista (${error.message})</option>`;
+                selectAluno.innerHTML = `<option disabled>Erro de Conexão (${error.code})</option>`;
                 console.error("Erro ao carregar lista de alunos:", error);
             });
         }
         
         // =================================================================
-        // === 2. CARREGAR DADOS DO ALUNO SELECIONADO ===
-        // =================================================================
-
-        function carregarDadosDoAlunoSelecionado() {
-            if (!alunoSelecionadoNome) return;
-            
-            carregarTreinoDia();
-            carregarHistoricoMedidas();
-            carregarHistoricoPresenca(); 
-            
-            const exercicioInicial = document.getElementById('selectGrafico').value;
-            inicializarGraficoAluno(exercicioInicial);
-            
-            document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento de ${alunoSelecionadoNome.split(' ')[0]}`;
-        }
-        
-        // =================================================================
-        // === 3. EDIÇÃO E SALVAMENTO DO TREINO ===
+        // === 2. EDIÇÃO E SALVAMENTO DO TREINO ===
         // =================================================================
 
         function carregarTreinoDia() {
             const dia = document.getElementById('selectDia').value;
             const editorContainer = document.getElementById('editor-container');
+            if (!alunoSelecionadoNome) return; 
+            
             editorContainer.innerHTML = 'Carregando treino...';
             
             const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
@@ -312,13 +342,15 @@
                         adicionarLinhaExercicio(editorContainer, exercicio.nome, exercicio.series, exercicio.reps);
                     });
                 } else {
-                    adicionarLinhaExercicio(editorContainer, '', '', '');
+                     // Adiciona uma linha vazia se o treino for nulo ou inválido
+                    adicionarLinhaExercicio(editorContainer, '', '', ''); 
                 }
                 
                 const btnAdd = document.createElement('button');
                 btnAdd.textContent = '➕ Adicionar Exercício';
+                // Define a função de adicionar com uma linha vazia
                 btnAdd.onclick = () => adicionarLinhaExercicio(editorContainer, '', '', '');
-                btnAdd.style.cssText = 'padding: 8px; margin-top: 10px; background-color: #333; color: white; border: none; border-radius: 4px; cursor: pointer;';
+                btnAdd.style.cssText = 'width: 100%; padding: 8px; margin-top: 10px; background-color: #38c172; color: white; border: none; border-radius: 4px; cursor: pointer;';
                 editorContainer.appendChild(btnAdd);
 
             }, (error) => {
@@ -342,7 +374,13 @@
                     <label>Reps</label>
                     <input type="text" class="input-reps" value="${reps}" placeholder="Ex: 12">
                 </div>
+                <div>
+                    <button type="button" class="btn-remover">X</button>
+                </div>
             `;
+            // ADIÇÃO CRÍTICA: Listener para o botão Remover em cada linha
+            row.querySelector('.btn-remover').onclick = () => row.remove();
+            
             container.insertBefore(row, container.querySelector('button') || null);
         }
 
@@ -362,6 +400,7 @@
                 const series = linha.querySelector('.input-series').value.trim();
                 const reps = linha.querySelector('.input-reps').value.trim();
 
+                // Salva apenas linhas que contêm informações de treino válidas
                 if (exercicio && series && reps) {
                     novoTreino.push({ nome: exercicio, series: series, reps: reps });
                 }
@@ -369,8 +408,8 @@
             
             if (novoTreino.length === 0) {
                  if (!confirm("Você está salvando um treino vazio. Deseja continuar?")) {
-                    return;
-                }
+                     return;
+                 }
             }
 
             const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
@@ -385,11 +424,9 @@
                 });
         }
         
-        document.getElementById('selectDia').addEventListener('change', carregarTreinoDia);
-
 
         // =================================================================
-        // === 4. VISUALIZAÇÃO DE DADOS (Medidas e Gráfico) ===
+        // === 3. VISUALIZAÇÃO DE DADOS (Medidas e Gráfico) ===
         // =================================================================
 
         function carregarHistoricoMedidas() {
@@ -407,27 +444,36 @@
                     return;
                 }
 
+                // Inverte a ordem para mostrar o registro mais recente no topo
                 const medidasArray = Object.values(medidas).reverse(); 
                 
                 medidasArray.forEach(m => {
-                    const dataCurta = m.data ? m.data.substring(0, 5) : '?';
+                    // Cuidado com a formatação de dados!
+                    const dataCurta = m.data ? m.data.substring(0, 5).replace(/-/g, '/') : '?'; 
+                    const peso = m.pesoCorporal !== undefined ? `${m.pesoCorporal} kg` : '?';
+                    const cintura = m.cintura !== undefined ? `${m.cintura} cm` : '?';
+
                     const row = tableBody.insertRow();
                     row.innerHTML = `
                         <td>${dataCurta}</td>
-                        <td>${m.pesoCorporal || '?'} kg</td>
-                        <td>${m.cintura || '?'} cm</td>
+                        <td>${peso}</td>
+                        <td>${cintura}</td>
                     `;
                 });
             });
         }
 
         function inicializarGraficoAluno(exercicioKey) {
+            // CORREÇÃO: Destrói a instância anterior do gráfico (Essencial para precisão)
             if (pesoChart) {
                 pesoChart.destroy();
             }
             
-            const exercicioPath = exercicioKey.replace(/ /g, '_');
-            const firebaseRef = database.ref(obterCaminhoAluno('cargas') + exercicioPath);
+            // As chaves no Firebase não devem ter espaços. Ex: "SupinoReto"
+            const exercicioPath = exercicioKey.replace(/ /g, '_'); 
+            
+            // CORREÇÃO DE PATH: Adiciona a barra "/" antes do exercício para montar o caminho: cargas/AgachamentoLivre
+            const firebaseRef = database.ref(obterCaminhoAluno('cargas') + '/' + exercicioPath); 
 
             firebaseRef.once('value', (snapshot) => {
                 const dadosSalvos = [];
@@ -435,15 +481,17 @@
                     dadosSalvos.push(childSnapshot.val());
                 });
 
-                const labels = dadosSalvos.map(d => d.data.substring(0, 5));
-                const pesos = dadosSalvos.map(d => d.peso);
-
+                // Verifica se os dados necessários (peso e data) existem e estão formatados
+                const labels = dadosSalvos.map(d => d && d.data ? d.data.substring(0, 5) : ''); 
+                const pesos = dadosSalvos.map(d => d && d.peso !== undefined ? d.peso : 0); 
+                
                 const ctx = document.getElementById('chartAdmin').getContext('2d');
                 
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: labels.length > 0 ? labels : ['Data'],
+                        // Se não houver dados de peso válidos, use rótulos e dados de fallback
+                        labels: labels.length > 0 && pesos.some(p => p > 0) ? labels : ['Sem Dados'],
                         datasets: [{
                             label: `Carga ${exercicioKey} (kg)`,
                             data: pesos.length > 0 ? pesos : [0],
@@ -474,7 +522,7 @@
         }
         
         // =================================================================
-        // === 5. CARREGAR FREQUÊNCIA ===
+        // === 4. CARREGAR FREQUÊNCIA ===
         // =================================================================
 
         function carregarHistoricoPresenca() {
@@ -498,11 +546,13 @@
                     return;
                 }
 
-                const datas = Object.keys(presenca);
+                // Obtém as chaves (datas) e inverte a ordem para mostrar as mais recentes primeiro
+                const datas = Object.keys(presenca).reverse(); 
                 
                 statusDiv.textContent = `✅ Total de Presenças Registradas: ${datas.length} vezes`;
                 
-                datas.reverse().forEach(chaveData => {
+                datas.forEach(chaveData => {
+                    // A data é salva como chave YYYY-MM-DD
                     const dataLegivel = chaveData.replace(/-/g, '/'); 
                     
                     const li = document.createElement('li');
