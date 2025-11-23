@@ -4,146 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Treinador - Admin (Sincronizado)</title>
+    <title>Painel do Treinador - Admin</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
 
     <style>
-        /* --- CSS DARK MODE --- */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #121212;
-            /* Fundo escuro */
-            color: #e0e0e0;
-        }
+        /* --- CSS DARK MODE PROFESSOR --- */
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background-color: #121212; color: #e0e0e0; }
+        .main-header { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .main-header img { max-width: 40px; margin-right: 10px; }
+        .main-header h1 { color: #00d4ff; margin: 0; font-size: 2em; }
 
-        h1,
-        h2 {
-            color: #00d4ff;
-            text-align: center;
-        }
+        .container { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1fr; }
+        @media (min-width: 1024px) { .container { grid-template-columns: 1fr 2fr; } }
 
-        .main-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+        .card { background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; }
+        
+        input, select { width: 100%; padding: 10px; margin-top: 5px; background-color: #2c2c2c; border: 1px solid #444; border-radius: 5px; color: white; box-sizing: border-box; }
+        
+        button.btn-save { width: 100%; padding: 12px; margin-top: 20px; background-color: #00d4ff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button.btn-save:hover { background-color: #00a3cc; }
 
-        .main-header img {
-            max-width: 40px;
-            height: auto;
-            margin-right: 10px;
-        }
-
-        .main-header h1 {
-            margin: 0;
-            color: #00d4ff;
-            font-size: 2em;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            gap: 20px;
-            grid-template-columns: 1fr;
-        }
-
-        @media (min-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr 2fr;
-            }
-        }
-
-        .card {
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        /* --- Estilos do Formulário de Edição --- */
-        label {
-            display: block;
-            margin-top: 10px;
-            color: #aaa;
-            font-size: 0.9em;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            background-color: #2c2c2c;
-            border: 1px solid #444;
-            border-radius: 5px;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        button.btn-save {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            background-color: #00d4ff;
-            color: #000;
-            font-weight: bold;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button.btn-save:hover {
-            background-color: #00a3cc;
-        }
-
-        /* --- Grid de Inputs do Treino (CORRIGIDO PARA TER 4 COLUNAS) --- */
-        .treino-row {
-            display: grid;
-            /* Garante 4 colunas: Exercício, Série, Reps, Botão Remover */
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 10px;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #333;
-            align-items: end;
-            /* Alinha os itens na base, importante para o botão */
-        }
-
-        .btn-remover {
-            padding: 10px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            /* Garante que o botão tenha a altura correta */
-            height: 40px;
-            margin-bottom: 5px;
-        }
-
-
-        /* Estilos para a lista de frequência */
-        #lista-presenca li {
-            padding: 5px 0;
-            border-bottom: 1px dotted #333;
-        }
+        /* Grid do Editor de Treino */
+        .treino-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #333; align-items: end; }
+        .btn-remover { padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; height: 40px; }
+        
+        /* Tabelas */
+        table { width: 100%; text-align: left; border-collapse: collapse; }
+        th, td { padding: 8px; border-bottom: 1px solid #333; }
+        th { color: #aaa; }
     </style>
 </head>
 
 <body>
 
     <div class="main-header">
-        <img src="logotipo.png" alt="Logo do Personal" /> 
+        <img src="logotipo.png" alt="Logo" onerror="this.style.display='none'">
         <h1>Painel do Personal</h1>
     </div>
 
@@ -152,513 +50,238 @@
         <div class="left-col">
             <div class="card">
                 <h2>✏️ Editar Treino</h2>
-
                 <label>Selecione o Aluno:</label>
-                <select id="selectAluno">
-                    <option disabled selected>Carregando Alunos...</option>
-                </select>
+                <select id="selectAluno"><option>Carregando...</option></select>
 
                 <label>Dia do Treino:</label>
                 <select id="selectDia">
-                    <option value="Dia A">Dia A (Peito/Ombro)</option>
-                    <option value="Dia B">Dia B (Costas/Bíceps)</option>
-                    <option value="Dia C">Dia C (Pernas)</option>
+                    <option value="Dia A">Dia A</option>
+                    <option value="Dia B">Dia B</option>
+                    <option value="Dia C">Dia C</option>
                 </select>
 
                 <hr style="border-color: #333; margin: 20px 0;">
-
-                <div id="editor-container">
-                    <p style="color: #aaa;">Selecione um aluno e um dia para carregar o treino.</p>
-                </div>
-
-                <button class="btn-save" onclick="salvarTreino()">💾 Salvar Alterações</button>
+                <div id="editor-container"></div>
+                <button class="btn-save" onclick="salvarTreino()">💾 Salvar e Enviar ao Aluno</button>
             </div>
         </div>
 
         <div class="right-col">
             <div class="card">
-                <h2 id="titulo-acompanhamento">📊 Acompanhamento do Aluno</h2>
-
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                    <div>
-                        <span style="color: #aaa;">Gráfico:</span>
-                        <select id="selectGrafico" onchange="inicializarGraficoAluno(this.value)">
-                            <option value="AgachamentoLivre">Agachamento Livre</option>
-                            <option value="SupinoReto">Supino Reto</option>
-                            <option value="PuxadaFrontal">Puxada Frontal</option>
-                            <option value="OutroExercicio">Outro Exercício (Ajustar)</option>
-                        </select>
-                    </div>
+                <h2 id="titulo-acompanhamento">📊 Acompanhamento</h2>
+                <div style="margin-bottom: 10px;">
+                    <span>Gráfico:</span>
+                    <select id="selectGrafico" onchange="inicializarGraficoAluno(this.value)">
+                        <option value="AgachamentoLivre">Agachamento Livre</option>
+                        <option value="SupinoReto">Supino Reto</option>
+                        <option value="PuxadaFrontal">Puxada Frontal</option>
+                    </select>
                 </div>
-
-                <div style="height: 300px;">
-                    <canvas id="chartAdmin"></canvas>
-                </div>
-
-                <h3 style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">Últimas Medidas (Peso e
-                    Cintura)</h3>
-                <table style="width: 100%; text-align: left; font-size: 0.9em;">
-                    <thead>
-                        <tr style="color: #aaa;">
-                            <th>Data</th>
-                            <th>Peso</th>
-                            <th>Cintura</th>
-                            <th>Braço</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-medidas-admin">
-                        <tr>
-                            <td colspan="4">Nenhum aluno selecionado.</td>
-                        </tr>
-                    </tbody>
+                <div style="height: 300px;"><canvas id="chartAdmin"></canvas></div>
+                
+                <h3>Últimas Medidas</h3>
+                <table style="font-size: 0.9em;">
+                    <thead><tr><th>Data</th><th>Peso</th><th>Cintura</th><th>Braço</th></tr></thead>
+                    <tbody id="tabela-medidas-admin"></tbody>
                 </table>
             </div>
 
             <div class="card" style="margin-top: 20px;">
-                <h2>📅 Frequência e Presença</h2>
-                <div id="status-frequencia" style="color: #00d4ff; font-weight: bold; margin-bottom: 15px;">
-                    Selecione um aluno para ver o histórico.
-                </div>
-                <ul id="lista-presenca" style="list-style-type: none; padding: 0;">
-                </ul>
+                <h2>📅 Frequência</h2>
+                <div id="status-frequencia" style="color: #00d4ff; font-weight: bold; margin-bottom: 10px;"></div>
+                <ul id="lista-presenca" style="list-style: none; padding: 0;"></ul>
             </div>
         </div>
 
     </div>
 
     <script>
-        // =================================================================
-        // === CONFIGURAÇÃO DO FIREBASE (VERIFIQUE E MANTENHA SUAS CHAVES CORRETAS) ===
-        // =================================================================
+        // === CHAVES REAIS DO FIREBASE (COPIADAS DO ALUNO) ===
         const firebaseConfig = {
-            // As chaves a seguir devem ser as suas chaves corretas e completas
-            apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0", // <--- PREENCHER
-            authDomain: "ptf03-26fdb.firebaseapp.com", // <--- PREENCHER
-            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com", // <--- PREENCHER
-            projectId: "ptf03-26fdb", // <--- PREENCHER
-            storageBucket: "ptf03-26fdb.firebaseapp.com", // <--- PREENCHER
-            messagingSenderId: "1020981883676", // <--- PREENCHER
-            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9" // <--- PREENCHER
+            apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
+            authDomain: "ptf03-26fdb.firebaseapp.com",
+            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+            projectId: "ptf03-26fdb",
+            storageBucket: "ptf03-26fdb.firebaseapp.com",
+            messagingSenderId: "1020981883676",
+            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
-        const CAMINHO_ALUNOS = 'alunos/';
+        
         let alunoSelecionadoNome = '';
-        let pesoChart; // Variável global para armazenar a instância do Chart.js
+        let pesoChart;
 
-        // =================================================================
-        // === AUXILIARES E CONVERSÃO DE NOME (CRÍTICO PARA PRECISAO) ===
-        // =================================================================
-
+        // --- UTILS ---
         function formatarNomeParaChave(nome) {
-            // CRÍTICO: Deve replicar EXATAMENTE a lógica usada na função salvarNomeModal() do painel do aluno.
-            if (!nome) return '';
-            
-            // Lógica do aluno: Capitaliza a primeira letra de cada palavra e substitui espaços por sublinhado.
-            return nome.trim().split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join('_');
+            // Normaliza: Maria da Silva -> Maria_Da_Silva (mesma lógica do aluno)
+            return nome.trim().split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join('_');
         }
 
-        function obterCaminhoAluno(childKey) {
-            const nomeFormatado = formatarNomeParaChave(alunoSelecionadoNome);
-            // Exemplo de retorno: 'alunos/Maria_Silva/medidas'
-            return `${CAMINHO_ALUNOS}${nomeFormatado}/${childKey}`;
+        function getPath(sub) {
+            return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
         }
 
-        // =================================================================
-        // === FUNÇÃO CENTRAL DE SINCRONIZAÇÃO ===
-        // =================================================================
-
-        function carregarDadosDoAlunoSelecionado() {
-            if (!alunoSelecionadoNome) return;
-
-            // 1. Recarrega o editor de treino
-            carregarTreinoDia();
-
-            // 2. Recarrega o histórico de acompanhamento
-            carregarHistoricoMedidas();
-            carregarHistoricoPresenca();
-
-            // 3. Recarrega e redesenha o gráfico
-            const exercicioInicial = document.getElementById('selectGrafico').value;
-            inicializarGraficoAluno(exercicioInicial);
-
-            document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento de ${alunoSelecionadoNome.split(' ')[0]}`;
-        }
-
-
-        // =================================================================
-        // === 1. CARREGAR LISTA DE ALUNOS E ATIVAR LISTENERS ===
-        // =================================================================
-
-        function carregarListaDeAlunos() {
-            const selectAluno = document.getElementById('selectAluno');
-            const selectDia = document.getElementById('selectDia');
-            selectAluno.innerHTML = '<option disabled selected>Carregando...</option>';
-
-            database.ref(CAMINHO_ALUNOS).once('value', (snapshot) => {
-                const todosAlunos = snapshot.val();
-                selectAluno.innerHTML = '';
-
-                if (!todosAlunos) {
-                    selectAluno.innerHTML = '<option disabled selected>Nenhum aluno encontrado.</option>';
-                    document.getElementById('editor-container').innerHTML = '<p style="color: #dc3545;">Nenhum aluno registrado no banco de dados no caminho /alunos/.</p>';
-                    return;
+        // --- 1. CARREGAR ALUNOS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const sel = document.getElementById('selectAluno');
+            database.ref('alunos/').once('value', snap => {
+                const alunos = snap.val();
+                sel.innerHTML = '';
+                if(!alunos) { sel.innerHTML = '<option>Sem alunos</option>'; return; }
+                
+                let primeiro = null;
+                for(const key in alunos) {
+                    const nomeLegivel = key.replace(/_/g, ' ');
+                    const opt = document.createElement('option');
+                    opt.value = nomeLegivel;
+                    opt.textContent = nomeLegivel;
+                    sel.appendChild(opt);
+                    if(!primeiro) primeiro = nomeLegivel;
                 }
-
-                let primeiroAlunoNome = null;
-
-                for (const nomeAlunoFormatado in todosAlunos) {
-                    // Reverte a chave para um nome legível: "Maria_Silva" -> "Maria Silva"
-                    const nomeLegivel = nomeAlunoFormatado.replace(/_/g, ' ');
-
-                    const option = document.createElement('option');
-                    option.value = nomeLegivel;
-                    option.textContent = nomeLegivel;
-                    selectAluno.appendChild(option);
-
-                    if (!primeiroAlunoNome) {
-                        primeiroAlunoNome = nomeLegivel;
-                    }
+                if(primeiro) {
+                    sel.value = primeiro;
+                    alunoSelecionadoNome = primeiro;
+                    carregarTudo();
                 }
-
-                if (primeiroAlunoNome) {
-                    alunoSelecionadoNome = primeiroAlunoNome;
-                    selectAluno.value = primeiroAlunoNome;
-                    // Carrega dados do primeiro aluno automaticamente
-                    carregarDadosDoAlunoSelecionado();
-                }
-
-                // EVENT LISTENERS (GARANTE A SINCRONIZAÇÃO A CADA TROCA)
-                selectAluno.onchange = (e) => {
-                    alunoSelecionadoNome = e.target.value;
-                    carregarDadosDoAlunoSelecionado();
-                };
-
-                selectDia.onchange = carregarTreinoDia;
-
-            }, (error) => {
-                selectAluno.innerHTML = `<option disabled>Erro de Conexão (${error.code})</option>`;
-                console.error("Erro ao carregar lista de alunos:", error);
             });
+
+            sel.onchange = (e) => {
+                alunoSelecionadoNome = e.target.value;
+                carregarTudo();
+            };
+            
+            document.getElementById('selectDia').onchange = carregarTreinoDia;
+        });
+
+        function carregarTudo() {
+            document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento: ${alunoSelecionadoNome}`;
+            carregarTreinoDia();
+            carregarMedidas();
+            carregarPresenca();
+            inicializarGraficoAluno(document.getElementById('selectGrafico').value);
         }
 
-        // =================================================================
-        // === 2. EDIÇÃO E SALVAMENTO DO TREINO (AJUSTADO) ===
-        // =================================================================
-
+        // --- 2. EDITOR DE TREINO ---
         function carregarTreinoDia() {
             const dia = document.getElementById('selectDia').value;
-            const editorContainer = document.getElementById('editor-container');
-            if (!alunoSelecionadoNome) return;
+            const container = document.getElementById('editor-container');
+            container.innerHTML = 'Carregando...';
 
-            editorContainer.innerHTML = 'Carregando treino...';
-
-            // ATENÇÃO: O painel do aluno NÃO usa 'treinoModel', ele usa os nomes dos dias 'Dia A', 'Dia B' etc.
-            // Para editar, vamos usar uma nova chave 'treinoModel' no Firebase, que o aluno vai ler.
-            // NO ENTANTO, para a edição no Painel do Personal refletir no painel do aluno, 
-            // precisamos que o painel do aluno **leia** o modelo aqui salvo.
-            // Vou assumir que o novo modelo de treino será salvo na chave: `/alunos/[Nome_Aluno]/treinoModel/[Dia X]`
-            // E o painel do aluno será ajustado para ler dessa nova chave.
-            
-            // Para simplicidade, vamos usar o mesmo formato de treino do exemplo anterior (Dia A/B/C)
-            // e salvar na chave do dia, ignorando o "treinoModel" por enquanto, para compatibilidade.
-            // CHAVE DE EDIÇÃO: `/alunos/[Nome_Aluno]/treinoModel/Dia A`
-            const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
-
-            firebaseRef.once('value', (snapshot) => {
-                const treinoModel = snapshot.val();
-                editorContainer.innerHTML = '';
-
-                // Verifica se os dados do treino estão no formato de Array de objetos (nome, series, reps)
-                if (treinoModel && Array.isArray(treinoModel)) {
-                    treinoModel.forEach(exercicio => {
-                        // Verifica se o objeto exercicio tem as propriedades esperadas
-                        const nome = exercicio.nome || '';
-                        const series = exercicio.series || '';
-                        const reps = exercicio.reps || '';
-
-                        adicionarLinhaExercicio(editorContainer, nome, series, reps);
-                    });
+            // Lê a chave onde o aluno escuta: treinoModel
+            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
+                const treino = snap.val();
+                container.innerHTML = '';
+                if(Array.isArray(treino)) {
+                    treino.forEach(t => addLinha(t.nome, t.series, t.reps));
                 } else {
-                    // Adiciona um exemplo se o treino estiver vazio/inválido
-                    adicionarLinhaExercicio(editorContainer, 'Ex: Supino Reto', '4', '10-12');
+                    addLinha('Ex: Supino', '4', '10');
                 }
-
-                const btnAdd = document.createElement('button');
-                btnAdd.textContent = '➕ Adicionar Exercício';
-                // Define a função de adicionar com uma linha vazia
-                btnAdd.onclick = () => adicionarLinhaExercicio(editorContainer, '', '', '');
-                btnAdd.style.cssText = 'width: 100%; padding: 8px; margin-top: 10px; background-color: #38c172; color: white; border: none; border-radius: 4px; cursor: pointer;';
-                editorContainer.appendChild(btnAdd);
-
-            }, (error) => {
-                editorContainer.innerHTML = `<p style="color: #dc3545;">Erro ao carregar treino: ${error.message}</p>`;
+                
+                // Botão de adicionar mais exercícios
+                const btn = document.createElement('button');
+                btn.textContent = '+ Adicionar Exercício';
+                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:5px; width:100%; margin-top:10px; cursor:pointer;';
+                btn.onclick = () => addLinha('', '', '');
+                container.appendChild(btn);
             });
         }
 
-        function adicionarLinhaExercicio(container, nome = '', series = '', reps = '') {
-            const row = document.createElement('div');
-            row.className = 'treino-row';
-            row.innerHTML = `
-                <div>
-                    <label>Exercício</label>
-                    <input type="text" class="input-exercicio" value="${nome}" placeholder="Nome do exercício">
-                </div>
-                <div>
-                    <label>Séries</label>
-                    <input type="text" class="input-series" value="${series}" placeholder="Ex: 4">
-                </div>
-                <div>
-                    <label>Reps</label>
-                    <input type="text" class="input-reps" value="${reps}" placeholder="Ex: 12">
-                </div>
-                <div>
-                    <button type="button" class="btn-remover">X</button>
-                </div>
+        function addLinha(nome, series, reps) {
+            const div = document.createElement('div');
+            div.className = 'treino-row';
+            div.innerHTML = `
+                <div><label>Exercício</label><input type="text" class="i-nome" value="${nome}"></div>
+                <div><label>Séries</label><input type="text" class="i-series" value="${series}"></div>
+                <div><label>Reps</label><input type="text" class="i-reps" value="${reps}"></div>
+                <div><button class="btn-remover">X</button></div>
             `;
-            // ADIÇÃO CRÍTICA: Listener para o botão Remover em cada linha
-            row.querySelector('.btn-remover').onclick = () => row.remove();
-
-            // Encontra o botão de adicionar exercício (que deve ser o último elemento) e insere a linha antes dele.
-            const btnAdd = container.querySelector('button');
-            container.insertBefore(row, btnAdd || null);
+            div.querySelector('.btn-remover').onclick = () => div.remove();
+            const btnAdd = document.getElementById('editor-container').lastChild;
+            document.getElementById('editor-container').insertBefore(div, btnAdd);
         }
 
         function salvarTreino() {
-            if (!alunoSelecionadoNome) {
-                alert('Selecione um aluno primeiro.');
-                return;
-            }
-
+            if(!alunoSelecionadoNome) return alert('Selecione um aluno');
             const dia = document.getElementById('selectDia').value;
-            const linhas = document.getElementById('editor-container').querySelectorAll('.treino-row');
-
-            const novoTreino = [];
-
-            linhas.forEach(linha => {
-                const exercicio = linha.querySelector('.input-exercicio').value.trim();
-                const series = linha.querySelector('.input-series').value.trim();
-                const reps = linha.querySelector('.input-reps').value.trim();
-
-                // Salva apenas linhas que contêm informações de treino válidas
-                if (exercicio && series && reps) {
-                    novoTreino.push({ nome: exercicio, series: series, reps: reps });
-                }
+            const rows = document.querySelectorAll('.treino-row');
+            const dados = [];
+            
+            rows.forEach(r => {
+                const n = r.querySelector('.i-nome').value;
+                const s = r.querySelector('.i-series').value;
+                const re = r.querySelector('.i-reps').value;
+                if(n) dados.push({ nome: n, series: s, reps: re });
             });
 
-            if (novoTreino.length === 0) {
-                if (!confirm("Você está salvando um treino vazio. Deseja continuar?")) {
-                    return;
-                }
-            }
-
-            // CHAVE DE EDIÇÃO: `/alunos/[Nome_Aluno]/treinoModel/[Dia X]`
-            const firebaseRef = database.ref(obterCaminhoAluno('treinoModel') + '/' + dia);
-
-            firebaseRef.set(novoTreino)
-                .then(() => {
-                    alert(`✅ Treino ${dia} de ${alunoSelecionadoNome} atualizado e publicado com sucesso!`);
-                })
-                .catch((error) => {
-                    console.error("Erro ao salvar treino:", error);
-                    alert(`❌ Erro ao salvar treino: ${error.message}`);
-                });
+            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
+                .then(() => alert('Treino enviado para o aluno!'))
+                .catch(e => alert('Erro: ' + e.message));
         }
 
-
-        // =================================================================
-        // === 3. VISUALIZAÇÃO DE DADOS (Medidas e Gráfico) - AJUSTADO ===
-        // =================================================================
-
-        function carregarHistoricoMedidas() {
-            const tableBody = document.getElementById('tabela-medidas-admin');
-            tableBody.innerHTML = '<tr><td colspan="4">Carregando histórico...</td></tr>';
-
-            // CHAVE DO ALUNO: O aluno salva em: /alunos/[Nome_Aluno]/medidas
-            const firebaseRef = database.ref(obterCaminhoAluno('medidas')).orderByChild('timestamp').limitToLast(10);
-
-            firebaseRef.once('value', (snapshot) => {
-                const medidas = snapshot.val();
-                tableBody.innerHTML = '';
-
-                if (!medidas) {
-                    tableBody.innerHTML = '<tr><td colspan="4">Nenhum registro de medidas.</td></tr>';
-                    return;
-                }
-
-                // Ordena pelo timestamp e inverte a ordem para mostrar o mais recente no topo
-                const medidasArray = Object.values(medidas).sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
-
-                medidasArray.forEach(m => {
-                    // Cuidado com a formatação de dados!
-                    const dataFormatada = m.data ? m.data.replace(/-/g, '/') : '?'; // Data vinda do aluno é 01/11/2025
-                    const peso = m.peso !== undefined ? `${m.peso} kg` : '?'; // O aluno salva como 'peso', não 'pesoCorporal'
-                    const cintura = m.cintura !== undefined ? `${m.cintura} cm` : '?';
-                    const braco = m.braco !== undefined ? `${m.braco} cm` : '?'; // Adicionado braço para mais detalhes
-
-                    const row = tableBody.insertRow();
-                    row.innerHTML = `
-                        <td>${dataFormatada}</td>
-                        <td>${peso}</td>
-                        <td>${cintura}</td>
-                        <td>${braco}</td>
-                    `;
+        // --- 3. DADOS DO ALUNO ---
+        function carregarMedidas() {
+            const tb = document.getElementById('tabela-medidas-admin');
+            database.ref(getPath('medidas')).limitToLast(5).once('value', snap => {
+                tb.innerHTML = '';
+                if(!snap.exists()) { tb.innerHTML = '<tr><td colspan="4">Sem dados</td></tr>'; return; }
+                
+                const arr = [];
+                snap.forEach(c => arr.push(c.val()));
+                arr.reverse().forEach(m => {
+                    const tr = tb.insertRow();
+                    tr.innerHTML = `<td>${m.data}</td><td>${m.peso}kg</td><td>${m.cintura||'-'}</td><td>${m.braco||'-'}</td>`;
                 });
             });
         }
 
-        function inicializarGraficoAluno(exercicioKey) {
-            if (pesoChart) {
-                pesoChart.destroy();
-            }
-
-            // As chaves no Firebase não devem ter espaços. Ex: "SupinoReto"
-            const exercicioPath = exercicioKey.replace(/ /g, '_');
-
-            // CHAVE DO ALUNO: /alunos/[Nome_Aluno]/cargas/agachamentoLivre
-            const firebaseRef = database.ref(obterCaminhoAluno('cargas') + '/' + exercicioPath);
-
-            firebaseRef.once('value', (snapshot) => {
-                const dadosSalvos = [];
-                snapshot.forEach(childSnapshot => {
-                    dadosSalvos.push(childSnapshot.val());
+        function carregarPresenca() {
+            const ul = document.getElementById('lista-presenca');
+            const st = document.getElementById('status-frequencia');
+            database.ref(getPath('presenca')).once('value', snap => {
+                ul.innerHTML = '';
+                if(!snap.exists()) { st.textContent = '0 Presenças'; return; }
+                
+                const dias = Object.keys(snap.val()).reverse(); // Mais recentes
+                st.textContent = `${dias.length} Presenças totais`;
+                
+                dias.slice(0, 10).forEach(d => {
+                    const li = document.createElement('li');
+                    li.textContent = `✅ ${d.replace(/-/g, '/')}`;
+                    li.style.borderBottom = '1px dotted #333';
+                    li.style.padding = '5px 0';
+                    ul.appendChild(li);
                 });
+            });
+        }
 
-                // Ordena os dados por timestamp (para garantir a ordem correta no gráfico)
-                dadosSalvos.sort((a, b) => a.timestamp - b.timestamp);
-
-                const labels = dadosSalvos.map(d => d && d.data ? d.data.substring(0, 5) : '');
-                const pesos = dadosSalvos.map(d => d && d.peso !== undefined ? d.peso : 0);
+        function inicializarGraficoAluno(exKey) {
+            if(pesoChart) pesoChart.destroy();
+            const path = getPath(`cargas/${exKey.replace(/ /g, '')}`);
+            
+            database.ref(path).once('value', snap => {
+                const dados = [];
+                snap.forEach(c => dados.push(c.val()));
+                dados.sort((a,b) => a.timestamp - b.timestamp);
 
                 const ctx = document.getElementById('chartAdmin').getContext('2d');
-
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: labels.length > 0 && pesos.some(p => p > 0) ? labels : ['Sem Dados'],
+                        labels: dados.map(d => d.data),
                         datasets: [{
-                            label: `Carga ${exercicioKey} (kg)`,
-                            data: pesos.length > 0 ? pesos : [0],
+                            label: 'Carga (kg)',
+                            data: dados.map(d => d.peso),
                             borderColor: '#00d4ff',
-                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                            pointBackgroundColor: '#00d4ff',
-                            pointBorderColor: '#fff',
-                            tension: 0.4,
-                            fill: true,
+                            backgroundColor: 'rgba(0,212,255,0.1)',
+                            fill: true
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Carga (kg)',
-                                    color: '#aaa'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: '#aaa'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                    color: '#aaa'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#e0e0e0'
-                                }
-                            }
-                        }
-                    }
+                    options: { scales: { y: { beginAtZero: true, grid:{color:'#333'} }, x: { grid:{color:'#333'} } } }
                 });
             });
         }
-
-        // =================================================================
-        // === 4. CARREGAR FREQUÊNCIA (AJUSTADO) ===
-        // =================================================================
-
-        function carregarHistoricoPresenca() {
-            const listaPresenca = document.getElementById('lista-presenca');
-            const statusDiv = document.getElementById('status-frequencia');
-            listaPresenca.innerHTML = '';
-            statusDiv.textContent = 'Carregando frequência...';
-
-            if (!alunoSelecionadoNome) {
-                statusDiv.textContent = 'Selecione um aluno para ver o histórico.';
-                return;
-            }
-
-            // CHAVE DO ALUNO: /alunos/[Nome_Aluno]/presenca
-            const firebaseRef = database.ref(obterCaminhoAluno('presenca'));
-
-            firebaseRef.once('value', (snapshot) => {
-                const presenca = snapshot.val();
-                let totalPresencas = 0;
-
-                if (!presenca) {
-                    statusDiv.textContent = '⚠️ Nenhum registro de presença encontrado.';
-                    return;
-                }
-
-                // Obtém as chaves (datas) e armazena apenas as datas em que o valor é 'true' (presente)
-                const datasPresentes = Object.keys(presenca).filter(chave => {
-                    if (presenca[chave] === true) {
-                        totalPresencas++;
-                        return true;
-                    }
-                    return false;
-                }).reverse(); // Inverte para mostrar as mais recentes primeiro
-
-                statusDiv.textContent = `✅ Total de Presenças Registradas: ${totalPresencas} vezes`;
-
-                if (totalPresencas === 0) {
-                    statusDiv.textContent = 'Nenhuma presença marcada.';
-                }
-
-                datasPresentes.forEach(chaveData => {
-                    // A data é salva como chave XX-XX-XXXX (Ex: 01-11-2025). Vamos formatar para leitura XX/XX/XXXX
-                    const dataLegivel = chaveData.replace(/-/g, '/');
-
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span style="display: flex; justify-content: space-between;">
-                            <span>✅ Data:</span> <span>${dataLegivel}</span>
-                        </span>
-                    `;
-                    listaPresenca.appendChild(li);
-                });
-
-            });
-        }
-
-
-        // =================================================================
-        // === INICIALIZAÇÃO ===
-        // =================================================================
-
-        document.addEventListener('DOMContentLoaded', carregarListaDeAlunos);
     </script>
 </body>
-
 </html>
