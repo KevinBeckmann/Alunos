@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard do Aluno - Dark Mode</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
 
@@ -34,11 +35,15 @@
         .input-group { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .input-group label { width: 95px; flex-shrink: 0; font-size: 0.9em; color: #ccc; }
         .input-group input, select { flex-grow: 1; padding: 8px; background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #f0f0f0; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        
         select { margin-bottom: 15px; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ff9933" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 30px; }
         select option { background-color: #1a1a1a; }
 
         /* TITULOS */
         h2 { color: #ff9933; margin-top: 0; margin-bottom: 15px; }
+
+        /* CONTAINER DO GRÁFICO */
+        .chart-container { position: relative; height: 300px; width: 100%; margin-bottom: 20px; }
 
         /* LISTA DE TREINO */
         .exercicio-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background-color: rgba(255, 255, 255, 0.05); border-radius: 8px; transition: background-color 0.3s; }
@@ -100,7 +105,7 @@
                 <option value="PuxadaFrontal">Puxada Frontal</option>
             </select>
             
-            <div class="chart-container" style="min-height: 300px;">
+            <div class="chart-container">
                 <canvas id="pesoChart"></canvas>
             </div>
 
@@ -159,10 +164,6 @@
                         <div class="exercicio-info"><strong>Crucifixo Inclinado</strong><span>4x12 | 60s</span></div>
                         <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'Crucifixo')"></div>
                     </li>
-                    <li class="exercicio-item" data-exercicio="TricepsCorda">
-                        <div class="exercicio-info"><strong>Tríceps Corda</strong><span>4x12 | 45s</span></div>
-                        <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'TricepsCorda')"></div>
-                    </li>
                 </ul>
             </div>
 
@@ -177,10 +178,6 @@
                         <div class="exercicio-info"><strong>Remada Curvada</strong><span>4x10 | 90s</span></div>
                         <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia B', 'RemadaCurvada')"></div>
                     </li>
-                     <li class="exercicio-item" data-exercicio="RoscaDireta">
-                        <div class="exercicio-info"><strong>Rosca Direta</strong><span>3x12 | 45s</span></div>
-                        <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia B', 'RoscaDireta')"></div>
-                    </li>
                 </ul>
             </div>
 
@@ -194,10 +191,6 @@
                     <li class="exercicio-item" data-exercicio="LegPress">
                         <div class="exercicio-info"><strong>Leg Press 45°</strong><span>4x10 | 90s</span></div>
                         <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia C', 'LegPress')"></div>
-                    </li>
-                    <li class="exercicio-item" data-exercicio="Panturrilha">
-                        <div class="exercicio-info"><strong>Panturrilha em Pé</strong><span>4x15 | 60s</span></div>
-                        <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia C', 'Panturrilha')"></div>
                     </li>
                 </ul>
             </div>
@@ -264,27 +257,44 @@
             gerarCalendario();
         }
 
-        // --- GRÁFICO ---
+        // --- GRÁFICO (COM HORA PARA NÃO SOBREPOR PONTOS) ---
         function inicializarGrafico() {
             const ex = document.getElementById('seletorExercicio').value;
+            
+            if(pesoChart) { pesoChart.destroy(); }
+
             database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
                 const dados = [];
                 snap.forEach(d => dados.push(d.val()));
                 
+                // Ordena pelo Timestamp numérico para garantir a ordem da linha
+                dados.sort((a,b) => a.timestamp - b.timestamp);
+
                 const ctx = document.getElementById('pesoChart').getContext('2d');
+                
                 if(pesoChart) pesoChart.destroy();
                 
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: dados.map(d => d.data),
+                        labels: dados.length ? dados.map(d => d.data) : ['Início'],
                         datasets: [{
                             label: `Carga ${ex} (kg)`,
-                            data: dados.map(d => d.peso),
-                            borderColor: '#ff8c00', backgroundColor: 'rgba(255,140,0,0.2)', fill: true
+                            data: dados.length ? dados.map(d => d.peso) : [0],
+                            borderColor: '#ff8c00', 
+                            backgroundColor: 'rgba(255,140,0,0.2)', 
+                            fill: true,
+                            tension: 0.3
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#333'} }, x: { grid: { color: '#333'} } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        scales: { 
+                            y: { beginAtZero: true, grid: { color: '#333'} }, 
+                            x: { grid: { color: '#333'} } 
+                        } 
+                    }
                 });
             });
         }
@@ -293,8 +303,15 @@
             const p = document.getElementById('pesoInput').value;
             if(!p) return;
             const ex = document.getElementById('seletorExercicio').value;
+            
+            // AGORA SALVA DATA E HORA PARA QUE O EIXO X SEJA ÚNICO
+            const agora = new Date();
+            const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}) + 
+                                ' ' + 
+                                agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
             database.ref(getPath(`cargas/${ex}`)).push({
-                data: new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}),
+                data: dataLegivel, 
                 peso: parseFloat(p),
                 timestamp: Date.now()
             });
@@ -336,7 +353,7 @@
             });
         }
 
-        // --- TREINO ---
+        // --- TREINO (SINCRONIZADO) ---
         function alternarTreino() {
             const dia = document.getElementById('seletorTreino').value;
             document.querySelectorAll('.lista-treino-dia').forEach(e => e.style.display = 'none');
@@ -364,14 +381,13 @@
         }
 
         function carregarTreinoDoProfessor(dia) {
-            // Se o professor salvou um treino, ele substitui o padrão
             const idLista = dia === 'Dia A' ? 'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
             const ul = document.getElementById(idLista);
             
             database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
                 const novoTreino = snap.val();
                 if(novoTreino && Array.isArray(novoTreino)) {
-                    ul.innerHTML = ''; // Limpa o padrão
+                    ul.innerHTML = '';
                     novoTreino.forEach(t => {
                         const id = t.nome.replace(/\s/g, '');
                         const li = document.createElement('li');
@@ -383,7 +399,7 @@
                         `;
                         ul.appendChild(li);
                     });
-                    carregarCheckboxes(dia); // Reaplica checks
+                    carregarCheckboxes(dia);
                 }
             });
         }
@@ -391,7 +407,6 @@
         // --- PRESENÇA ---
         function gerarCalendario() {
             const hoje = new Date();
-            const diaAtual = hoje.getDate();
             const mesAtual = hoje.getMonth();
             const anoAtual = hoje.getFullYear();
 
@@ -401,13 +416,12 @@
             let html = '<tr>';
             let contadorDias = 1;
 
-            // Loop de 6 semanas para cobrir qualquer mês
             for (let i = 0; i < 6; i++) {
                 for (let j = 0; j < 7; j++) {
                     if (i === 0 && j < primeiroDiaSemana) {
-                        html += '<td></td>'; // Espaço vazio antes do dia 1
+                        html += '<td></td>';
                     } else if (contadorDias > ultimoDiaMes) {
-                        html += '<td></td>'; // Espaço vazio depois do fim do mês
+                        html += '<td></td>';
                     } else {
                         const chaveData = `${String(contadorDias).padStart(2,'0')}-${String(mesAtual+1).padStart(2,'0')}-${anoAtual}`;
                         html += `<td id="dia-${chaveData}" onclick="togglePresenca('${chaveData}')">${contadorDias}</td>`;
@@ -444,7 +458,7 @@
         }
 
         function resetarDados(tipo) {
-            if(confirm('Tem certeza?')) {
+            if(confirm('Tem certeza? Isso apagará o histórico.')) {
                 let p = tipo === 'presenca' ? 'presenca' : (tipo === 'cargas' ? `cargas/${document.getElementById('seletorExercicio').value}` : 'medidas');
                 database.ref(getPath(p)).remove();
                 alert('Apagado.');
