@@ -100,7 +100,10 @@
             <h2>📈 Progressão de Carga</h2>
             <label for="seletorExercicio">Visualizar Exercício:</label>
             <select id="seletorExercicio" onchange="inicializarGrafico()">
-                </select>
+                <option value="AgachamentoLivre">Agachamento Livre</option>
+                <option value="SupinoReto">Supino Reto</option>
+                <option value="PuxadaFrontal">Puxada Frontal</option>
+            </select>
             
             <div class="chart-container">
                 <canvas id="pesoChart"></canvas>
@@ -248,61 +251,11 @@
             document.getElementById('main-title').textContent = `Bem-vindo, ${alunoNome.split(' ')[0]}!`;
             document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
             
-            // Chama a função que carrega os exercícios antes de inicializar o gráfico
-            carregarExerciciosNoSeletor(); 
-            
+            inicializarGrafico();
             carregarUltimasMedidas();
             alternarTreino();
             gerarCalendario();
         }
-
-        // --- CARREGA OS EXERCÍCIOS PARA O DROPDOWN DO GRÁFICO (NOVO) ---
-        function carregarExerciciosNoSeletor() {
-            const seletor = document.getElementById('seletorExercicio');
-            const exerciciosUnicos = new Set();
-            
-            seletor.innerHTML = ''; 
-
-            database.ref(getPath(`treinoModel`)).once('value', snap => {
-                const treinos = snap.val();
-                
-                if (treinos) {
-                    // Percorre todos os dias (A, B, C)
-                    Object.keys(treinos).forEach(dia => {
-                        // Certifica-se de que o treino é um array antes de iterar
-                        if(Array.isArray(treinos[dia])){
-                             treinos[dia].forEach(ex => {
-                                exerciciosUnicos.add(ex.nome); // Usa o nome do exercício
-                            });
-                        }
-                    });
-                }
-
-                // Adiciona os exercícios únicos ao seletor
-                exerciciosUnicos.forEach(nome => {
-                    // Converte o nome (ex: Supino Inclinado) para um ID (SupinoInclinado)
-                    const id = nome.replace(/\s/g, ''); 
-                    const option = document.createElement('option');
-                    option.value = id;
-                    option.textContent = nome;
-                    seletor.appendChild(option);
-                });
-
-                // Inicializa o gráfico com o primeiro exercício da lista ou com AgachamentoLivre
-                if (exerciciosUnicos.size > 0) {
-                    inicializarGrafico();
-                } else {
-                    // Adiciona opções padrão se não houver treino configurado (Fallback)
-                    seletor.innerHTML = `
-                        <option value="AgachamentoLivre">Agachamento Livre</option>
-                        <option value="SupinoReto">Supino Reto</option>
-                        <option value="PuxadaFrontal">Puxada Frontal</option>
-                    `;
-                    inicializarGrafico();
-                }
-            });
-        }
-
 
         // --- GRÁFICO ---
         function inicializarGrafico() {
@@ -339,20 +292,8 @@
                         maintainAspectRatio: false, 
                         scales: { 
                             y: { beginAtZero: true, grid: { color: '#333'} }, 
-                            x: { 
-                                grid: { color: '#333'},
-                                // Garante que todos os labels sejam visíveis
-                                ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45
-                                }
-                            } 
-                        },
-                        plugins: {
-                            legend: {
-                                display: true
-                            }
-                        }
+                            x: { grid: { color: '#333'} } 
+                        } 
                     }
                 });
             });
@@ -360,34 +301,22 @@
 
         function adicionarPeso() {
             const p = document.getElementById('pesoInput').value;
-            // Se o input estiver vazio ou não for um número válido, a função retorna
-            if(!p || isNaN(parseFloat(p))) {
-                 alert('Por favor, insira um valor de carga válido.');
-                 return;
-            }
-            
+            if(!p) return;
             const ex = document.getElementById('seletorExercicio').value;
             
-            // SOLUÇÃO DEFINITIVA: SALVA DATA, HORA E SEGUNDOS PARA GARANTIR UNICIDADE E SALVAR A SEGUNDA CARGA
+            // AGORA SALVA DATA, HORA E SEGUNDOS PARA GARANTIR QUE OS PONTOS SEJAM ÚNICOS
             const agora = new Date();
             const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}) + 
                                 ' ' + 
-                                agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second: '2-digit'}); 
+                                agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second: '2-digit'}); // ADICIONADO SEGUNDO
 
             database.ref(getPath(`cargas/${ex}`)).push({
                 data: dataLegivel, 
                 peso: parseFloat(p),
                 timestamp: Date.now()
-            })
-            .then(() => {
-                 // A carga foi registrada com sucesso
-                 document.getElementById('pesoInput').value = '';
-            })
-            .catch(error => {
-                 alert('Erro ao registrar carga no Firebase: ' + error.message);
             });
+            document.getElementById('pesoInput').value = '';
         }
-
 
         // --- MEDIDAS ---
         function registrarMedidas() {
@@ -532,9 +461,8 @@
             if(confirm('Tem certeza? Isso apagará o histórico.')) {
                 let p = tipo === 'presenca' ? 'presenca' : (tipo === 'cargas' ? `cargas/${document.getElementById('seletorExercicio').value}` : 'medidas');
                 database.ref(getPath(p)).remove();
-                alert('Histórico resetado com sucesso.');
-                if(tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
-                if(tipo === 'cargas') inicializarGrafico();
+                alert('Apagado.');
+                if(tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = '';
             }
         }
     </script>
