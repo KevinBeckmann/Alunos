@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,17 +8,31 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
 
     <style>
         /* --- ESTILOS DARK MODE --- */
         body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background-color: #121212; color: #e0e0e0; }
         
-        .main-header { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-        .main-header h1 { color: #00d4ff; margin: 0; font-size: 2em; }
+        /* Estilos da Tela de Login */
+        #login-screen {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+        #login-screen h2 { color: #00d4ff; margin-bottom: 20px; }
+        #login-screen input { margin-bottom: 15px; }
+        #login-screen button { padding: 10px; }
 
+        /* Estilos do Painel (Mantidos) */
+        .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .main-header h1 { color: #00d4ff; margin: 0; font-size: 2em; }
         .container { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1fr; }
         @media (min-width: 1024px) { .container { grid-template-columns: 1fr 2fr; } }
-
         .card { background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; }
         
         input, select { width: 100%; padding: 10px; margin-top: 5px; background-color: #2c2c2c; border: 1px solid #444; border-radius: 5px; color: white; box-sizing: border-box; }
@@ -39,66 +52,76 @@
 
 <body>
 
-    <div class="main-header">
-        <h1>Painel do Personal</h1>
+    <div id="login-screen" style="display:none;">
+        <h2>Acesso Restrito - Painel do Personal</h2>
+        <input type="email" id="login-email" placeholder="E-mail" required>
+        <input type="password" id="login-senha" placeholder="Senha" required>
+        <button class="btn-save" onclick="fazerLogin()">Entrar</button>
+        <p id="login-erro" style="color: #dc3545; margin-top: 10px;"></p>
     </div>
 
-    <div class="container">
-
-        <div class="left-col">
-            <div class="card">
-                <h2>✏️ Editar Treino</h2>
-                <label>Selecione o Aluno:</label>
-                <select id="selectAluno"><option>Carregando...</option></select>
-
-                <label>Dia do Treino:</label>
-                <select id="selectDia">
-                    <option value="Dia A">Dia A</option>
-                    <option value="Dia B">Dia B</option>
-                    <option value="Dia C">Dia C</option>
-                </select>
-
-                <hr style="border-color: #333; margin: 20px 0;">
-                <div id="editor-container"></div>
-                <button class="btn-save" onclick="salvarTreino()">💾 Salvar e Enviar ao Aluno</button>
-            </div>
+    <div id="main-content" style="display:none;">
+        <div class="main-header">
+            <h1>Painel do Personal</h1>
+            <button class="btn-save" onclick="fazerLogout()" style="width: auto; margin: 0; background-color: #dc3545;">Sair</button>
         </div>
 
-        <div class="right-col">
-            <div class="card">
-                <h2 id="titulo-acompanhamento">📊 Acompanhamento</h2>
-                
-                <div style="margin-bottom: 10px;">
-                    <span>Gráfico de Carga:</span>
-                    <select id="selectGrafico" onchange="inicializarGraficoAluno(this.value)">
-                        <option value="AgachamentoLivre">Agachamento Livre</option>
-                        <option value="SupinoReto">Supino Reto</option>
-                        <option value="PuxadaFrontal">Puxada Frontal</option>
+        <div class="container">
+            <div class="left-col">
+                <div class="card">
+                    <h2>✏️ Editar Treino</h2>
+                    <label>Selecione o Aluno:</label>
+                    <select id="selectAluno"><option>Carregando...</option></select>
+
+                    <label>Dia do Treino:</label>
+                    <select id="selectDia">
+                        <option value="Dia A">Dia A</option>
+                        <option value="Dia B">Dia B</option>
+                        <option value="Dia C">Dia C</option>
                     </select>
+
+                    <hr style="border-color: #333; margin: 20px 0;">
+                    <div id="editor-container"></div>
+                    <button class="btn-save" onclick="salvarTreino()">💾 Salvar e Enviar ao Aluno</button>
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="card">
+                    <h2 id="titulo-acompanhamento">📊 Acompanhamento</h2>
+                    
+                    <div style="margin-bottom: 10px;">
+                        <span>Gráfico de Carga:</span>
+                        <select id="selectGrafico" onchange="inicializarGraficoAluno(this.value)">
+                            <option value="AgachamentoLivre">Agachamento Livre</option>
+                            <option value="SupinoReto">Supino Reto</option>
+                            <option value="PuxadaFrontal">Puxada Frontal</option>
+                        </select>
+                    </div>
+
+                    <div style="height: 300px;"><canvas id="chartAdmin"></canvas></div>
+                    
+                    <h3>Últimas Medidas (Histórico)</h3>
+                    <table style="font-size: 0.9em;">
+                        <thead><tr><th>Data</th><th>Peso</th><th>Cintura</th><th>Braço</th></tr></thead>
+                        <tbody id="tabela-medidas-admin"></tbody>
+                    </table>
                 </div>
 
-                <div style="height: 300px;"><canvas id="chartAdmin"></canvas></div>
-                
-                <h3>Últimas Medidas (Histórico)</h3>
-                <table style="font-size: 0.9em;">
-                    <thead><tr><th>Data</th><th>Peso</th><th>Cintura</th><th>Braço</th></tr></thead>
-                    <tbody id="tabela-medidas-admin"></tbody>
-                </table>
-            </div>
-
-            <div class="card" style="margin-top: 20px;">
-                <h2>📅 Frequência</h2>
-                <div id="status-frequencia" style="color: #00d4ff; font-weight: bold; margin-bottom: 10px;"></div>
-                <ul id="lista-presenca" style="list-style: none; padding: 0;"></ul>
+                <div class="card" style="margin-top: 20px;">
+                    <h2>📅 Frequência</h2>
+                    <div id="status-frequencia" style="color: #00d4ff; font-weight: bold; margin-bottom: 10px;"></div>
+                    <ul id="lista-presenca" style="list-style: none; padding: 0;"></ul>
+                </div>
             </div>
         </div>
-
     </div>
 
     <script>
         // === 1. CONFIGURAÇÃO FIREBASE ===
         const firebaseConfig = {
-            apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
+
+            apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
             databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
             projectId: "ptf03-26fdb",
@@ -108,6 +131,7 @@
         };
 
         const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth(); 
         const database = firebase.database();
         
         let alunoSelecionadoNome = ''; 
@@ -115,20 +139,79 @@
         let medidasRef = null; 
         let presencaRef = null; 
 
-        // --- UTILS ---
-        function formatarNomeParaChave(nome) {
-            // Ex: "Maria silva" -> "Maria_Silva"
-            return nome.trim().split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join('_');
+        // ------------------------------------
+        // === FUNÇÕES DE AUTENTICAÇÃO ===
+        // ------------------------------------
+
+        function mostrarErro(mensagem) {
+            document.getElementById('login-erro').textContent = `Erro: ${mensagem}`;
         }
 
-        function getPath(sub) {
-            return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
+        function fazerLogin() {
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            mostrarErro(''); 
+
+            if (!email || !senha) {
+                return mostrarErro('Preencha e-mail e senha.');
+            }
+
+            auth.signInWithEmailAndPassword(email, senha)
+                .then((userCredential) => {
+                    console.log('Login feito com sucesso!', userCredential.user);
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        mostrarErro('E-mail ou senha incorretos.');
+                    } else if (error.code === 'auth/invalid-email') {
+                         mostrarErro('Formato de e-mail inválido.');
+                    } else {
+                        mostrarErro(error.message);
+                    }
+                });
+        }
+        
+        function fazerLogout() {
+             auth.signOut().then(() => {
+                console.log('Usuário deslogado.');
+            }).catch((error) => {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao sair: ' + error.message);
+            });
         }
 
-        // --- 2. INICIALIZAÇÃO ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const sel = document.getElementById('selectAluno');
+        auth.onAuthStateChanged((user) => {
+            const loginScreen = document.getElementById('login-screen');
+            const mainContent = document.getElementById('main-content');
             
+            if (user) {
+                loginScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                inicializarPainel();
+            } else {
+                loginScreen.style.display = 'block';
+                mainContent.style.display = 'none';
+            }
+        });
+
+
+        // ------------------------------------
+        // === FUNÇÕES DE LÓGICA DO PAINEL ===
+        // ------------------------------------
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // A inicialização agora é feita dentro de 'onAuthStateChanged'
+        });
+        
+        function inicializarPainel() {
+            const sel = document.getElementById('selectAluno');
+            sel.onchange = (e) => {
+                alunoSelecionadoNome = e.target.value;
+                carregarTudo(); 
+            };
+            document.getElementById('selectDia').onchange = carregarTreinoDia;
+
+            // Carrega a lista de alunos e inicia o painel
             database.ref('alunos/').once('value', snap => {
                 const alunos = snap.val();
                 sel.innerHTML = '';
@@ -150,14 +233,16 @@
                     carregarTudo();
                 }
             });
+        }
+        
+        // --- UTILS ---
+        function formatarNomeParaChave(nome) {
+            return nome.trim().split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join('_');
+        }
 
-            sel.onchange = (e) => {
-                alunoSelecionadoNome = e.target.value;
-                carregarTudo(); 
-            };
-            
-            document.getElementById('selectDia').onchange = carregarTreinoDia;
-        });
+        function getPath(sub) {
+            return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
+        }
 
         function carregarTudo() {
             if(!alunoSelecionadoNome) return;
@@ -166,7 +251,6 @@
             carregarTreinoDia();
             carregarMedidas(); 
             carregarPresenca(); 
-            // Lê o exercício atual do Select
             inicializarGraficoAluno(document.getElementById('selectGrafico').value); 
         }
 
@@ -187,7 +271,6 @@
                 const arr = [];
                 snap.forEach(c => {
                     const val = c.val();
-                    // DEBUG DAS MEDIDAS
                     console.log(`MEDIDA CRUA [${c.key}]:`, JSON.stringify(val));
                     arr.push(val);
                 });
@@ -195,7 +278,6 @@
                 arr.sort((a,b) => b.timestamp - a.timestamp); // Recente primeiro
                 
                 arr.forEach(m => {
-                    // Tenta encontrar a chave correta, não importa como foi salvo
                     const peso = m.peso || m.carga || m.weight || '-';
                     const cintura = m.cintura || m.waist || '-';
                     const braco = m.braco || m.arm || '-';
@@ -238,7 +320,6 @@
         function inicializarGraficoAluno(exKey) {
             if (!alunoSelecionadoNome) return;
             
-            // Destrói gráfico anterior
             if(pesoChart) {
                 pesoChart.destroy();
                 pesoChart = null;
@@ -254,7 +335,6 @@
                     console.log("✅ PASTA DO GRÁFICO ENCONTRADA! VERIFIQUE A CONSISTÊNCIA ABAIXO:");
                     snap.forEach(c => {
                         const val = c.val();
-                        // ESTA LINHA É A CHAVE: MOSTRA O OBJETO COMPLETO DE CADA REGISTRO
                         console.log(`Registro [${c.key}]:`, JSON.stringify(val)); 
                         dados.push(val);
                     });
@@ -284,7 +364,6 @@
             const titulo = select.options[select.selectedIndex].text;
 
             if(dados.length === 0) {
-                // Cria um gráfico vazio só para não dar erro visual
                 pesoChart = new Chart(ctx, {
                     type: 'line', data: { labels: [], datasets: [] },
                     options: { plugins: { title: { display: true, text: 'Sem dados para este exercício' } } }
@@ -292,26 +371,22 @@
                 return;
             }
 
-            // Detecta nome da variável de peso (peso, carga, weight)
             const exemplo = dados.find(d => d.peso || d.carga || d.weight) || dados[0];
-            let chavePeso = 'peso'; // Padrão
+            let chavePeso = 'peso'; 
             if(exemplo) {
                 if (exemplo.carga !== undefined) chavePeso = 'carga';
                 else if (exemplo.weight !== undefined) chavePeso = 'weight';
             }
             console.log(`🔑 CHAVE DE PESO DETECTADA: "${chavePeso}"`);
 
-            // Ordena por Data (Antigo -> Novo)
             dados.sort((a,b) => a.timestamp - b.timestamp);
 
             pesoChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    // Label é a data. Tenta usar 'data', 'date' ou formata pelo timestamp.
                     labels: dados.map(d => d.data || d.date || new Date(d.timestamp).toLocaleDateString()),
                     datasets: [{
                         label: `${titulo} (kg)`,
-                        // Usa a chave detectada dinamicamente
                         data: dados.map(d => parseFloat(d[chavePeso]) || 0),
                         borderColor: '#00d4ff',
                         backgroundColor: 'rgba(0,212,255,0.1)',
