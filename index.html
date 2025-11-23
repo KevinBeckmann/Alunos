@@ -7,7 +7,7 @@
     <title>Dashboard do Aluno - Dark Mode</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    
+
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
 
@@ -257,65 +257,102 @@
             gerarCalendario();
         }
 
-        // --- GRÁFICO ---
+        // 🎯 FUNÇÃO CORRIGIDA: INICIALIZAR GRÁFICO
         function inicializarGrafico() {
             const ex = document.getElementById('seletorExercicio').value;
-            
-            if(pesoChart) { pesoChart.destroy(); }
+            const nomeExercicioDisplay = document.querySelector(`#seletorExercicio option[value="${ex}"]`).textContent;
 
+            // 1. Destrói a instância anterior para evitar sobreposição ou erros
+            if (pesoChart) {
+                pesoChart.destroy();
+                pesoChart = null; // Garante que a variável seja resetada
+            }
+
+            const ctx = document.getElementById('pesoChart').getContext('2d');
+
+            // 2. Escuta o Firebase em tempo real
             database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
                 const dados = [];
-                snap.forEach(d => dados.push(d.val()));
+                snap.forEach(d => {
+                    const val = d.val();
+                    // Garante que o timestamp e peso existam antes de adicionar
+                    if (val && val.peso !== undefined && val.timestamp) {
+                        dados.push(val);
+                    }
+                });
                 
-                // Ordena pelo Timestamp numérico para garantir a ordem da linha
-                dados.sort((a,b) => a.timestamp - b.timestamp);
+                // 3. PASSO CRUCIAL: ORDENA OS DADOS PELO TIMESTAMP
+                // Isso garante que os pontos sejam plotados na ordem cronológica correta, formando a linha.
+                dados.sort((a, b) => a.timestamp - b.timestamp);
 
-                const ctx = document.getElementById('pesoChart').getContext('2d');
+                const labels = dados.length ? dados.map(d => d.data) : ['Início'];
+                const pesos = dados.length ? dados.map(d => d.peso) : [0];
                 
-                if(pesoChart) pesoChart.destroy();
-                
+                // 4. Cria a nova instância do gráfico
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: dados.length ? dados.map(d => d.data) : ['Início'],
+                        labels: labels,
                         datasets: [{
-                            label: `Carga ${ex} (kg)`,
-                            data: dados.length ? dados.map(d => d.peso) : [0],
+                            label: `Carga ${nomeExercicioDisplay} (kg)`, // Usa o nome legível
+                            data: pesos,
                             borderColor: '#ff8c00', 
                             backgroundColor: 'rgba(255,140,0,0.2)', 
                             fill: true,
-                            tension: 0.3
+                            tension: 0.3,
+                            pointRadius: 5, // Adicionado para destacar os pontos
+                            pointBackgroundColor: '#ff8c00'
                         }]
                     },
                     options: { 
                         responsive: true, 
                         maintainAspectRatio: false, 
                         scales: { 
-                            y: { beginAtZero: true, grid: { color: '#333'} }, 
-                            x: { grid: { color: '#333'} } 
-                        } 
-                    }
+                            y: { 
+                                beginAtZero: true, 
+                                grid: { color: '#333'},
+                                ticks: { color: '#f0f0f0' },
+                                title: { display: true, text: 'Peso (kg)', color: '#ff8c00' }
+                            }, 
+                            x: { 
+                                grid: { color: '#333'},
+                                ticks: { color: '#f0f0f0' }
+                            } 
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#f0f0f0' } }
+                        }
+                    } 
                 });
             });
         }
 
+        // 🎯 FUNÇÃO CORRIGIDA: ADICIONAR PESO
         function adicionarPeso() {
             const p = document.getElementById('pesoInput').value;
-            if(!p) return;
+            if(!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
+                alert('Por favor, insira uma carga válida e positiva.');
+                return;
+            }
             const ex = document.getElementById('seletorExercicio').value;
             
-            // AGORA SALVA DATA, HORA E SEGUNDOS PARA GARANTIR QUE OS PONTOS SEJAM ÚNICOS
             const agora = new Date();
+            // FORMATO DO LABEL (EIXO X): Dia/Mês Hora:Minuto
             const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}) + 
                                 ' ' + 
-                                agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second: '2-digit'}); // ADICIONADO SEGUNDO
-
+                                agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}); // Minuto é suficiente
+            
             database.ref(getPath(`cargas/${ex}`)).push({
                 data: dataLegivel, 
                 peso: parseFloat(p),
-                timestamp: Date.now()
+                timestamp: Date.now() // Timestamp em milissegundos para ordenação garantida
+            }).then(() => {
+                document.getElementById('pesoInput').value = '';
+                // O gráfico será atualizado automaticamente pelo listener 'on' em inicializarGrafico()
+            }).catch(error => {
+                console.error("Erro ao adicionar peso:", error);
+                alert("Erro ao registrar carga.");
             });
-            document.getElementById('pesoInput').value = '';
         }
 
         // --- MEDIDAS ---
@@ -450,6 +487,7 @@
         function carregarPresencas() {
             database.ref(getPath('presenca')).on('value', snap => {
                 const p = snap.val() || {};
+                document.querySelectorAll('#calendario-body td').forEach(td => td.classList.remove('presente'));
                 Object.keys(p).forEach(k => {
                     const td = document.getElementById(`dia-${k}`);
                     if(td) td.classList.add('presente');
@@ -462,7 +500,10 @@
                 let p = tipo === 'presenca' ? 'presenca' : (tipo === 'cargas' ? `cargas/${document.getElementById('seletorExercicio').value}` : 'medidas');
                 database.ref(getPath(p)).remove();
                 alert('Apagado.');
-                if(tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = '';
+                // Força a recriação do calendário e do gráfico após resetar
+                if(tipo === 'presenca') gerarCalendario();
+                if(tipo === 'cargas') inicializarGrafico();
+                if(tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
             }
         }
     </script>
