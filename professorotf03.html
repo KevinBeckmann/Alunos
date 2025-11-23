@@ -112,6 +112,8 @@
         
         let alunoSelecionadoNome = '';
         let pesoChart;
+        let medidasRef = null; // Variável para armazenar a referência da escuta de medidas
+        let presencaRef = null; // Variável para armazenar a referência da escuta de presença
 
         // --- UTILS ---
         function formatarNomeParaChave(nome) {
@@ -147,6 +149,7 @@
                 }
             });
 
+            // 🎯 LÓGICA DE ATUALIZAÇÃO AO MUDAR O ALUNO
             sel.onchange = (e) => {
                 alunoSelecionadoNome = e.target.value;
                 carregarTudo();
@@ -158,12 +161,12 @@
         function carregarTudo() {
             document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento: ${alunoSelecionadoNome}`;
             carregarTreinoDia();
-            carregarMedidas();
-            carregarPresenca();
-            inicializarGraficoAluno(document.getElementById('selectGrafico').value);
+            carregarMedidas(); // Chamado ao trocar de aluno
+            carregarPresenca(); // Chamado ao trocar de aluno
+            inicializarGraficoAluno(document.getElementById('selectGrafico').value); // Chamado ao trocar de aluno
         }
 
-        // --- 2. EDITOR DE TREINO ---
+        // --- 2. EDITOR DE TREINO (MANTIDO) ---
         function carregarTreinoDia() {
             const dia = document.getElementById('selectDia').value;
             const container = document.getElementById('editor-container');
@@ -221,29 +224,60 @@
         }
 
         // --- 3. DADOS DO ALUNO ---
+
+        // 🎯 FUNÇÃO CORRIGIDA: CARREGAR MEDIDAS
         function carregarMedidas() {
+            if (!alunoSelecionadoNome) return;
             const tb = document.getElementById('tabela-medidas-admin');
-            database.ref(getPath('medidas')).limitToLast(5).once('value', snap => {
+
+            // 1. Remove a escuta anterior (se existir)
+            if (medidasRef) {
+                database.ref(medidasRef).off('value');
+            }
+            tb.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+
+            // 2. Cria a nova referência e armazena
+            medidasRef = getPath('medidas');
+            
+            // 3. Escuta os dados do novo aluno
+            database.ref(medidasRef).limitToLast(5).on('value', snap => {
                 tb.innerHTML = '';
                 if(!snap.exists()) { tb.innerHTML = '<tr><td colspan="4">Sem dados</td></tr>'; return; }
                 
                 const arr = [];
                 snap.forEach(c => arr.push(c.val()));
-                arr.reverse().forEach(m => {
+                // Ordena por timestamp para garantir o mais recente no topo se houver inconsistência do Firebase
+                arr.sort((a,b) => b.timestamp - a.timestamp); 
+                
+                arr.forEach(m => {
                     const tr = tb.insertRow();
                     tr.innerHTML = `<td>${m.data}</td><td>${m.peso}kg</td><td>${m.cintura||'-'}</td><td>${m.braco||'-'}</td>`;
                 });
             });
         }
 
+        // 🎯 FUNÇÃO CORRIGIDA: CARREGAR PRESENÇA
         function carregarPresenca() {
+            if (!alunoSelecionadoNome) return;
             const ul = document.getElementById('lista-presenca');
             const st = document.getElementById('status-frequencia');
-            database.ref(getPath('presenca')).once('value', snap => {
+
+            // 1. Remove a escuta anterior (se existir)
+            if (presencaRef) {
+                database.ref(presencaRef).off('value');
+            }
+            ul.innerHTML = 'Carregando...';
+            st.textContent = '...';
+
+            // 2. Cria a nova referência e armazena
+            presencaRef = getPath('presenca');
+
+            // 3. Escuta os dados do novo aluno
+            database.ref(presencaRef).on('value', snap => {
                 ul.innerHTML = '';
                 if(!snap.exists()) { st.textContent = '0 Presenças'; return; }
                 
-                const dias = Object.keys(snap.val()).reverse(); // Mais recentes
+                const dias = Object.keys(snap.val()).reverse(); // Datas mais recentes
                 st.textContent = `${dias.length} Presenças totais`;
                 
                 dias.slice(0, 10).forEach(d => {
@@ -256,29 +290,63 @@
             });
         }
 
+
+        // 🎯 FUNÇÃO CORRIGIDA: INICIALIZAR GRÁFICO DO ALUNO
         function inicializarGraficoAluno(exKey) {
-            if(pesoChart) pesoChart.destroy();
+            if (!alunoSelecionadoNome) return;
+            
+            // 1. Destrói a instância anterior para evitar erros de sobreposição
+            if(pesoChart) {
+                pesoChart.destroy();
+                pesoChart = null;
+            }
+            
             const path = getPath(`cargas/${exKey.replace(/ /g, '')}`);
             
+            // 2. Obtém os dados do novo aluno (once)
             database.ref(path).once('value', snap => {
                 const dados = [];
                 snap.forEach(c => dados.push(c.val()));
+                
+                // CRUCIAL: Ordena pelo timestamp para garantir a linha correta
                 dados.sort((a,b) => a.timestamp - b.timestamp);
 
                 const ctx = document.getElementById('chartAdmin').getContext('2d');
+                
+                // Usa o nome do exercício da select para o label
+                const nomeExercicioDisplay = document.querySelector(`#selectGrafico option[value="${exKey}"]`).textContent;
+
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: dados.map(d => d.data),
                         datasets: [{
-                            label: 'Carga (kg)',
+                            label: `${nomeExercicioDisplay} (kg)`,
                             data: dados.map(d => d.peso),
                             borderColor: '#00d4ff',
                             backgroundColor: 'rgba(0,212,255,0.1)',
-                            fill: true
+                            fill: true,
+                            tension: 0.3 // Adiciona suavidade
                         }]
                     },
-                    options: { scales: { y: { beginAtZero: true, grid:{color:'#333'} }, x: { grid:{color:'#333'} } } }
+                    options: { 
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { 
+                            y: { 
+                                beginAtZero: true, 
+                                grid:{color:'#333'},
+                                ticks: { color: '#e0e0e0' }
+                            }, 
+                            x: { 
+                                grid:{color:'#333'},
+                                ticks: { color: '#e0e0e0' }
+                            } 
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#e0e0e0' } }
+                        }
+                    }
                 });
             });
         }
