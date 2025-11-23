@@ -4,99 +4,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Treinador - Admin</title>
+    <title>Dashboard do Aluno - Dark Mode</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
 
     <style>
-        /* --- CSS DARK MODE PROFESSOR --- */
-        body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background-color: #121212; color: #e0e0e0; }
-        .main-header { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-        .main-header img { max-width: 40px; margin-right: 10px; }
-        .main-header h1 { color: #00d4ff; margin: 0; font-size: 2em; }
-
-        .container { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1fr; }
-        @media (min-width: 1024px) { .container { grid-template-columns: 1fr 2fr; } }
-
-        .card { background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; }
+        /* [Estilos CSS - Mantido como o seu original] */
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background-color: #000000; color: #f0f0f0; }
+        nav { text-align: right; margin-bottom: 10px; }
+        nav a { color: #ff8c00; text-decoration: none; font-size: 0.9em; }
         
-        input, select { width: 100%; padding: 10px; margin-top: 5px; background-color: #2c2c2c; border: 1px solid #444; border-radius: 5px; color: white; box-sizing: border-box; }
+        /* HEADER */
+        .header-content { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; gap: 20px; text-align: center; }
+        .header-content img { max-width: 80px; height: auto; border-radius: 10px; }
+        .header-content h1 { color: #ff8c00; margin: 0; font-size: 2.2em; line-height: 1.2; }
         
-        button.btn-save { width: 100%; padding: 12px; margin-top: 20px; background-color: #00d4ff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button.btn-save:hover { background-color: #00a3cc; }
+        /* LAYOUT RESPONSIVO */
+        .container { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; width: 100%; justify-content: center; grid-template-columns: 1fr; }
+        @media (min-width: 768px) { .container { grid-template-columns: 1fr 1fr; } #chart-card { grid-column: 1 / 3; order: 1; } }
+        @media (min-width: 1024px) { .container { grid-template-columns: 1fr 1fr 1fr; } #chart-card { grid-column: auto; order: initial; } }
 
-        /* Grid do Editor de Treino */
-        .treino-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #333; align-items: end; }
-        .btn-remover { padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; height: 40px; }
+        /* CARDS */
+        .card { background-color: rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); }
+        #medidas-card { order: 2; }
+
+        /* FORMULÁRIOS E INPUTS */
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .input-group label { width: 95px; flex-shrink: 0; font-size: 0.9em; color: #ccc; }
+        .input-group input, select { flex-grow: 1; padding: 8px; background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #f0f0f0; border-radius: 4px; width: 100%; box-sizing: border-box; }
         
-        /* Tabelas */
-        table { width: 100%; text-align: left; border-collapse: collapse; }
-        th, td { padding: 8px; border-bottom: 1px solid #333; }
-        th { color: #aaa; }
+        select { margin-bottom: 15px; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ff9933" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; padding-right: 30px; }
+        select option { background-color: #1a1a1a; }
+
+        /* TITULOS */
+        h2 { color: #ff9933; margin-top: 0; margin-bottom: 15px; }
+
+        /* CONTAINER DO GRÁFICO */
+        .chart-container { position: relative; height: 300px; width: 100%; margin-bottom: 20px; }
+
+        /* LISTA DE TREINO */
+        .exercicio-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background-color: rgba(255, 255, 255, 0.05); border-radius: 8px; transition: background-color 0.3s; }
+        .exercicio-item:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .exercicio-info strong { font-size: 1.1em; display: block; margin-bottom: 5px; }
+        .checkbox-container input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
+        .concluido { background-color: #387038; opacity: 0.7; text-decoration: line-through; color: #a0a0a0; }
+
+        /* TABELA PRESENÇA */
+        .presenca-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .presenca-table th, .presenca-table td { border: 1px solid rgba(255, 255, 255, 0.2); padding: 8px; cursor: pointer; }
+        .presenca-table th { background-color: #ff8c00; color: white; }
+        .presente { background-color: #5cb85c !important; color: white; }
+
+        /* BOTÕES */
+        button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
+        .btn-primary { background-color: #ffc107; color: #333; }
+        .btn-primary:hover { background-color: #e0a800; }
+        .reset-btn { margin-top: 15px; background-color: #dc3545; color: white; }
+        .reset-btn:hover { background-color: #c9302c; }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: #0d0d0d; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; border: 2px solid #ff8c00; }
+        .modal-content img { max-width: 100px; margin-bottom: 20px; }
+        #botaoSalvarNome { background-color: #ff8c00; color: #000; margin-top: 10px; }
     </style>
 </head>
 
-<body>
+<body onload="obterNomeAluno()">
 
-    <div class="main-header">
-        <img src="logotipo.png" alt="Logo" onerror="this.style.display='none'">
-        <h1>Painel do Personal</h1>
+    <nav>
+        <a href="professor.html">Acessar a Página do Professor</a>
+    </nav>
+
+    <div id="modal-nome" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <img src="logotipo.png" alt="Logo PTF3" onerror="this.style.display='none'">
+            <h3>Bem-vindo(a)!</h3>
+            <p>Por favor, insira seu nome:</p>
+            <input type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
+        </div>
+    </div>
+
+    <div class="header-content">
+        <img src="logotipo.png" alt="Logo PTF3" onerror="this.style.display='none'">
+        <h1 id="main-title">Seja bem-vindo ao seu Espaço.</h1>
     </div>
 
     <div class="container">
 
-        <div class="left-col">
-            <div class="card">
-                <h2>✏️ Editar Treino</h2>
-                <label>Selecione o Aluno:</label>
-                <select id="selectAluno"><option>Carregando...</option></select>
+        <div id="chart-card" class="card">
+            <h2>📈 Progressão de Carga</h2>
+            <label for="seletorExercicio">Visualizar Exercício:</label>
+            <select id="seletorExercicio" onchange="inicializarGrafico()">
+                <option value="AgachamentoLivre">Agachamento Livre</option>
+                <option value="SupinoReto">Supino Reto</option>
+                <option value="PuxadaFrontal">Puxada Frontal</option>
+            </select>
+            
+            <div class="chart-container">
+                <canvas id="pesoChart"></canvas>
+            </div>
 
-                <label>Dia do Treino:</label>
-                <select id="selectDia">
-                    <option value="Dia A">Dia A</option>
-                    <option value="Dia B">Dia B</option>
-                    <option value="Dia C">Dia C</option>
-                </select>
+            <div class="input-group">
+                <input type="number" id="pesoInput" placeholder="Carga (kg)" step="0.5">
+                <button class="btn-primary" onclick="adicionarPeso()">Registrar Carga</button>
+            </div>
+            <button class="reset-btn" onclick="resetarDados('cargas')">Resetar Histórico</button>
+        </div>
 
-                <hr style="border-color: #333; margin: 20px 0;">
-                <div id="editor-container"></div>
-                <button class="btn-save" onclick="salvarTreino()">💾 Salvar e Enviar ao Aluno</button>
+        <div id="medidas-card" class="card">
+            <h2>📏 Registro de Medidas</h2>
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc;">Acompanhe sua evolução.</p>
+
+            <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput" placeholder="Ex: 75.5" step="0.1"></div>
+            <div class="input-group"><label>Cintura</label><input type="number" id="cinturaInput" placeholder="cm" step="1"></div>
+            <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm" step="0.5"></div>
+            <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm" step="1"></div>
+            <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm" step="1"></div>
+            <div class="input-group"><label>Coxa D.</label><input type="number" id="coxaInput" placeholder="cm" step="0.5"></div>
+            <div class="input-group"><label>Panturrilha</label><input type="number" id="panturrilhaInput" placeholder="cm" step="0.5"></div>
+            <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput" placeholder="cm" step="0.5"></div>
+
+            <button class="btn-primary" onclick="registrarMedidas()">Registrar Medidas</button>
+
+            <h3 style="margin-top: 15px; color: #ff9933;">Últimos Registros</h3>
+            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc;">Nenhum registro encontrado.</div>
+            <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
+        </div>
+
+        <div id="treino-card" class="card">
+            <h2>🏋️ Treino de Força</h2>
+
+            <label for="seletorTreino">Selecionar Dia:</label>
+            <select id="seletorTreino" onchange="alternarTreino()">
+                <option value="Dia A">Dia A - Peito/Ombro/Tríceps</option>
+                <option value="Dia B">Dia B - Costas/Bíceps</option>
+                <option value="Dia C">Dia C - Pernas</option>
+            </select>
+            <hr style="border-color: rgba(255, 255, 255, 0.2);">
+
+            <p><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span> | <strong>Data:</strong> <span id="data-atual"></span></p>
+
+            <div id="treino-Dia A" class="lista-treino-dia">
+                <h3>Dia A: Peito, Ombros e Tríceps</h3>
+                <ul id="lista-treino-a" style="list-style: none; padding: 0;">
+                    <li class="exercicio-item" data-exercicio="Esteira">
+                        <div class="exercicio-info"><strong>Esteira</strong><span>30 Min | 1 Vez</span></div>
+                        <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia A', 'Esteira')"></div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
+                <h3>Dia B: Costas e Bíceps</h3>
+                <ul id="lista-treino-b" style="list-style: none; padding: 0;">
+                    <li class="exercicio-item" data-exercicio="PuxadaFrontal">
+                        <div class="exercicio-info"><strong>Puxada Frontal</strong><span>4x12 | 60s</span></div>
+                        <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia B', 'PuxadaFrontal')"></div>
+                    </li>
+                </ul>
+            </div>
+
+            <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
+                <h3>Dia C: Pernas</h3>
+                <ul id="lista-treino-c" style="list-style: none; padding: 0;">
+                    <li class="exercicio-item" data-exercicio="Extensora">
+                        <div class="exercicio-info"><strong>Cadeira Extensora</strong><span>4x15 | 45s</span></div>
+                        <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, 'Dia C', 'Extensora')"></div>
+                    </li>
+                </ul>
             </div>
         </div>
 
-        <div class="right-col">
-            <div class="card">
-                <h2 id="titulo-acompanhamento">📊 Acompanhamento</h2>
-                <div style="margin-bottom: 10px;">
-                    <span>Gráfico:</span>
-                    <select id="selectGrafico" onchange="inicializarGraficoAluno(this.value)">
-                        <option value="AgachamentoLivre">Agachamento Livre</option>
-                        <option value="SupinoReto">Supino Reto</option>
-                        <option value="PuxadaFrontal">Puxada Frontal</option>
-                    </select>
-                </div>
-                <div style="height: 300px;"><canvas id="chartAdmin"></canvas></div>
-                
-                <h3>Últimas Medidas</h3>
-                <table style="font-size: 0.9em;">
-                    <thead><tr><th>Data</th><th>Peso</th><th>Cintura</th><th>Braço</th></tr></thead>
-                    <tbody id="tabela-medidas-admin"></tbody>
-                </table>
-            </div>
-
-            <div class="card" style="margin-top: 20px;">
-                <h2>📅 Frequência</h2>
-                <div id="status-frequencia" style="color: #00d4ff; font-weight: bold; margin-bottom: 10px;"></div>
-                <ul id="lista-presenca" style="list-style: none; padding: 0;"></ul>
-            </div>
+        <div id="presenca-card" class="card">
+            <h2>🗓️ Presença Mensal</h2>
+            <p>Clique nas datas para marcar.</p>
+            <table class="presenca-table">
+                <thead><tr><th>Dom</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sáb</th></tr></thead>
+                <tbody id="calendario-body"></tbody>
+            </table>
+            <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
         </div>
 
     </div>
 
     <script>
-        // === CHAVES REAIS DO FIREBASE (COPIADAS DO ALUNO) ===
+        // CONFIGURAÇÃO FIREBASE (MANTIDO O SEU)
         const firebaseConfig = {
             apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
@@ -106,181 +203,308 @@
             messagingSenderId: "1020981883676",
             appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
         };
-
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        
-        let alunoSelecionadoNome = '';
+
+        let alunoNome = '';
         let pesoChart;
 
-        // --- UTILS ---
-        function formatarNomeParaChave(nome) {
-            // Normaliza: Maria da Silva -> Maria_Da_Silva (mesma lógica do aluno)
-            return nome.trim().split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join('_');
+        function getPath(sub) { return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`; }
+
+        function obterNomeAluno() {
+            alunoNome = localStorage.getItem('nomeAluno');
+            if (!alunoNome) {
+                document.getElementById('modal-nome').style.display = 'flex';
+            } else {
+                start();
+            }
         }
 
-        function getPath(sub) {
-            return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
+        function salvarNomeModal() {
+            let n = document.getElementById('nomeModalInput').value.trim();
+            if(n) {
+                alunoNome = n.split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                localStorage.setItem('nomeAluno', alunoNome);
+                document.getElementById('modal-nome').style.display = 'none';
+                start();
+            }
         }
 
-        // --- 1. CARREGAR ALUNOS ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const sel = document.getElementById('selectAluno');
-            database.ref('alunos/').once('value', snap => {
-                const alunos = snap.val();
-                sel.innerHTML = '';
-                if(!alunos) { sel.innerHTML = '<option>Sem alunos</option>'; return; }
-                
-                let primeiro = null;
-                for(const key in alunos) {
-                    const nomeLegivel = key.replace(/_/g, ' ');
-                    const opt = document.createElement('option');
-                    opt.value = nomeLegivel;
-                    opt.textContent = nomeLegivel;
-                    sel.appendChild(opt);
-                    if(!primeiro) primeiro = nomeLegivel;
-                }
-                if(primeiro) {
-                    sel.value = primeiro;
-                    alunoSelecionadoNome = primeiro;
-                    carregarTudo();
-                }
-            });
-
-            sel.onchange = (e) => {
-                alunoSelecionadoNome = e.target.value;
-                carregarTudo();
-            };
+        function start() {
+            document.getElementById('nome-aluno').textContent = alunoNome;
+            document.getElementById('main-title').textContent = `Bem-vindo, ${alunoNome.split(' ')[0]}!`;
+            document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
             
-            document.getElementById('selectDia').onchange = carregarTreinoDia;
-        });
-
-        function carregarTudo() {
-            document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento: ${alunoSelecionadoNome}`;
-            carregarTreinoDia();
-            carregarMedidas();
-            carregarPresenca();
-            inicializarGraficoAluno(document.getElementById('selectGrafico').value);
+            inicializarGrafico();
+            carregarUltimasMedidas();
+            alternarTreino();
+            gerarCalendario();
         }
 
-        // --- 2. EDITOR DE TREINO ---
-        function carregarTreinoDia() {
-            const dia = document.getElementById('selectDia').value;
-            const container = document.getElementById('editor-container');
-            container.innerHTML = 'Carregando...';
-
-            // Lê a chave onde o aluno escuta: treinoModel
-            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
-                const treino = snap.val();
-                container.innerHTML = '';
-                if(Array.isArray(treino)) {
-                    treino.forEach(t => addLinha(t.nome, t.series, t.reps));
-                } else {
-                    addLinha('Ex: Supino', '4', '10');
-                }
-                
-                // Botão de adicionar mais exercícios
-                const btn = document.createElement('button');
-                btn.textContent = '+ Adicionar Exercício';
-                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:5px; width:100%; margin-top:10px; cursor:pointer;';
-                btn.onclick = () => addLinha('', '', '');
-                container.appendChild(btn);
-            });
-        }
-
-        function addLinha(nome, series, reps) {
-            const div = document.createElement('div');
-            div.className = 'treino-row';
-            div.innerHTML = `
-                <div><label>Exercício</label><input type="text" class="i-nome" value="${nome}"></div>
-                <div><label>Séries</label><input type="text" class="i-series" value="${series}"></div>
-                <div><label>Reps</label><input type="text" class="i-reps" value="${reps}"></div>
-                <div><button class="btn-remover">X</button></div>
-            `;
-            div.querySelector('.btn-remover').onclick = () => div.remove();
-            const btnAdd = document.getElementById('editor-container').lastChild;
-            document.getElementById('editor-container').insertBefore(div, btnAdd);
-        }
-
-        function salvarTreino() {
-            if(!alunoSelecionadoNome) return alert('Selecione um aluno');
-            const dia = document.getElementById('selectDia').value;
-            const rows = document.querySelectorAll('.treino-row');
-            const dados = [];
+        // --- GRÁFICO (CORRIGIDO) ---
+        function inicializarGrafico() {
+            const ex = document.getElementById('seletorExercicio').value;
             
-            rows.forEach(r => {
-                const n = r.querySelector('.i-nome').value;
-                const s = r.querySelector('.i-series').value;
-                const re = r.querySelector('.i-reps').value;
-                if(n) dados.push({ nome: n, series: s, reps: re });
-            });
+            if(pesoChart) { pesoChart.destroy(); }
 
-            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
-                .then(() => alert('Treino enviado para o aluno!'))
-                .catch(e => alert('Erro: ' + e.message));
-        }
-
-        // --- 3. DADOS DO ALUNO ---
-        function carregarMedidas() {
-            const tb = document.getElementById('tabela-medidas-admin');
-            database.ref(getPath('medidas')).limitToLast(5).once('value', snap => {
-                tb.innerHTML = '';
-                if(!snap.exists()) { tb.innerHTML = '<tr><td colspan="4">Sem dados</td></tr>'; return; }
-                
-                const arr = [];
-                snap.forEach(c => arr.push(c.val()));
-                arr.reverse().forEach(m => {
-                    const tr = tb.insertRow();
-                    tr.innerHTML = `<td>${m.data}</td><td>${m.peso}kg</td><td>${m.cintura||'-'}</td><td>${m.braco||'-'}</td>`;
-                });
-            });
-        }
-
-        function carregarPresenca() {
-            const ul = document.getElementById('lista-presenca');
-            const st = document.getElementById('status-frequencia');
-            database.ref(getPath('presenca')).once('value', snap => {
-                ul.innerHTML = '';
-                if(!snap.exists()) { st.textContent = '0 Presenças'; return; }
-                
-                const dias = Object.keys(snap.val()).reverse(); // Mais recentes
-                st.textContent = `${dias.length} Presenças totais`;
-                
-                dias.slice(0, 10).forEach(d => {
-                    const li = document.createElement('li');
-                    li.textContent = `✅ ${d.replace(/-/g, '/')}`;
-                    li.style.borderBottom = '1px dotted #333';
-                    li.style.padding = '5px 0';
-                    ul.appendChild(li);
-                });
-            });
-        }
-
-        function inicializarGraficoAluno(exKey) {
-            if(pesoChart) pesoChart.destroy();
-            const path = getPath(`cargas/${exKey.replace(/ /g, '')}`);
-            
-            database.ref(path).once('value', snap => {
+            // Usa 'once' em vez de 'on' para evitar recarregar o gráfico infinitamente
+            database.ref(getPath(`cargas/${ex}`)).once('value', snap => { 
                 const dados = [];
-                snap.forEach(c => dados.push(c.val()));
+                snap.forEach(d => dados.push(d.val()));
+                
                 dados.sort((a,b) => a.timestamp - b.timestamp);
 
-                const ctx = document.getElementById('chartAdmin').getContext('2d');
+                const ctx = document.getElementById('pesoChart').getContext('2d');
+                
+                if(pesoChart) pesoChart.destroy();
+                
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: dados.map(d => d.data),
+                        // Se não houver dados, usa 'Início', se houver, usa as datas
+                        labels: dados.length ? dados.map(d => d.data) : ['Início'], 
                         datasets: [{
-                            label: 'Carga (kg)',
-                            data: dados.map(d => d.peso),
-                            borderColor: '#00d4ff',
-                            backgroundColor: 'rgba(0,212,255,0.1)',
-                            fill: true
+                            label: `Carga ${ex} (kg)`,
+                            data: dados.length ? dados.map(d => d.peso) : [0],
+                            borderColor: '#ff8c00', 
+                            backgroundColor: 'rgba(255,140,0,0.2)', 
+                            fill: true,
+                            tension: 0.3,
+                            // Garante que o ponto inicial '0' não seja exibido se houver dados
+                            pointRadius: dados.length ? 5 : 0 
                         }]
                     },
-                    options: { scales: { y: { beginAtZero: true, grid:{color:'#333'} }, x: { grid:{color:'#333'} } } }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        scales: { 
+                            y: { beginAtZero: true, grid: { color: '#333'} }, 
+                            x: { 
+                                grid: { color: '#333'},
+                                // CORREÇÃO CRÍTICA: Desativa autoSkip para garantir que todos os pontos sejam renderizados
+                                ticks: {
+                                    autoSkip: false, // DESLIGA o agrupamento automático de rótulos
+                                    maxRotation: 45, // Gira o texto para evitar sobreposição
+                                    minRotation: 45 
+                                }
+                            } 
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            }
+                        }
+                    }
                 });
             });
+        }
+
+        function adicionarPeso() {
+            const p = document.getElementById('pesoInput').value;
+            if(!p || isNaN(parseFloat(p))) {
+                 alert('Por favor, insira uma carga válida.');
+                 return;
+            }
+            const ex = document.getElementById('seletorExercicio').value;
+            
+            // AGORA SALVA DATA, HORA E SEGUNDOS PARA GARANTIR QUE OS PONTOS SEJAM ÚNICOS
+            const agora = new Date();
+            const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}) + 
+                                ' ' + 
+                                agora.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit', second: '2-digit'});
+
+            database.ref(getPath(`cargas/${ex}`)).push({
+                data: dataLegivel, 
+                peso: parseFloat(p),
+                timestamp: Date.now()
+            }).then(() => {
+                document.getElementById('pesoInput').value = '';
+                // Recarrega o gráfico após adicionar um ponto
+                inicializarGrafico(); 
+            });
+        }
+
+        // --- MEDIDAS ---
+        function registrarMedidas() {
+            // [código de registro de medidas mantido como seu original]
+            const peso = document.getElementById('pesoCorporalInput').value;
+            if(!peso) return alert('O peso é obrigatório!');
+
+            const m = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                timestamp: Date.now(),
+                peso: peso,
+                cintura: document.getElementById('cinturaInput').value,
+                braco: document.getElementById('bracoInput').value,
+                torax: document.getElementById('toraxInput').value,
+                abdomen: document.getElementById('abdomenInput').value,
+                coxa: document.getElementById('coxaInput').value,
+                panturrilha: document.getElementById('panturrilhaInput').value,
+                antebraco: document.getElementById('antebracoInput').value
+            };
+            
+            database.ref(getPath('medidas')).push(m);
+            alert('Medidas Salvas!');
+            document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
+            carregarUltimasMedidas();
+        }
+
+        function carregarUltimasMedidas() {
+            // [código de carregamento de medidas mantido como seu original]
+            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
+                const div = document.getElementById('ultimasMedidas');
+                div.innerHTML = 'Nenhum registro encontrado.';
+                snap.forEach(c => {
+                    const d = c.val();
+                    div.innerHTML = `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura||'-'} | Braço: ${d.braco||'-'}`;
+                });
+            });
+        }
+
+        // --- TREINO (SINCRONIZADO E CORRIGIDO) ---
+
+        function alternarTreino() {
+            const dia = document.getElementById('seletorTreino').value;
+            document.querySelectorAll('.lista-treino-dia').forEach(e => e.style.display = 'none');
+            document.getElementById(`treino-${dia}`).style.display = 'block';
+            
+            carregarTreinoDoProfessor(dia);
+        }
+        
+        function marcarConcluido(chk, dia, id) {
+            const li = chk.closest('li');
+            chk.checked ? li.classList.add('concluido') : li.classList.remove('concluido');
+            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
+        }
+
+        function carregarCheckboxes(dia) {
+            // Essa função é chamada dentro de carregarTreinoDoProfessor
+            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
+                const s = snap.val() || {};
+                document.getElementById(`treino-${dia}`).querySelectorAll('li').forEach(li => {
+                    const id = li.getAttribute('data-exercicio');
+                    const chk = li.querySelector('input[type="checkbox"]');
+                    if(chk && s[id]) { chk.checked = true; li.classList.add('concluido'); }
+                });
+            });
+        }
+
+        function carregarTreinoDoProfessor(dia) {
+            const idLista = dia === 'Dia A' ? 'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
+            const ul = document.getElementById(idLista);
+            
+            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
+                const treinoData = snap.val();
+                let novoTreino = [];
+
+                // CORREÇÃO: Converte o objeto do Firebase (que contém o treino) em um Array.
+                if (treinoData) {
+                    // Se for um Array (método do professor que usa .push()), usa diretamente
+                    if (Array.isArray(treinoData)) {
+                        novoTreino = treinoData;
+                    } else {
+                        // Se for um Objeto (método do professor que usa .set()), converte as chaves em array
+                        novoTreino = Object.keys(treinoData).map(key => treinoData[key]);
+                    }
+                }
+
+                if(novoTreino.length > 0) {
+                    ul.innerHTML = ''; // Limpa a lista antes de carregar
+                    novoTreino.forEach(t => {
+                        const nomeExercicioLimpo = t.nome.replace(/\s/g, '');
+                        const li = document.createElement('li');
+                        li.className = 'exercicio-item';
+                        // Garante que o atributo data-exercicio seja o nome limpo do exercício
+                        li.setAttribute('data-exercicio', nomeExercicioLimpo); 
+                        li.innerHTML = `
+                            <div class="exercicio-info"><strong>${t.nome}</strong><span>${t.series || '4'}x | ${t.reps || '12'}</span></div>
+                            <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${nomeExercicioLimpo}')"></div>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    // Depois de montar o treino, carrega os status de concluído
+                    carregarCheckboxes(dia);
+                }
+            });
+        }
+        
+        // --- PRESENÇA ---
+        function gerarCalendario() {
+            // [código de calendário mantido como seu original]
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+
+            const primeiroDiaSemana = new Date(anoAtual, mesAtual, 1).getDay();
+            const ultimoDiaMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
+            
+            let html = '<tr>';
+            let contadorDias = 1;
+
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < primeiroDiaSemana) {
+                        html += '<td></td>';
+                    } else if (contadorDias > ultimoDiaMes) {
+                        html += '<td></td>';
+                    } else {
+                        const chaveData = `${String(contadorDias).padStart(2,'0')}-${String(mesAtual+1).padStart(2,'0')}-${anoAtual}`;
+                        html += `<td id="dia-${chaveData}" onclick="togglePresenca('${chaveData}')">${contadorDias}</td>`;
+                        contadorDias++;
+                    }
+                }
+                html += '</tr>';
+                if (contadorDias > ultimoDiaMes) break;
+            }
+            document.getElementById('calendario-body').innerHTML = html;
+            carregarPresencas();
+        }
+
+        function togglePresenca(key) {
+            // [código de togglePresenca mantido como seu original]
+            const td = document.getElementById(`dia-${key}`);
+            const status = td.classList.contains('presente');
+            if(status) {
+                database.ref(getPath(`presenca/${key}`)).remove();
+                td.classList.remove('presente');
+            } else {
+                database.ref(getPath(`presenca/${key}`)).set(true);
+                td.classList.add('presente');
+            }
+        }
+
+        function carregarPresencas() {
+            // [código de carregarPresencas mantido como seu original]
+            database.ref(getPath('presenca')).on('value', snap => {
+                const p = snap.val() || {};
+                Object.keys(p).forEach(k => {
+                    const td = document.getElementById(`dia-${k}`);
+                    if(td) td.classList.add('presente');
+                });
+            });
+        }
+
+        // --- RESETAR DADOS (Corrigido para o gráfico) ---
+        function resetarDados(tipo) {
+            if(confirm('Tem certeza? Isso apagará o histórico.')) {
+                let p = tipo === 'presenca' ? 'presenca' : (tipo === 'cargas' ? `cargas/${document.getElementById('seletorExercicio').value}` : 'medidas');
+                
+                database.ref(getPath(p)).remove()
+                    .then(() => {
+                        alert('Apagado.');
+                        if(tipo === 'cargas') {
+                            // Após apagar os dados de carga, reinicia o gráfico.
+                            inicializarGrafico(); 
+                        }
+                        if(tipo === 'medidas') {
+                            document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erro ao resetar dados:", error);
+                        alert("Erro ao apagar dados. Verifique o console.");
+                    });
+            }
         }
     </script>
 </body>
