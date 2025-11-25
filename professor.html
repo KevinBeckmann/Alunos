@@ -114,7 +114,8 @@
 
                     <hr style="border-color: #333; margin: 20px 0;">
                     <p style="font-size: 0.9em; color: #aaa;">Arraste o ícone ☰ para reordenar os exercícios.</p>
-                    <div id="editor-container"></div>
+                    <div id="editor-container">
+                        </div>
                     
                     <button class="btn-save" onclick="salvarTreino()">💾 Salvar e Enviar ao Aluno</button>
                 </div>
@@ -461,7 +462,7 @@
         }
 
         // ------------------------------------
-        // === FUNÇÕES DE ACOMPANHAMENTO ===
+        // === FUNÇÕES DE ACOMPANHAMENTO (GRÁFICO E MEDIDAS) ===
         // ------------------------------------
 
         function carregarMedidas() {
@@ -578,26 +579,30 @@
             });
         }
 
-        // --- 5. EDITOR DE TREINO (COM DRAG AND DROP) ---
+        // ------------------------------------
+        // === FUNÇÕES DE EDIÇÃO DE TREINO (ATUALIZADAS PARA DRAG AND DROP) ===
+        // ------------------------------------
         
         function initSortable() {
             const container = document.getElementById('editor-container');
             
-            // Desliga qualquer instância anterior para evitar duplicidade
+            // GARANTE: Desliga qualquer instância anterior (IMPORTANTE!)
             if (container.sortable) {
                 container.sortable.destroy();
             }
 
             // Inicializa o SortableJS no container.
-            Sortable.create(container, {
-                animation: 150, // Duração da animação
-                // CORREÇÃO: Usamos a classe 'handle-drag' para indicar a área de arrastar (o ícone ☰)
+            const sortableInstance = Sortable.create(container, {
+                animation: 150, 
+                // CORRIGIDO: Usa a classe 'handle-drag' para indicar a área de arrastar (o ícone ☰)
                 handle: '.handle-drag', 
                 ghostClass: 'sortable-ghost', 
                 forceFallback: true, 
-                // Permite clicar nos inputs sem iniciar o drag
+                // Impede que o drag inicie ao clicar em inputs/botões
                 filter: 'input, button', 
             });
+            // Armazena a instância para poder destruí-la na próxima chamada
+            container.sortable = sortableInstance;
         }
 
         function carregarTreinoDia() {
@@ -610,24 +615,26 @@
                 container.innerHTML = ''; // Limpa o conteúdo
                 
                 if(Array.isArray(treino) && treino.length > 0) {
-                    treino.forEach(t => addLinha(t.nome, t.series, t.reps));
+                    treino.forEach(t => addLinha(t.nome, t.series, t.reps, true)); // Passa true para não adicionar botão
                 } else {
-                    addLinha('Ex: Supino Reto com Halteres', '4', '10');
+                    addLinha('Ex: Supino Reto com Halteres', '4', '10', true);
                 }
 
-                // Cria e insere o botão de adicionar exercício
+                // Cria e insere o botão de adicionar exercício (FICA SEMPRE POR ÚLTIMO)
                 const btn = document.createElement('button');
                 btn.textContent = '+ Add Exercício';
+                btn.id = 'btnAddExercicio';
                 btn.style.cssText = 'background:#38c172; border:none; color:white; padding:10px; width:100%; margin-top:10px; cursor:pointer; border-radius: 5px;';
-                btn.onclick = () => addLinha('', '', '');
+                btn.onclick = () => addLinha('', '', '', false); // Adiciona e reposiciona o botão
                 container.appendChild(btn);
 
-                // Inicializa o SortableJS APÓS carregar os elementos
+                // Inicializa/Reinicializa o SortableJS APÓS carregar os elementos
                 initSortable(); 
             });
         }
 
-        function addLinha(n, s, r) {
+        // Função addLinha com parâmetro opcional para saber se deve reposicionar o botão
+        function addLinha(n, s, r, isInitialLoad) {
             const container = document.getElementById('editor-container');
             const div = document.createElement('div');
             div.className = 'treino-row';
@@ -640,11 +647,14 @@
             
             div.querySelector('.btn-remover').onclick = () => div.remove();
             
-            // Insere antes do último elemento (que é o botão "+ Add Exercício")
-            const addButton = container.lastChild;
-            if (addButton && addButton.tagName === 'BUTTON') {
+            const addButton = document.getElementById('btnAddExercicio');
+
+            // Lógica para garantir que o botão "Add Exercício" fique sempre no final:
+            if (!isInitialLoad && addButton) {
+                // Se for uma adição dinâmica, insere a nova linha antes do botão
                 container.insertBefore(div, addButton);
             } else {
+                // Se for a carga inicial, apenas adiciona no final
                 container.appendChild(div);
             }
         }
