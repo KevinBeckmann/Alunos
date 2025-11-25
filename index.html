@@ -819,34 +819,75 @@
         }
         
         // --- INTERAÇÃO COM IA (SIMULAÇÃO) ---
-        function simularPesquisaIA() {
-            const pergunta = document.getElementById('exercicioPergunta').value.trim();
-            const respostaDiv = document.getElementById('ai-resposta');
-            const botao = document.querySelector('#ai-search-card .btn-primary');
+        // 🚩 AQUI INICIA O BLOCO (SUBSTITUA A PARTIR DA LINHA DE 'function simularPesquisaIA()')
+async function simularPesquisaIA() {
+    const pergunta = document.getElementById('exercicioPergunta').value.trim();
+    const respostaDiv = document.getElementById('ai-resposta');
+    const botao = document.querySelector('#ai-search-card .btn-primary');
 
-            if (pergunta.length < 5) {
-                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
-                return;
-            }
+    // 1. Validação
+    if (pergunta.length < 3) {
+        respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+        return;
+    }
 
-            // Desativa o botão e mostra mensagem de carregamento
-            botao.disabled = true;
-            botao.textContent = 'Pesquisando... ⏳';
-            respostaDiv.innerHTML = '<p style="text-align: center;">Buscando informação... Aguarde.</p>';
+    // 2. Interface de carregamento
+    botao.disabled = true;
+    botao.textContent = 'Consultando IA... 🧠';
+    respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">O Personal Virtual está pensando...</p>';
 
-            // --- SIMULAÇÃO DE CHAMADA À API DA IA (DEVE SER MUDADO PARA CÓDIGO DE BACKEND REAL) ---
-            setTimeout(() => {
-                
-                let resposta = "Olá! Como eu sou um assistente virtual rodando no seu navegador, esta é uma resposta simulada. Para ter uma integração real com IA, o professor precisará configurar um servidor de backend (como Node.js) e uma chave de API para o Gemini, ChatGPT ou outro modelo.";
+    // ---------------------------------------------------------
+    // 3. CONFIGURAÇÃO DA API (COLE SUA CHAVE AQUI)
+    // ---------------------------------------------------------
+    const API_KEY = 'COLE_SUA_CHAVE_AQUI_DENTRO'; 
+    
+    // URL de requisição (modelo gemini-1.5-flash)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-                // Respostas simuladas baseadas em palavras-chave
-                if (pergunta.toLowerCase().includes('supino')) {
-                    resposta = "O **Supino Reto** é um exercício fundamental para o peitoral, ombros e tríceps. Mantenha os pés firmes no chão, a barra alinhada com os olhos, e desça a barra até tocar levemente o peito, mantendo os cotovelos a um ângulo de 45 graus do corpo. Não arqueie a coluna excessivamente."
-                } else if (pergunta.toLowerCase().includes('agachamento')) {
-                    resposta = "O **Agachamento Livre** é o rei dos exercícios. Foca em quadríceps, glúteos e isquiotibiais. Mantenha o tronco reto, olhe para frente, e desça como se fosse sentar em uma cadeira. Os joelhos devem seguir a linha dos pés. É vital usar uma carga adequada à sua técnica."
-                } else if (pergunta.toLowerCase().includes('musculos') || pergunta.toLowerCase().includes('ativados')) {
-                    resposta = "Muitos exercícios trabalham múltiplos músculos! Por exemplo, o Agachamento ativa Quadríceps e Glúteos; a Puxada Frontal ativa o Grande Dorsal e Bíceps. Qual exercício específico você gostaria de saber?"
-                }
+    const promptContexto = `
+        Aja como um Personal Trainer profissional e motivador.
+        O aluno perguntou: "${pergunta}"
+        Responda de forma curta (máximo 3 frases), direta e segura.
+    `;
+
+    const data = {
+        contents: [{
+            parts: [{ text: promptContexto }]
+        }]
+    };
+
+    try {
+        // 4. Conexão Real
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const json = await response.json();
+
+        // 5. Processamento e exibição da resposta
+        if (json.candidates && json.candidates[0].content) {
+            const respostaTexto = json.candidates[0].content.parts[0].text;
+            let respostaFormatada = respostaTexto
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
+        } else {
+            respostaDiv.innerHTML = '<span style="color:orange">A IA não conseguiu responder.</span>';
+        }
+
+    } catch (error) {
+        console.error('Erro:', error);
+        respostaDiv.innerHTML = '<span style="color:red">Erro de conexão.</span>';
+    } finally {
+        // 6. Restaura o botão
+        botao.disabled = false;
+        botao.textContent = 'Perguntar à IA';
+    }
+}
+// 🏁 AQUI TERMINA O BLOCO (Este '}' final fecha a função)
                 
                 // Reativa o botão e exibe a resposta
                 botao.disabled = false;
