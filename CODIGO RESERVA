@@ -92,53 +92,16 @@
 
         @media (min-width: 1024px) {
             .container {
-                /* Em desktops, quatro colunas para aproveitar o espaço (ou manter 3, se preferir) */
-                grid-template-columns: 1fr 1fr 1fr 1fr;
-            }
-
-            #chart-card {
-                /* Ocupa duas colunas para o gráfico ser maior */
-                grid-column: 1 / 3;
-                order: 1;
-            }
-
-            /* Novo card de AI ocupando um espaço na segunda linha, se necessário */
-            #ai-card {
-                grid-column: 3 / 5; /* Ocupa as duas últimas colunas */
-                order: 4; /* Coloca na segunda linha */
-            }
-
-            #medidas-card {
-                order: 2; /* Segunda posição na primeira linha */
-            }
-
-            #treino-card {
-                order: 3; /* Terceira posição na primeira linha */
-            }
-
-            #presenca-card {
-                order: 5; /* Abaixo do treino */
-            }
-        }
-        
-        /* Ajuste para o layout original de 3 colunas se preferir um visual mais compacto */
-        /*
-        @media (min-width: 1024px) {
-            .container {
+                /* Em desktops, três colunas */
                 grid-template-columns: 1fr 1fr 1fr;
             }
 
             #chart-card {
-                grid-column: 1 / 3; 
-                order: 1;
-            }
-            
-            #ai-card {
-                grid-column: 3 / 4; 
-                order: 4;
+                /* Gráfico voltando a uma coluna em desktops (ou manter a configuração acima se preferir 3 colunas) */
+                grid-column: auto;
+                order: initial;
             }
         }
-        */
 
         /* CARDS */
         .card {
@@ -150,31 +113,6 @@
 
         #medidas-card {
             order: 2;
-        }
-        
-        /* ESTILO ESPECÍFICO PARA O CARD DA IA */
-        #ai-card {
-            order: 4; /* Coloca abaixo do treino em mobile/tablet */
-        }
-        
-        #ai-card h2 {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        #ai-card textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #f0f0f0;
-            border-radius: 4px;
-            resize: vertical;
-            box-sizing: border-box;
-            margin-bottom: 15px;
         }
 
         /* FORMULÁRIOS E INPUTS */
@@ -337,26 +275,7 @@
         .reset-btn:hover {
             background-color: #c9302c;
         }
-        
-        /* RESPOSTA DA IA */
-        #ai-resposta {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            border-left: 3px solid #00bfff; /* Cor de destaque para a IA */
-            text-align: left;
-            white-space: pre-wrap; /* Mantém quebras de linha */
-            font-size: 0.9em;
-            color: #b0e0e6;
-        }
-        
-        #ai-resposta.loading::before {
-            content: '🧠 Pensando...';
-            color: #ff9933;
-            font-weight: bold;
-        }
-        
+
         /* MODAL */
         .modal-overlay {
             position: fixed;
@@ -391,6 +310,44 @@
             color: #000;
             margin-top: 10px;
         }
+        
+       /* --- CAMPO DE PESQUISA IA (NOVOS ESTILOS) --- */
+        #ai-search-card {
+            order: 3; /* Define a ordem no grid para desktops */
+            background-color: #1a1a1a;
+            /* Nova borda sutil, seguindo o padrão dos outros cards */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #ai-search-card textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: #000000;
+            color: #f0f0f0;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+       #ai-resposta {
+    margin-top: 15px;
+    padding: 15px;
+    /* Define uma borda neutra, similar a outras partes do layout */
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    /* Remove o fundo laranja, usa o fundo escuro do card (#1a1a1a) */
+    background-color: transparent; 
+    border-radius: 8px;
+    min-height: 50px;
+    font-size: 0.9em;
+    color: #ccc;
+    white-space: pre-wrap;
+}
+        #ai-resposta strong {
+            color: #ff9933;
+        }
     </style>
 </head>
 
@@ -419,7 +376,7 @@
     <div class="container">
 
         <div id="chart-card" class="card">
-            <h2>📈 Progressão de Carga</h2>
+            <h2> Progressão de Carga</h2>
             <label for="seletorExercicio">Visualizar Exercício:</label>
             <select id="seletorExercicio" onchange="inicializarGrafico()">
                 <option value="AgachamentoLivre">Agachamento Livre</option>
@@ -443,9 +400,8 @@
         </div>
 
         <div id="medidas-card" class="card">
-            <h2>📏 Registro de Medidas</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.
-            </p>
+            <h2> Registro de Medidas</h2>
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.</p>
 
             <div class="input-container">
                 <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput"
@@ -454,8 +410,7 @@
                         step="1"></div>
                 <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm"
                         step="0.5"></div>
-                <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm"
-                        step="1">
+                <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm" step="1">
                 </div>
                 <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm"
                         step="1"></div>
@@ -463,20 +418,19 @@
                         step="0.5"></div>
                 <div class="input-group"><label>Panturrilha</label><input type="number" id="panturrilhaInput"
                         placeholder="cm" step="0.5"></div>
-                <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput"
-                        placeholder="cm" step="0.5"></div>
+                <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput" placeholder="cm"
+                        step="0.5"></div>
             </div>
 
             <button class="btn-primary" onclick="registrarMedidas()">Registrar Medidas</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Últimos Registros</h3>
-            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro
-                encontrado.</div>
+            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro encontrado.</div>
             <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
         </div>
 
         <div id="treino-card" class="card">
-            <h2>🏋️ Treino de Força</h2>
+            <h2> Treino de Força</h2>
 
             <label for="seletorTreino">Selecionar Dia:</label>
             <select id="seletorTreino" onchange="alternarTreino()">
@@ -486,50 +440,46 @@
             </select>
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
-            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span>
-                | <strong>Data:</strong>
+            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span> | <strong>Data:</strong>
                 <span id="data-atual"></span></p>
 
             <div id="treino-Dia A" class="lista-treino-dia">
                 <h3>Dia A: Peito, Ombros e Tríceps</h3>
                 <ul id="lista-treino-a" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando
-                        treino...</li>
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...</li>
                 </ul>
             </div>
 
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
                 <h3>Dia B: Costas e Bíceps</h3>
                 <ul id="lista-treino-b" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando
-                        treino...</li>
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...</li>
                 </ul>
             </div>
 
             <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
                 <h3>Dia C: Pernas</h3>
                 <ul id="lista-treino-c" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando
-                        treino...</li>
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...</li>
                 </ul>
             </div>
         </div>
+        
+        <div id="ai-search-card" class="card">
+            <h2> Pesquisar Exercício com IA</h2>
 
-        <div id="ai-card" class="card">
-            <h2>🤖 Ajuda de Exercícios da IA</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Pergunte sobre execução,
-                músculos ou variações.</p>
+            <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
+            <textarea id="exercicioPergunta" placeholder="Ex: 'Qual a forma correta de fazer supino reto?' ou 'Quais os músculos ativados no agachamento?'"></textarea>
+            
+            <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
 
-            <div class="input-group" style="display: block; gap: 0;">
-                <textarea id="aiInput" placeholder="Ex: Como fazer Supino Reto corretamente?" rows="3"></textarea>
-                <button class="btn-primary" onclick="pesquisarExercicioIA()">Perguntar à IA</button>
+            <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
+            <div id="ai-resposta">
+                O resultado da sua pesquisa aparecerá aqui. (Função de IA simulada)
             </div>
-
-            <div id="ai-resposta">Aguardando sua pergunta...</div>
         </div>
-
         <div id="presenca-card" class="card">
-            <h2>🗓️ Presença Mensal</h2>
+            <h2> Presença Mensal</h2>
             <p style="text-align: center;">Clique nas datas para marcar.</p>
             <table class="presenca-table">
                 <thead>
@@ -547,7 +497,6 @@
             </table>
             <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
         </div>
-        
 
     </div>
 
@@ -601,7 +550,7 @@
             inicializarGrafico();
             carregarUltimasMedidas();
             alternarTreino();
-            generarCalendario();
+            gerarCalendario();
         }
 
         // 🎯 FUNÇÃO DE GRÁFICO: Implementação robusta
@@ -663,33 +612,17 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                grid: {
-                                    color: '#333'
-                                },
-                                ticks: {
-                                    color: '#f0f0f0'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Peso (kg)',
-                                    color: '#ff8c00'
-                                }
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' },
+                                title: { display: true, text: 'Peso (kg)', color: '#ff8c00' }
                             },
                             x: {
-                                grid: {
-                                    color: '#333'
-                                },
-                                ticks: {
-                                    color: '#f0f0f0'
-                                }
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' }
                             }
                         },
                         plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#f0f0f0'
-                                }
-                            }
+                            legend: { labels: { color: '#f0f0f0' } }
                         }
                     }
                 });
@@ -706,14 +639,8 @@
             const ex = document.getElementById('seletorExercicio').value;
 
             const agora = new Date();
-            const dataLegivel = agora.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit'
-                }) +
-                ' ' + agora.toLocaleTimeString('pt-BR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+            const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
+                ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
             database.ref(getPath(`cargas/${ex}`)).push({
                 data: dataLegivel,
@@ -801,7 +728,7 @@
         function carregarTreinoDoProfessor(dia) {
             const idLista = dia === 'Dia A' ? 'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
             const ul = document.getElementById(idLista);
-
+            
             // Remove listener anterior para não duplicar eventos
             database.ref(getPath(`treinoModel/${dia}`)).off('value');
 
@@ -810,15 +737,14 @@
                 ul.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
 
                 if (!snap.exists()) {
-                    ul.innerHTML =
-                        '<li class="exercicio-item" style="background: none; border: none; color: #ff9933; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px;">Seu treino ainda não foi enviado.</li>';
+                    ul.innerHTML = '<li class="exercicio-item" style="background: none; border: none; color: #ff9933; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px;">Seu treino ainda não foi enviado.</li>';
                     return;
                 }
 
                 // USO DO FOREACH DO SNAPSHOT: Garante a ordem do banco de dados (inserção ou array)
                 snap.forEach(childSnapshot => {
                     const t = childSnapshot.val();
-
+                    
                     // Verifica se o objeto tem os dados mínimos
                     if (t && t.nome) {
                         const id = t.nome.replace(/\s/g, '');
@@ -832,7 +758,7 @@
                         ul.appendChild(li);
                     }
                 });
-
+                
                 // Recupera status (checked/unchecked)
                 carregarCheckboxes(dia);
             });
@@ -857,8 +783,7 @@
                     } else if (contadorDias > ultimoDiaMes) {
                         html += '<td></td>';
                     } else {
-                        const chaveData =
-                            `${String(contadorDias).padStart(2,'0')}-${String(mesAtual+1).padStart(2,'0')}-${anoAtual}`;
+                        const chaveData = `${String(contadorDias).padStart(2,'0')}-${String(mesAtual+1).padStart(2,'0')}-${anoAtual}`;
                         html += `<td id="dia-${chaveData}" onclick="togglePresenca('${chaveData}')">${contadorDias}</td>`;
                         contadorDias++;
                     }
@@ -892,109 +817,130 @@
                 });
             });
         }
+        
+       // --- INTERAÇÃO COM IA (FUNÇÃO REAL) ---
+        // 🚩 AQUI INICIA O BLOCO PARA SUBSTITUIÇÃO
+async function simularPesquisaIA() {
+    const pergunta = document.getElementById('exercicioPergunta').value.trim();
+    const respostaDiv = document.getElementById('ai-resposta');
+    const botao = document.querySelector('#ai-search-card .btn-primary');
 
-        // --- INTERAÇÃO COM IA (SIMULAÇÃO) ---
-        async function pesquisarExercicioIA() {
-            const input = document.getElementById('aiInput');
-            const respostaDiv = document.getElementById('ai-resposta');
-            const pergunta = input.value.trim();
+    // 1. Validação
+    if (pergunta.length < 3) {
+        respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+        return;
+    }
 
-            if (!pergunta) {
-                respostaDiv.innerHTML = "Por favor, digite sua pergunta sobre o exercício!";
-                return;
-            }
+    // 2. Interface de carregamento
+    botao.disabled = true;
+    botao.textContent = 'Consultando IA... 🧠';
+    respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">O Personal Virtual está pensando...</p>';
 
-            respostaDiv.className = 'loading';
-            respostaDiv.innerHTML = ''; // Limpa a resposta anterior
+    // ---------------------------------------------------------
+    // 3. CONFIGURAÇÃO DA API (SUA CHAVE)
+    // ---------------------------------------------------------
+    // CHAVE: AIzaSyCubAh5LAL40M62-IL4bbVcecE-Z8t9xLE
+    const API_KEY = 'AIzaSyCubAh5LAL40M62-IL4bbVcecE-Z8t9xLE'; 
+    
+    // URL de requisição (modelo gemini-1.5-flash)
+    // URL de requisição (MODELO CORRIGIDO)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
-            // *******************************************************************
-            // ** ATENÇÃO: ESTE É UM CÓDIGO DE SIMULAÇÃO! **
-            // ** A CHAMADA REAL À API DA IA PRECISA DE UM BACKEND SEGURO. **
-            // *******************************************************************
+    const promptContexto = `
+        Aja como um Personal Trainer profissional e motivador.
+        O aluno perguntou: "${pergunta}"
+        Responda de forma curta (máximo 3 frases), direta e segura.
+    `;
 
-            try {
-                // Simulação de tempo de resposta da IA (substitua pela chamada fetch/axios real)
-                await new Promise(resolve => setTimeout(resolve, 1500)); 
-                
-                // Exemplo de resposta da IA
-                let respostaSimulada = `Olá! A pesquisa sobre: "${pergunta}" é muito interessante.
+    const data = {
+        contents: [{
+            parts: [{ text: promptContexto }]
+        }]
+    };
 
-**Recomendação de Exemplo:**
+    try {
+        // 4. Conexão Real
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
-Para o exercício de **Supino Reto** (se for a sua pesquisa), a execução correta envolve:
-1.  **Posicionamento:** Pés no chão, costas arqueadas levemente, escápulas retraídas (ombros para trás).
-2.  **Descida:** Baixe a barra lentamente até tocar o meio do peito.
-3.  **Subida:** Empurre explosivamente, mantendo os cotovelos a cerca de 45 graus do corpo.
+        const json = await response.json();
 
-Lembre-se de sempre aquecer e usar uma carga que permita a forma perfeita.
-`;
+        // 5. Processamento e exibição da resposta (AGORA COM DIAGNÓSTICO)
+        if (json.candidates && json.candidates[0].content) {
+            const respostaTexto = json.candidates[0].content.parts[0].text;
+            let respostaFormatada = respostaTexto
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
 
-                // Tente formatar a resposta para parecer mais com uma resposta de IA
-                if(pergunta.toLowerCase().includes("agachamento")) {
-                    respostaSimulada = `
-**Agachamento Livre - Dicas Essenciais:**
-* **Profundidade:** Tente descer até a linha dos quadris passar a linha dos joelhos (abaixo de 90 graus), se sua mobilidade permitir.
-* **Postura:** Mantenha o peito ereto e a coluna neutra.
-* **Joelhos:** Devem acompanhar a direção dos seus pés, geralmente para fora.
-`;
-                } else if(pergunta.toLowerCase().includes("supino")) {
-                     respostaSimulada = `
-**Supino Reto - Foco na Técnica:**
-* **Pegada:** Um pouco mais aberta que a largura dos ombros.
-* **Escápulas:** Mantenha-as sempre 'travadas' (retraídas e deprimidas) para proteger os ombros.
-* **Respiração:** Inspire ao descer, expire ao subir.
-`;
-                }
+            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
+        } else {
+            // --- BLOCO DE DIAGNÓSTICO ---
+            console.error("Detalhes do Erro da API Gemini:", json);
+            let motivo = "motivo desconhecido (Verifique o console F12)";
 
-                respostaDiv.innerHTML = respostaSimulada;
-                input.value = ''; // Limpa o campo após a pesquisa
-                
-            } catch (error) {
-                console.error("Erro na comunicação com a IA (Simulação):", error);
-                respostaDiv.innerHTML = "❌ Ocorreu um erro ao buscar a resposta da IA. Tente novamente.";
-            } finally {
-                respostaDiv.className = ''; // Remove o estado de loading
-            }
-        }
+            if (json.promptFeedback && json.promptFeedback.blockReason) {
+                motivo = `Bloqueio de Segurança: ${json.promptFeedback.blockReason}`;
+            } else if (json.error && json.error.message) {
+                motivo = `Erro da API: ${json.error.message}`;
+            }
+            
+            // Exibe o motivo do erro na tela
+            respostaDiv.innerHTML = `<span style="color:red">A IA não conseguiu responder. Motivo: ${motivo}</span>`;
+            // --- FIM BLOCO DE DIAGNÓSTICO ---
+        }
 
+    } catch (error) {
+        console.error('Erro de conexão ou requisição:', error);
+        respostaDiv.innerHTML = '<span style="color:red">Erro de conexão.</span>';
+    } finally {
+        // 6. Restaura o botão
+        botao.disabled = false;
+        botao.textContent = 'Perguntar à IA';
+    }
+}
+// 🏁 AQUI TERMINA O BLOCO (Este '}' final fecha a função simularPesquisaIA)
 
-        // --- RESET GERAL ---
-        function resetarDados(tipo) {
-            let path;
-            let msg;
+    
+        // --- RESET GERAL ---
+        function resetarDados(tipo) {
+            let path;
+            let msg;
 
-            switch (tipo) {
-                case 'presenca':
-                    path = 'presenca';
-                    msg = 'histórico de presenças';
-                    break;
-                case 'cargas':
-                    path = `cargas/${document.getElementById('seletorExercicio').value}`;
-                    msg = 'histórico de cargas para este exercício';
-                    break;
-                case 'medidas':
-                    path = 'medidas';
-                    msg = 'histórico de medidas corporais';
-                    break;
-                default:
-                    return;
-            }
+            switch (tipo) {
+                case 'presenca':
+                    path = 'presenca';
+                    msg = 'histórico de presenças';
+                    break;
+                case 'cargas':
+                    path = `cargas/${document.getElementById('seletorExercicio').value}`;
+                    msg = 'histórico de cargas para este exercício';
+                    break;
+                case 'medidas':
+                    path = 'medidas';
+                    msg = 'histórico de medidas corporais';
+                    break;
+                default:
+                    return;
+            }
 
-            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
-                database.ref(getPath(path)).remove()
-                    .then(() => {
-                        alert('Histórico apagado com sucesso!');
-                        if (tipo === 'presenca') gerarCalendario();
-                        if (tipo === 'cargas') inicializarGrafico();
-                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
-                    })
-                    .catch(error => {
-                        console.error("Erro ao resetar dados:", error);
-                        alert("Erro ao apagar dados.");
-                    });
-            }
-        }
-    </script>
+            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
+                database.ref(getPath(path)).remove()
+                    .then(() => {
+                        alert('Histórico apagado com sucesso!');
+                        if (tipo === 'presenca') gerarCalendario();
+                        if (tipo === 'cargas') inicializarGrafico();
+                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
+                    })
+                    .catch(error => {
+                        console.error("Erro ao resetar dados:", error);
+                        alert("Erro ao apagar dados.");
+                    });
+            }
+        }
+    </script>
 </body>
 
 </html>
