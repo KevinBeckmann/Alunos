@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Treinador - Admin</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
@@ -35,9 +38,23 @@
         button.btn-save { width: 100%; padding: 12px; margin-top: 20px; background-color: #00d4ff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
         button.btn-save:hover { background-color: #00a3cc; }
 
-        .treino-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #333; align-items: end; }
+        /* Estilos do Editor de Treino */
+        .treino-row { 
+            display: grid; grid-template-columns: 2fr 1fr 1fr auto auto; gap: 10px; margin-bottom: 10px; 
+            padding-bottom: 10px; border-bottom: 1px dashed #333; align-items: end; 
+            /* NOVO: Permite arrastar */
+            cursor: move; 
+        }
+        .treino-row:last-of-type { border-bottom: none; }
+
+        /* NOVO: Classe adicionada pelo SortableJS */
+        .sortable-ghost { opacity: 0.4; background-color: #333; }
+
         .btn-remover, .btn-acao-aluno { padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; height: 40px; }
         .btn-acao-aluno { background-color: #ffc107; color: #1e1e1e; font-weight: bold; }
+
+        /* Botão de Renomear Aluno */
+        .btn-renomear-aluno { background-color: #00d4ff; color: #1e1e1e; font-weight: bold; }
 
         table { width: 100%; text-align: left; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 8px; border-bottom: 1px solid #333; }
@@ -45,8 +62,8 @@
         .sem-dados { color: #777; font-style: italic; padding: 10px; text-align: center; }
 
         /* Estilos do Modal */
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #1e1e1e; margin: 15% auto; padding: 20px; border: 1px solid #333; width: 80%; max-width: 400px; border-radius: 10px; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
+        .modal-content { background-color: #1e1e1e; margin: 15% auto; padding: 30px; border: 1px solid #333; width: 90%; max-width: 450px; border-radius: 10px; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
         .close:hover, .close:focus { color: #e0e0e0; text-decoration: none; cursor: pointer; }
     </style>
@@ -72,7 +89,7 @@
             <div class="left-col">
                 <div class="card" style="margin-bottom: 20px;">
                     <h2>🧑‍🤝‍🧑 Gestão de Alunos</h2>
-                    <button class="btn-save" onclick="abrirModalAluno()" style="background-color: #38c172; margin-top: 0;">+ Adicionar Novo Aluno</button>
+                    <button class="btn-save" onclick="abrirModalAluno('adicionar')" style="background-color: #38c172; margin-top: 0;">+ Adicionar Novo Aluno</button>
                 </div>
                 
                 <div class="card">
@@ -83,7 +100,7 @@
                             <label>Selecione o Aluno:</label>
                             <select id="selectAluno"><option>Carregando...</option></select>
                         </div>
-                        <button class="btn-acao-aluno" onclick="abrirModalAluno('editar')" title="Editar Aluno">✏️</button>
+                        <button class="btn-acao-aluno btn-renomear-aluno" onclick="abrirModalRenomearAluno()" title="Renomear Aluno">✏️</button>
                         <button class="btn-remover" onclick="excluirAluno()" title="Excluir Aluno">🗑️</button>
                     </div>
 
@@ -95,7 +112,9 @@
                     </select>
 
                     <hr style="border-color: #333; margin: 20px 0;">
+                    <p style="font-size: 0.9em; color: #aaa;">Arraste e solte os exercícios para reordenar.</p>
                     <div id="editor-container"></div>
+                    
                     <button class="btn-save" onclick="salvarTreino()">💾 Salvar e Enviar ao Aluno</button>
                 </div>
             </div>
@@ -145,6 +164,20 @@
         </div>
     </div>
 
+    <div id="modalEditarNome" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modalEditarNome').style.display='none'">&times;</span>
+            <h2>✏️ Renomear Aluno</h2>
+            <p>Seu aluno atual é: <strong id="nome-aluno-antigo"></strong></p>
+            <p style="color:#ffc107; font-size: 0.9em;">Atenção: Renomear o aluno moverá *todos* os seus dados (medidas, treinos, presenças) para o novo nome.</p>
+            
+            <label>Novo Nome Completo do Aluno:</label>
+            <input type="text" id="novo-nome-aluno" placeholder="Novo Nome do Aluno" required>
+
+            <button class="btn-save" id="btn-renomear" onclick="renomearAluno()">Confirmar Renomeação</button>
+        </div>
+    </div>
+
     <script>
         // === 1. CONFIGURAÇÃO FIREBASE ===
         const firebaseConfig = {
@@ -167,44 +200,51 @@
         let presencaRef = null; 
 
         // ------------------------------------
-        // === FUNÇÕES DE AUTENTICAÇÃO ===
+        // === FUNÇÕES GERAIS ===
         // ------------------------------------
+
+        function formatarNomeParaChave(nome) {
+            // Remove acentos/caracteres especiais e substitui espaços por '_'
+            return nome.trim()
+                       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                       .replace(/[^a-zA-Z0-9\s]/g, '')
+                       .replace(/\s+/g, '_')
+                       .replace(/ /g, '_');
+        }
+
+        function getPath(sub) {
+            return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
+        }
 
         function mostrarErro(mensagem) {
             document.getElementById('login-erro').textContent = `Erro: ${mensagem}`;
         }
 
+        // ------------------------------------
+        // === FUNÇÕES DE AUTENTICAÇÃO ===
+        // ------------------------------------
+
         function fazerLogin() {
             const email = document.getElementById('login-email').value;
             const senha = document.getElementById('login-senha').value;
             mostrarErro(''); 
-
             if (!email || !senha) {
                 return mostrarErro('Preencha e-mail e senha.');
             }
-
             auth.signInWithEmailAndPassword(email, senha)
-                .then((userCredential) => {
-                    console.log('Login feito com sucesso!', userCredential.user);
-                })
                 .catch((error) => {
-                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                        mostrarErro('E-mail ou senha incorretos.');
-                    } else if (error.code === 'auth/invalid-email') {
-                         mostrarErro('Formato de e-mail inválido.');
-                    } else {
-                        mostrarErro(error.message);
-                    }
+                    const msg = (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') ? 
+                        'E-mail ou senha incorretos.' : 
+                        (error.code === 'auth/invalid-email' ? 'Formato de e-mail inválido.' : error.message);
+                    mostrarErro(msg);
                 });
         }
         
         function fazerLogout() {
-             auth.signOut().then(() => {
-                console.log('Usuário deslogado.');
-            }).catch((error) => {
-                console.error('Erro ao fazer logout:', error);
-                alert('Erro ao sair: ' + error.message);
-            });
+             auth.signOut().catch((error) => {
+                 console.error('Erro ao fazer logout:', error);
+                 alert('Erro ao sair: ' + error.message);
+             });
         }
 
         auth.onAuthStateChanged((user) => {
@@ -223,17 +263,9 @@
 
 
         // ------------------------------------
-        // === FUNÇÕES DE LÓGICA DO PAINEL ===
+        // === INICIALIZAÇÃO E CARREGAMENTO GERAL ===
         // ------------------------------------
         
-        function formatarNomeParaChave(nome) {
-            return nome.trim().replace(/\s+/g, '_');
-        }
-
-        function getPath(sub) {
-            return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
-        }
-
         function carregarListaAlunos() {
             const sel = document.getElementById('selectAluno');
             sel.innerHTML = '<option>Carregando...</option>';
@@ -243,16 +275,27 @@
                 if(!alunos) { sel.innerHTML = '<option>Sem alunos</option>'; return; }
                 
                 let primeiro = null;
-                // Cria as opções e armazena o nome legível na value
+                const nomesParaSelect = [];
+
                 for(const chave in alunos) {
-                    const nomeLegivel = chave.replace(/_/g, ' '); 
-                    const opt = document.createElement('option');
-                    opt.value = nomeLegivel;
-                    opt.textContent = nomeLegivel;
-                    sel.appendChild(opt);
+                    // Tenta obter o nome formatado guardado em 'info', senão usa a chave
+                    const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' '); 
+                    
+                    nomesParaSelect.push({ chave, nomeLegivel });
                     if(!primeiro) primeiro = nomeLegivel;
                 }
                 
+                nomesParaSelect.sort((a, b) => a.nomeLegivel.localeCompare(b.nomeLegivel));
+
+                nomesParaSelect.forEach(aluno => {
+                    const opt = document.createElement('option');
+                    // O valor da option é o nome legível, que é a base para alunoSelecionadoNome
+                    opt.value = aluno.nomeLegivel; 
+                    opt.textContent = aluno.nomeLegivel;
+                    sel.appendChild(opt);
+                });
+
+                // Tenta manter o aluno selecionado
                 if(alunoSelecionadoNome && sel.querySelector(`option[value="${alunoSelecionadoNome}"]`)) {
                     sel.value = alunoSelecionadoNome;
                 } else if(primeiro) {
@@ -295,48 +338,16 @@
             inicializarGraficoAluno(document.getElementById('selectGrafico').value); 
         }
 
-        // --- FUNÇÕES DE GESTÃO DE ALUNOS (NOVAS) ---
-        let alunoEditando = false; 
+        // ------------------------------------
+        // === FUNÇÕES DE GESTÃO DE ALUNOS (ADICIONAR/EXCLUIR/RENOMEAR) ===
+        // ------------------------------------
 
-        function abrirModalAluno(modo = 'adicionar') {
+        function abrirModalAluno() {
             const modal = document.getElementById('modalAluno');
-            const titulo = document.getElementById('modal-titulo');
-            const btn = document.getElementById('btn-salvar-aluno');
-            const nomeInput = document.getElementById('aluno-nome');
-            const emailInput = document.getElementById('aluno-email');
-            
-            nomeInput.disabled = false;
-            emailInput.disabled = false;
-
-            if (modo === 'editar') {
-                if (!alunoSelecionadoNome) {
-                    alert('Selecione um aluno para editar.');
-                    return;
-                }
-                alunoEditando = true;
-                titulo.textContent = `Editar Aluno: ${alunoSelecionadoNome}`;
-                btn.textContent = 'Salvar Edição';
-                
-                // Preenche os campos com os dados atuais (só precisa do nome/chave para editar)
-                nomeInput.value = alunoSelecionadoNome;
-                emailInput.value = ''; // Não carregamos o email no select, mas é bom limpar
-                nomeInput.disabled = true; // Impede a edição do nome/chave
-                
-                // Poderia carregar o email, mas o exercício pede a edição do aluno, 
-                // e o nome é a chave. Vamos focar em manter o nome e só salvar/atualizar
-                // se precisarmos de um campo adicional (que não estamos usando agora).
-                // Para o escopo deste projeto (Nome = Chave), só permitimos a exclusão.
-                // Para fazer a *edição* do nome, precisaríamos excluir o antigo e criar um novo.
-                // Vamos simplificar e usar a edição para mostrar algo mais, se fosse o caso.
-                // Mas a lógica será focada em *não* mudar a chave (o nome).
-            } else {
-                alunoEditando = false;
-                titulo.textContent = 'Adicionar Novo Aluno';
-                btn.textContent = 'Criar Aluno';
-                nomeInput.value = '';
-                emailInput.value = '';
-            }
-
+            document.getElementById('modal-titulo').textContent = 'Adicionar Novo Aluno';
+            document.getElementById('btn-salvar-aluno').textContent = 'Criar Aluno';
+            document.getElementById('aluno-nome').value = '';
+            document.getElementById('aluno-email').value = '';
             modal.style.display = 'block';
         }
 
@@ -349,15 +360,11 @@
                 return alert('Por favor, preencha o Nome e o E-mail.');
             }
 
-            // Garante que a chave é única e legível.
-            // Para adicionar, apenas cria o nó básico do aluno.
-            if (!alunoEditando) {
-                database.ref(`alunos/${chave}`).once('value')
+            database.ref(`alunos/${chave}`).once('value')
                 .then(snap => {
                     if (snap.exists()) {
-                        alert(`Erro: Já existe um aluno com o nome: ${nome}.`);
+                        alert(`Erro: Já existe um aluno com a chave: ${chave} (Nome: ${nome}).`);
                     } else {
-                        // Salva o aluno com o email
                         database.ref(`alunos/${chave}/info`).set({
                             nome: nome,
                             email: email,
@@ -366,20 +373,14 @@
                         .then(() => {
                             alert(`Aluno "${nome}" adicionado com sucesso!`);
                             document.getElementById('modalAluno').style.display = 'none';
-                            alunoSelecionadoNome = nome; // Seleciona o novo aluno
+                            alunoSelecionadoNome = nome; 
                             carregarListaAlunos();
                         })
                         .catch(e => alert('Erro ao adicionar aluno: ' + e.message));
                     }
                 });
-            } else {
-                // No modo de edição, apenas atualizamos a info (se a chave fosse diferente)
-                // Como não permitimos mudar o nome (chave) nesta versão, apenas a mensagem:
-                alert('Para editar o nome, você precisa excluir o aluno e criá-lo novamente com o novo nome.\nPara este painel, o nome é a chave de identificação.');
-                document.getElementById('modalAluno').style.display = 'none';
-            }
         }
-
+        
         function excluirAluno() {
             if (!alunoSelecionadoNome) {
                 return alert('Selecione um aluno para excluir.');
@@ -391,15 +392,89 @@
                 database.ref(`alunos/${chave}`).remove()
                 .then(() => {
                     alert(`Aluno "${alunoSelecionadoNome}" excluído com sucesso!`);
-                    alunoSelecionadoNome = ''; // Limpa o aluno selecionado
-                    carregarListaAlunos(); // Recarrega a lista para mostrar a alteração
+                    alunoSelecionadoNome = ''; 
+                    carregarListaAlunos();
                 })
                 .catch(e => alert('Erro ao excluir aluno: ' + e.message));
             }
         }
+        
+        // NOVO: Função para abrir o modal de renomear
+        function abrirModalRenomearAluno() {
+            if (!alunoSelecionadoNome) {
+                return alert('Selecione um aluno para renomear.');
+            }
+            document.getElementById('nome-aluno-antigo').textContent = alunoSelecionadoNome;
+            document.getElementById('novo-nome-aluno').value = alunoSelecionadoNome;
+            document.getElementById('modalEditarNome').style.display = 'block';
+        }
 
+        // NOVO: Função para renomear (mover) os dados do aluno
+        function renomearAluno() {
+            const novoNome = document.getElementById('novo-nome-aluno').value.trim();
+            const nomeAntigo = alunoSelecionadoNome;
 
-        // --- 3. MEDIDAS COM AUTO-DETECÇÃO ---
+            if (!novoNome || novoNome === nomeAntigo) {
+                return alert('O novo nome deve ser diferente e não pode ser vazio.');
+            }
+
+            const chaveAntiga = formatarNomeParaChave(nomeAntigo);
+            const chaveNova = formatarNomeParaChave(novoNome);
+
+            if (confirm(`Confirma a renomeação de "${nomeAntigo}" para "${novoNome}"? TODOS os dados serão movidos.`)) {
+                // 1. Verifica se a chave nova já existe
+                database.ref(`alunos/${chaveNova}`).once('value')
+                .then(snapNova => {
+                    if (snapNova.exists()) {
+                        return Promise.reject(new Error(`Já existe um aluno com a chave: ${chaveNova} (Nome: ${novoNome}).`));
+                    }
+
+                    // 2. Obtém os dados do aluno antigo
+                    return database.ref(`alunos/${chaveAntiga}`).once('value');
+                })
+                .then(snapAntiga => {
+                    if (!snapAntiga.exists()) {
+                        return Promise.reject(new Error(`Erro: Aluno antigo "${nomeAntigo}" não encontrado.`));
+                    }
+                    const dadosAluno = snapAntiga.val();
+
+                    // 3. Atualiza o nome legível dentro de 'info' (caso exista)
+                    if (dadosAluno.info) {
+                        dadosAluno.info.nome = novoNome;
+                    } else {
+                        // Se 'info' não existir, cria o básico
+                         dadosAluno.info = { nome: novoNome, email: 'N/A', criacao: firebase.database.ServerValue.TIMESTAMP };
+                    }
+
+                    // 4. Salva os dados no novo nó
+                    return database.ref(`alunos/${chaveNova}`).set(dadosAluno)
+                    .then(() => {
+                        // 5. Remove o nó antigo
+                        return database.ref(`alunos/${chaveAntiga}`).remove();
+                    });
+                })
+                .then(() => {
+                    alert(`Aluno renomeado com sucesso de "${nomeAntigo}" para "${novoNome}".`);
+                    document.getElementById('modalEditarNome').style.display = 'none';
+                    alunoSelecionadoNome = novoNome; // Atualiza o aluno selecionado
+                    carregarListaAlunos();
+                })
+                .catch(e => {
+                    alert('Erro ao renomear aluno: ' + e.message);
+                    console.error(e);
+                });
+            }
+        }
+
+        // ------------------------------------
+        // === FUNÇÕES DE ACOMPANHAMENTO (MEDIDAS/PRESENÇA/GRÁFICO) ===
+        // ------------------------------------
+        // (As funções carregarMedidas, carregarPresenca, inicializarGraficoAluno, renderizarGrafico
+        // permanecem iguais ao código original, apenas omitidas aqui por brevidade.)
+
+        // ... OMITIDAS: carregarMedidas, carregarPresenca, inicializarGraficoAluno, renderizarGrafico ...
+        
+        // --- 3. MEDIDAS ---
         function carregarMedidas() {
             if (!alunoSelecionadoNome) return;
             const tb = document.getElementById('tabela-medidas-admin');
@@ -416,7 +491,6 @@
                 const arr = [];
                 snap.forEach(c => {
                     const val = c.val();
-                    console.log(`MEDIDA CRUA [${c.key}]:`, JSON.stringify(val));
                     arr.push(val);
                 });
                 
@@ -434,34 +508,7 @@
             });
         }
 
-        function carregarPresenca() {
-            if (!alunoSelecionadoNome) return;
-            const ul = document.getElementById('lista-presenca');
-            const st = document.getElementById('status-frequencia');
-
-            if (presencaRef) database.ref(presencaRef).off('value');
-            ul.innerHTML = 'Carregando...';
-            st.textContent = '...';
-            presencaRef = getPath('presenca');
-
-            database.ref(presencaRef).on('value', snap => {
-                ul.innerHTML = '';
-                if(!snap.exists()) { st.textContent = '0 Presenças'; return; }
-                
-                const dias = Object.keys(snap.val()).reverse(); 
-                st.textContent = `${dias.length} Presenças totais`;
-                
-                dias.slice(0, 10).forEach(d => {
-                    const li = document.createElement('li');
-                    li.textContent = `✅ ${d.replace(/-/g, '/')}`;
-                    li.style.borderBottom = '1px dotted #333';
-                    li.style.padding = '5px 0';
-                    ul.appendChild(li);
-                });
-            });
-        }
-
-        // --- 4. GRÁFICO COM AUTO-DETECÇÃO E DEBUG ---
+        // --- 4. GRÁFICO ---
         function inicializarGraficoAluno(exKey) {
             if (!alunoSelecionadoNome) return;
             
@@ -471,39 +518,30 @@
             }
             
             const pathPrincipal = getPath(`cargas/${exKey}`);
-            console.log(">>> Buscando GRÁFICO em:", pathPrincipal);
 
             database.ref(pathPrincipal).once('value', snap => {
                 let dados = [];
                 
                 if(snap.exists()){
-                    console.log("✅ PASTA DO GRÁFICO ENCONTRADA! VERIFIQUE A CONSISTÊNCIA ABAIXO:");
                     snap.forEach(c => {
-                        const val = c.val();
-                        console.log(`Registro [${c.key}]:`, JSON.stringify(val)); 
-                        dados.push(val);
+                        dados.push(c.val());
                     });
-                    renderizarGrafico(dados);
+                    renderizarGrafico(dados, exKey);
                 } else {
-                    console.warn("⚠️ Pasta Principal vazia. Tentando minúsculo...");
                     const pathFallback = getPath(`cargas/${exKey.toLowerCase()}`);
                     database.ref(pathFallback).once('value', snapBk => {
                         if(snapBk.exists()){
-                            console.log("✅ PASTA FALLBACK ENCONTRADA!");
                             snapBk.forEach(c => {
-                                console.log(`Registro [${c.key}]:`, JSON.stringify(c.val()));
                                 dados.push(c.val());
                             });
-                        } else {
-                            console.error("❌ DADOS NÃO ENCONTRADOS EM LUGAR NENHUM.");
                         }
-                        renderizarGrafico(dados);
+                        renderizarGrafico(dados, exKey);
                     });
                 }
             });
         }
 
-        function renderizarGrafico(dados) {
+        function renderizarGrafico(dados, exKey) {
             const ctx = document.getElementById('chartAdmin').getContext('2d');
             const select = document.getElementById('selectGrafico');
             const titulo = select.options[select.selectedIndex].text;
@@ -522,7 +560,6 @@
                 if (exemplo.carga !== undefined) chavePeso = 'carga';
                 else if (exemplo.weight !== undefined) chavePeso = 'weight';
             }
-            console.log(`🔑 CHAVE DE PESO DETECTADA: "${chavePeso}"`);
 
             dados.sort((a,b) => a.timestamp - b.timestamp);
 
@@ -552,53 +589,123 @@
                 }
             });
         }
+        
+        // --- 5. EDITOR DE TREINO (COM DRAG AND DROP) ---
+        
+        function initSortable() {
+            const container = document.getElementById('editor-container');
+            // Inicializa o SortableJS no container.
+            Sortable.create(container, {
+                animation: 150, // Duração da animação
+                handle: '.treino-row', // O elemento inteiro da linha é arrastável
+                ghostClass: 'sortable-ghost', // Classe CSS para o fantasma (visualização de onde será solto)
+                forceFallback: true, // Garante que funcione em dispositivos touch/móveis
+                filter: '.btn-remover', // Não inicia o drag ao clicar no botão 'X'
+            });
+        }
 
-        // --- 5. EDITOR DE TREINO ---
         function carregarTreinoDia() {
             const dia = document.getElementById('selectDia').value;
             const container = document.getElementById('editor-container');
             container.innerHTML = 'Carregando...';
 
+            // Desliga a instância anterior do Sortable, se houver
+            if (container.sortable) {
+                container.sortable.destroy();
+            }
+
             database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
                 const treino = snap.val();
-                container.innerHTML = '';
-                if(Array.isArray(treino)) {
+                container.innerHTML = ''; // Limpa o conteúdo
+                
+                if(Array.isArray(treino) && treino.length > 0) {
                     treino.forEach(t => addLinha(t.nome, t.series, t.reps));
                 } else {
-                    addLinha('Ex: Supino', '4', '10');
+                    addLinha('Ex: Supino Reto com Halteres', '4', '10');
                 }
+
+                // Cria e insere o botão de adicionar exercício
                 const btn = document.createElement('button');
                 btn.textContent = '+ Add Exercício';
-                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:5px; width:100%; margin-top:10px; cursor:pointer;';
+                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:10px; width:100%; margin-top:10px; cursor:pointer; border-radius: 5px;';
                 btn.onclick = () => addLinha('', '', '');
                 container.appendChild(btn);
+
+                // Inicializa o SortableJS após carregar os elementos
+                initSortable();
             });
         }
 
         function addLinha(n, s, r) {
+            const container = document.getElementById('editor-container');
             const div = document.createElement('div');
             div.className = 'treino-row';
             div.innerHTML = `
                 <div><label>Ex</label><input type="text" class="i-nome" value="${n}"></div>
                 <div><label>Sér</label><input type="text" class="i-series" value="${s}"></div>
                 <div><label>Rep</label><input type="text" class="i-reps" value="${r}"></div>
+                <div style="width: 30px; text-align: center; color: #aaa; align-self: center;">☰</div> 
                 <div><button class="btn-remover">X</button></div>`;
+            
             div.querySelector('.btn-remover').onclick = () => div.remove();
-            document.getElementById('editor-container').insertBefore(div, document.getElementById('editor-container').lastChild);
+            
+            // Insere antes do último elemento (que é o botão "+ Add Exercício")
+            const addButton = container.lastChild;
+            if (addButton && addButton.tagName === 'BUTTON') {
+                container.insertBefore(div, addButton);
+            } else {
+                container.appendChild(div);
+            }
         }
 
         function salvarTreino() {
             if(!alunoSelecionadoNome) return alert('Selecione um aluno');
             const dia = document.getElementById('selectDia').value;
-            const rows = document.querySelectorAll('.treino-row');
+            
+            // Pega as linhas na ordem ATUAL (após o drag and drop)
+            const rows = document.querySelectorAll('#editor-container .treino-row');
             const dados = [];
+            
             rows.forEach(r => {
                 const n = r.querySelector('.i-nome').value;
-                if(n) dados.push({ nome: n, series: r.querySelector('.i-series').value, reps: r.querySelector('.i-reps').value });
+                if(n) dados.push({ 
+                    nome: n, 
+                    series: r.querySelector('.i-series').value, 
+                    reps: r.querySelector('.i-reps').value 
+                });
             });
+            
             database.ref(getPath(`treinoModel/${dia}`)).set(dados)
-                .then(() => alert('Treino salvo!'))
+                .then(() => alert('Treino salvo! A nova ordem foi registrada.'))
                 .catch(e => alert('Erro: ' + e.message));
+        }
+        
+        // --- 6. PRESENÇA ---
+        function carregarPresenca() {
+            if (!alunoSelecionadoNome) return;
+            const ul = document.getElementById('lista-presenca');
+            const st = document.getElementById('status-frequencia');
+
+            if (presencaRef) database.ref(presencaRef).off('value');
+            ul.innerHTML = 'Carregando...';
+            st.textContent = '...';
+            presencaRef = getPath('presenca');
+
+            database.ref(presencaRef).on('value', snap => {
+                ul.innerHTML = '';
+                if(!snap.exists()) { st.textContent = '0 Presenças'; return; }
+                
+                const dias = Object.keys(snap.val()).reverse(); 
+                st.textContent = `${dias.length} Presenças totais`;
+                
+                dias.slice(0, 10).forEach(d => {
+                    const li = document.createElement('li');
+                    li.textContent = `✅ ${d.replace(/-/g, '/')}`;
+                    li.style.borderBottom = '1px dotted #333';
+                    li.style.padding = '5px 0';
+                    ul.appendChild(li);
+                });
+            });
         }
     </script>
 </body>
