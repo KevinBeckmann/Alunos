@@ -19,9 +19,15 @@
             padding: 20px;
             background-color: #000000;
             color: #f0f0f0;
+            /* Centraliza o conteúdo da página no body */
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
         }
 
         nav {
+            width: 100%;
+            max-width: 1200px; /* Garante que a nav siga o container */
             text-align: right;
             margin-bottom: 10px;
         }
@@ -41,6 +47,7 @@
             margin-bottom: 30px;
             gap: 20px;
             text-align: center;
+            max-width: 100%; /* Garante que não ultrapasse a tela */
         }
 
         .header-content img {
@@ -56,23 +63,26 @@
             line-height: 1.2;
         }
 
-        /* LAYOUT RESPONSIVO */
+        /* LAYOUT RESPONSIVO (GRID) */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
             gap: 20px;
             width: 100%;
+            /* Ajuste para garantir centralização em telas maiores */
             justify-content: center;
             grid-template-columns: 1fr;
         }
 
         @media (min-width: 768px) {
             .container {
+                /* Em tablets, duas colunas */
                 grid-template-columns: 1fr 1fr;
             }
 
             #chart-card {
+                /* Gráfico ocupando duas colunas em tablets */
                 grid-column: 1 / 3;
                 order: 1;
             }
@@ -80,10 +90,12 @@
 
         @media (min-width: 1024px) {
             .container {
+                /* Em desktops, três colunas */
                 grid-template-columns: 1fr 1fr 1fr;
             }
 
             #chart-card {
+                /* Gráfico voltando a uma coluna em desktops (ou manter a configuração acima se preferir 3 colunas) */
                 grid-column: auto;
                 order: initial;
             }
@@ -107,14 +119,28 @@
             gap: 10px;
             margin-bottom: 10px;
             align-items: center;
+            /* Centraliza os itens dentro de input-group se a largura não for 100% */
+            justify-content: space-between; 
         }
 
         .input-group label {
-            width: 95px;
+            /* Tamanho fixo para label para alinhar os inputs */
+            width: 95px; 
             flex-shrink: 0;
             font-size: 0.9em;
             color: #ccc;
         }
+        
+        /* NOVO CONTAINER DE INPUT PARA CENTRALIZAR O CARD DE MEDIDAS */
+        #medidas-card .input-container {
+            max-width: 350px; /* Limita a largura dos inputs no card de medidas */
+            margin: 0 auto 15px auto; /* Centraliza o bloco de inputs */
+        }
+        
+        #medidas-card .input-group {
+            width: 100%;
+        }
+
 
         .input-group input,
         select {
@@ -146,6 +172,7 @@
             color: #ff9933;
             margin-top: 0;
             margin-bottom: 15px;
+            text-align: center; /* Centraliza títulos dos cards */
         }
 
         /* CONTAINER DO GRÁFICO */
@@ -312,6 +339,10 @@
                 <option value="AgachamentoLivre">Agachamento Livre</option>
                 <option value="SupinoReto">Supino Reto</option>
                 <option value="PuxadaFrontal">Puxada Frontal</option>
+                <option value="RoscaDireta">Rosca Direta</option>
+                <option value="TricepsPulley">Tríceps Pulley</option>
+                <option value="Desenvolvimento">Desenvolvimento</option>
+                <option value="Extensora">Extensora</option>
             </select>
 
             <div class="chart-container">
@@ -327,29 +358,31 @@
 
         <div id="medidas-card" class="card">
             <h2>📏 Registro de Medidas</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc;">Acompanhe sua evolução.</p>
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.</p>
 
-            <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput"
-                    placeholder="Ex: 75.5" step="0.1"></div>
-            <div class="input-group"><label>Cintura</label><input type="number" id="cinturaInput" placeholder="cm"
-                    step="1"></div>
-            <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm"
-                    step="0.5"></div>
-            <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm" step="1">
+            <div class="input-container">
+                <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput"
+                        placeholder="Ex: 75.5" step="0.1"></div>
+                <div class="input-group"><label>Cintura</label><input type="number" id="cinturaInput" placeholder="cm"
+                        step="1"></div>
+                <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm"
+                        step="0.5"></div>
+                <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm" step="1">
+                </div>
+                <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm"
+                        step="1"></div>
+                <div class="input-group"><label>Coxa D.</label><input type="number" id="coxaInput" placeholder="cm"
+                        step="0.5"></div>
+                <div class="input-group"><label>Panturrilha</label><input type="number" id="panturrilhaInput"
+                        placeholder="cm" step="0.5"></div>
+                <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput" placeholder="cm"
+                        step="0.5"></div>
             </div>
-            <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm"
-                    step="1"></div>
-            <div class="input-group"><label>Coxa D.</label><input type="number" id="coxaInput" placeholder="cm"
-                    step="0.5"></div>
-            <div class="input-group"><label>Panturrilha</label><input type="number" id="panturrilhaInput"
-                    placeholder="cm" step="0.5"></div>
-            <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput" placeholder="cm"
-                    step="0.5"></div>
 
             <button class="btn-primary" onclick="registrarMedidas()">Registrar Medidas</button>
 
-            <h3 style="margin-top: 15px; color: #ff9933;">Últimos Registros</h3>
-            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc;">Nenhum registro encontrado.</div>
+            <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Últimos Registros</h3>
+            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro encontrado.</div>
             <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
         </div>
 
@@ -364,7 +397,7 @@
             </select>
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
-            <p><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span> | <strong>Data:</strong>
+            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span> | <strong>Data:</strong>
                 <span id="data-atual"></span></p>
 
             <div id="treino-Dia A" class="lista-treino-dia">
@@ -391,7 +424,7 @@
 
         <div id="presenca-card" class="card">
             <h2>🗓️ Presença Mensal</h2>
-            <p>Clique nas datas para marcar.</p>
+            <p style="text-align: center;">Clique nas datas para marcar.</p>
             <table class="presenca-table">
                 <thead>
                     <tr>
@@ -478,8 +511,6 @@
             const ctx = document.getElementById('pesoChart').getContext('2d');
 
             // 2. Escuta o Firebase em tempo real (on)
-            // Certifique-se de que este listener seja removido se o gráfico mudar de exercício
-            // ou se for necessário otimizar recursos. No momento, o .destroy() acima gerencia a instância.
             database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
                 const dados = [];
                 snap.forEach(d => {
@@ -489,13 +520,12 @@
                     }
                 });
 
-                // 3. PASSO CRUCIAL: ORDENA OS DADOS PELO TIMESTAMP
+                // 3. ORDENA OS DADOS PELO TIMESTAMP
                 dados.sort((a, b) => a.timestamp - b.timestamp);
 
                 const labels = dados.length ? dados.map(d => d.data) : ['Início'];
                 const pesos = dados.length ? dados.map(d => d.peso) : [0];
 
-                // Se o gráfico já existe (pois o listener 'on' pode disparar múltiplas vezes), atualiza os dados
                 if (pesoChart) {
                     pesoChart.data.labels = labels;
                     pesoChart.data.datasets[0].data = pesos;
@@ -526,40 +556,24 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                grid: {
-                                    color: '#333'
-                                },
-                                ticks: {
-                                    color: '#f0f0f0'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Peso (kg)',
-                                    color: '#ff8c00'
-                                }
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' },
+                                title: { display: true, text: 'Peso (kg)', color: '#ff8c00' }
                             },
                             x: {
-                                grid: {
-                                    color: '#333'
-                                },
-                                ticks: {
-                                    color: '#f0f0f0'
-                                }
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' }
                             }
                         },
                         plugins: {
-                            legend: {
-                                labels: {
-                                    color: '#f0f0f0'
-                                }
-                            }
+                            legend: { labels: { color: '#f0f0f0' } }
                         }
                     }
                 });
             });
         }
 
-        // 🎯 FUNÇÃO DE REGISTRO: Garantindo o timestamp para ordenação
+        // 🎯 FUNÇÃO DE REGISTRO
         function adicionarPeso() {
             const p = document.getElementById('pesoInput').value;
             if (!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
@@ -569,24 +583,15 @@
             const ex = document.getElementById('seletorExercicio').value;
 
             const agora = new Date();
-            // FORMATO DO LABEL (EIXO X): Dia/Mês Hora:Minuto
-            const dataLegivel = agora.toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit'
-            }) +
-                ' ' +
-                agora.toLocaleTimeString('pt-BR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+            const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
+                ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
             database.ref(getPath(`cargas/${ex}`)).push({
                 data: dataLegivel,
                 peso: parseFloat(p),
-                timestamp: Date.now() // Timestamp em milissegundos para ordenação garantida
+                timestamp: Date.now()
             }).then(() => {
                 document.getElementById('pesoInput').value = '';
-                // O gráfico é atualizado automaticamente pelo listener 'on' em inicializarGrafico()
             }).catch(error => {
                 console.error("Erro ao adicionar peso:", error);
                 alert("Erro ao registrar carga.");
@@ -629,31 +634,27 @@
             });
         }
 
-        // --- TREINO (SINCRONIZADO) ---
+        // --- TREINO (CORRIGIDO PARA MANTER A ORDEM) ---
         function alternarTreino() {
             const dia = document.getElementById('seletorTreino').value;
             document.querySelectorAll('.lista-treino-dia').forEach(e => e.style.display = 'none');
             document.getElementById(`treino-${dia}`).style.display = 'block';
 
-            // Carrega o treino do professor (que também carrega o status)
             carregarTreinoDoProfessor(dia);
         }
 
         function marcarConcluido(chk, dia, id) {
             const li = chk.closest('li');
             chk.checked ? li.classList.add('concluido') : li.classList.remove('concluido');
-            // Salva o status de conclusão no Firebase
             database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
         }
 
         function carregarCheckboxes(dia) {
             database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
                 const s = snap.val() || {};
-                // Busca no div do dia ativo
                 document.getElementById(`treino-${dia}`).querySelectorAll('li').forEach(li => {
                     const id = li.getAttribute('data-exercicio');
                     const chk = li.querySelector('input');
-                    // Garante que o checkbox e o li sejam atualizados
                     if (chk) {
                         if (s[id]) {
                             chk.checked = true;
@@ -667,24 +668,29 @@
             });
         }
 
-        // 🎯 FUNÇÃO CORRIGIDA: Carrega o treino e garante que a lista seja limpa
+        // 🔥 FUNÇÃO CORRIGIDA: Usa snap.forEach para garantir a ordem
         function carregarTreinoDoProfessor(dia) {
             const idLista = dia === 'Dia A' ? 'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
             const ul = document.getElementById(idLista);
             
-            // Remove o listener anterior para evitar duplicação ou conflito
+            // Remove listener anterior para não duplicar eventos
             database.ref(getPath(`treinoModel/${dia}`)).off('value'); 
 
-            // Adiciona um novo listener
+            // Listener novo
             database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
-                const novoTreino = snap.val();
-                
-                // 1. LIMPA A LISTA ANTES DE CARREGAR
-                ul.innerHTML = ''; 
+                ul.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
 
-                if (novoTreino && Array.isArray(novoTreino)) {
-                    novoTreino.forEach(t => {
-                        // Limpa espaços no nome do exercício para criar um ID único
+                if (!snap.exists()) {
+                    ul.innerHTML = '<li class="exercicio-item" style="background: none; border: none; color: #ff9933; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px;">Seu treino ainda não foi enviado.</li>';
+                    return;
+                }
+
+                // USO DO FOREACH DO SNAPSHOT: Garante a ordem do banco de dados (inserção ou array)
+                snap.forEach(childSnapshot => {
+                    const t = childSnapshot.val();
+                    
+                    // Verifica se o objeto tem os dados mínimos
+                    if (t && t.nome) {
                         const id = t.nome.replace(/\s/g, ''); 
                         const li = document.createElement('li');
                         li.className = 'exercicio-item';
@@ -694,13 +700,11 @@
                             <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')"></div>
                         `;
                         ul.appendChild(li);
-                    });
-                    
-                    // 2. RECUPERA O STATUS DE CONCLUSÃO APÓS ADICIONAR OS EXERCÍCIOS
-                    carregarCheckboxes(dia); 
-                } else {
-                    ul.innerHTML = '<li class="exercicio-item" style="background: none; border: none; color: #ff9933; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px;">Seu treino ainda não foi enviado.</li>';
-                }
+                    }
+                });
+                
+                // Recupera status (checked/unchecked)
+                carregarCheckboxes(dia); 
             });
         }
 
@@ -784,7 +788,6 @@
                 database.ref(getPath(path)).remove()
                     .then(() => {
                         alert('Histórico apagado com sucesso!');
-                        // Força a recarga do componente após o reset
                         if (tipo === 'presenca') gerarCalendario();
                         if (tipo === 'cargas') inicializarGrafico();
                         if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
