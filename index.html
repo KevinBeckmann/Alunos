@@ -839,7 +839,7 @@ async function simularPesquisaIA() {
     // ---------------------------------------------------------
     // 3. CONFIGURAÇÃO DA API (COLE SUA CHAVE AQUI)
     // ---------------------------------------------------------
-    const API_KEY = 'COLE_SUA_CHAVE_AQUI_DENTRO'; 
+    const API_KEY = 'AIzaSyDFaRsop7MROCF63yuBl7fkwHHw9hxcVBI'; 
     
     // URL de requisição (modelo gemini-1.5-flash)
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
@@ -888,14 +888,7 @@ async function simularPesquisaIA() {
     }
 }
 // 🏁 AQUI TERMINA O BLOCO (Este '}' final fecha a função)
-                
-                // Reativa o botão e exibe a resposta
-                botao.disabled = false;
-                botao.textContent = 'Perguntar à IA';
-                respostaDiv.innerHTML = `<strong>Resposta:</strong>\n${resposta}`;
-
-            }, 2000); // Simula um atraso de 2 segundos para a resposta da IA
-        }
+    
 
         // --- RESET GERAL ---
         function resetarDados(tipo) {
