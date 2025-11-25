@@ -22,12 +22,13 @@
             /* Centraliza o conteúdo da página no body */
             display: flex;
             flex-direction: column;
-            align-items: center; 
+            align-items: center;
         }
 
         nav {
             width: 100%;
-            max-width: 1200px; /* Garante que a nav siga o container */
+            max-width: 1200px;
+            /* Garante que a nav siga o container */
             text-align: right;
             margin-bottom: 10px;
         }
@@ -47,7 +48,8 @@
             margin-bottom: 30px;
             gap: 20px;
             text-align: center;
-            max-width: 100%; /* Garante que não ultrapasse a tela */
+            max-width: 100%;
+            /* Garante que não ultrapasse a tela */
         }
 
         .header-content img {
@@ -120,23 +122,25 @@
             margin-bottom: 10px;
             align-items: center;
             /* Centraliza os itens dentro de input-group se a largura não for 100% */
-            justify-content: space-between; 
+            justify-content: space-between;
         }
 
         .input-group label {
             /* Tamanho fixo para label para alinhar os inputs */
-            width: 95px; 
+            width: 95px;
             flex-shrink: 0;
             font-size: 0.9em;
             color: #ccc;
         }
-        
+
         /* NOVO CONTAINER DE INPUT PARA CENTRALIZAR O CARD DE MEDIDAS */
         #medidas-card .input-container {
-            max-width: 350px; /* Limita a largura dos inputs no card de medidas */
-            margin: 0 auto 15px auto; /* Centraliza o bloco de inputs */
+            max-width: 350px;
+            /* Limita a largura dos inputs no card de medidas */
+            margin: 0 auto 15px auto;
+            /* Centraliza o bloco de inputs */
         }
-        
+
         #medidas-card .input-group {
             width: 100%;
         }
@@ -172,7 +176,8 @@
             color: #ff9933;
             margin-top: 0;
             margin-bottom: 15px;
-            text-align: center; /* Centraliza títulos dos cards */
+            text-align: center;
+            /* Centraliza títulos dos cards */
         }
 
         /* CONTAINER DO GRÁFICO */
@@ -305,6 +310,42 @@
             color: #000;
             margin-top: 10px;
         }
+        
+        /* --- CAMPO DE PESQUISA IA (NOVOS ESTILOS) --- */
+        #ai-search-card {
+            order: 3; /* Define a ordem no grid para desktops */
+            background-color: #1a1a1a;
+            border: 1px solid #ff9933;
+        }
+
+        #ai-search-card textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: #000000;
+            color: #f0f0f0;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        #ai-resposta {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px dashed #ff9933;
+            background-color: rgba(255, 153, 51, 0.1);
+            border-radius: 8px;
+            min-height: 50px;
+            font-size: 0.9em;
+            color: #ccc;
+            white-space: pre-wrap; /* Mantém a formatação da resposta da IA */
+        }
+
+        #ai-resposta strong {
+            color: #ff9933;
+        }
     </style>
 </head>
 
@@ -421,7 +462,20 @@
                 </ul>
             </div>
         </div>
+        
+        <div id="ai-search-card" class="card">
+            <h2>🧠 Pesquisar Exercício com IA</h2>
 
+            <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
+            <textarea id="exercicioPergunta" placeholder="Ex: 'Qual a forma correta de fazer supino reto?' ou 'Quais os músculos ativados no agachamento?'"></textarea>
+            
+            <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
+
+            <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
+            <div id="ai-resposta">
+                O resultado da sua pesquisa aparecerá aqui. (Função de IA simulada)
+            </div>
+        </div>
         <div id="presenca-card" class="card">
             <h2>🗓️ Presença Mensal</h2>
             <p style="text-align: center;">Clique nas datas para marcar.</p>
@@ -674,7 +728,7 @@
             const ul = document.getElementById(idLista);
             
             // Remove listener anterior para não duplicar eventos
-            database.ref(getPath(`treinoModel/${dia}`)).off('value'); 
+            database.ref(getPath(`treinoModel/${dia}`)).off('value');
 
             // Listener novo
             database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
@@ -691,7 +745,7 @@
                     
                     // Verifica se o objeto tem os dados mínimos
                     if (t && t.nome) {
-                        const id = t.nome.replace(/\s/g, ''); 
+                        const id = t.nome.replace(/\s/g, '');
                         const li = document.createElement('li');
                         li.className = 'exercicio-item';
                         li.setAttribute('data-exercicio', id);
@@ -704,7 +758,7 @@
                 });
                 
                 // Recupera status (checked/unchecked)
-                carregarCheckboxes(dia); 
+                carregarCheckboxes(dia);
             });
         }
 
@@ -760,6 +814,44 @@
                     if (td) td.classList.add('presente');
                 });
             });
+        }
+        
+        // --- INTERAÇÃO COM IA (SIMULAÇÃO) ---
+        function simularPesquisaIA() {
+            const pergunta = document.getElementById('exercicioPergunta').value.trim();
+            const respostaDiv = document.getElementById('ai-resposta');
+            const botao = document.querySelector('#ai-search-card .btn-primary');
+
+            if (pergunta.length < 5) {
+                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+                return;
+            }
+
+            // Desativa o botão e mostra mensagem de carregamento
+            botao.disabled = true;
+            botao.textContent = 'Pesquisando... ⏳';
+            respostaDiv.innerHTML = '<p style="text-align: center;">Buscando informação... Aguarde.</p>';
+
+            // --- SIMULAÇÃO DE CHAMADA À API DA IA (DEVE SER MUDADO PARA CÓDIGO DE BACKEND REAL) ---
+            setTimeout(() => {
+                
+                let resposta = "Olá! Como eu sou um assistente virtual rodando no seu navegador, esta é uma resposta simulada. Para ter uma integração real com IA, o professor precisará configurar um servidor de backend (como Node.js) e uma chave de API para o Gemini, ChatGPT ou outro modelo.";
+
+                // Respostas simuladas baseadas em palavras-chave
+                if (pergunta.toLowerCase().includes('supino')) {
+                    resposta = "O **Supino Reto** é um exercício fundamental para o peitoral, ombros e tríceps. Mantenha os pés firmes no chão, a barra alinhada com os olhos, e desça a barra até tocar levemente o peito, mantendo os cotovelos a um ângulo de 45 graus do corpo. Não arqueie a coluna excessivamente."
+                } else if (pergunta.toLowerCase().includes('agachamento')) {
+                    resposta = "O **Agachamento Livre** é o rei dos exercícios. Foca em quadríceps, glúteos e isquiotibiais. Mantenha o tronco reto, olhe para frente, e desça como se fosse sentar em uma cadeira. Os joelhos devem seguir a linha dos pés. É vital usar uma carga adequada à sua técnica."
+                } else if (pergunta.toLowerCase().includes('musculos') || pergunta.toLowerCase().includes('ativados')) {
+                    resposta = "Muitos exercícios trabalham múltiplos músculos! Por exemplo, o Agachamento ativa Quadríceps e Glúteos; a Puxada Frontal ativa o Grande Dorsal e Bíceps. Qual exercício específico você gostaria de saber?"
+                }
+                
+                // Reativa o botão e exibe a resposta
+                botao.disabled = false;
+                botao.textContent = 'Perguntar à IA';
+                respostaDiv.innerHTML = `<strong>Resposta:</strong>\n${resposta}`;
+
+            }, 2000); // Simula um atraso de 2 segundos para a resposta da IA
         }
 
         // --- RESET GERAL ---
