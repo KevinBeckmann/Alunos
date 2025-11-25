@@ -331,18 +331,19 @@
             box-sizing: border-box;
         }
 
-        #ai-resposta {
-            margin-top: 15px;
-            padding: 15px;
-            border: 1px dashed #ff9933;
-            background-color: rgba(255, 153, 51, 0.1);
-            border-radius: 8px;
-            min-height: 50px;
-            font-size: 0.9em;
-            color: #ccc;
-            white-space: pre-wrap; /* Mantém a formatação da resposta da IA */
-        }
-
+       #ai-resposta {
+    margin-top: 15px;
+    padding: 15px;
+    /* Define uma borda neutra, similar a outras partes do layout */
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    /* Remove o fundo laranja, usa o fundo escuro do card (#1a1a1a) */
+    background-color: transparent; 
+    border-radius: 8px;
+    min-height: 50px;
+    font-size: 0.9em;
+    color: #ccc;
+    white-space: pre-wrap;
+}
         #ai-resposta strong {
             color: #ff9933;
         }
