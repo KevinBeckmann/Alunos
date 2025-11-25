@@ -110,6 +110,7 @@
                         <option value="Dia A">Dia A</option>
                         <option value="Dia B">Dia B</option>
                         <option value="Dia C">Dia C</option>
+                        <option value="Dia D">Dia D</option>
                     </select>
 
                     <hr style="border-color: #333; margin: 20px 0;">
@@ -332,7 +333,7 @@
 
         function carregarTudo() {
             if(!alunoSelecionadoNome) return;
-            document.getElementById('titulo-acompanhamento').textContent = `📊 Acompanhamento: ${alunoSelecionadoNome}`;
+            document.getElementById('titulo-acompanhamento').textContent = `Acompanhamento: ${alunoSelecionadoNome}`;
             
             carregarTreinoDia();
             carregarMedidas(); 
