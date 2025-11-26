@@ -19,7 +19,6 @@
             padding: 20px;
             background-color: #000000;
             color: #f0f0f0;
-            /* Centraliza o conteúdo da página no body */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,7 +27,6 @@
         nav {
             width: 100%;
             max-width: 1200px;
-            /* Garante que a nav siga o container */
             text-align: right;
             margin-bottom: 10px;
         }
@@ -49,7 +47,6 @@
             gap: 20px;
             text-align: center;
             max-width: 100%;
-            /* Garante que não ultrapasse a tela */
         }
 
         .header-content img {
@@ -72,19 +69,16 @@
             display: grid;
             gap: 20px;
             width: 100%;
-            /* Ajuste para garantir centralização em telas maiores */
             justify-content: center;
             grid-template-columns: 1fr;
         }
 
         @media (min-width: 768px) {
             .container {
-                /* Em tablets, duas colunas */
                 grid-template-columns: 1fr 1fr;
             }
 
             #chart-card {
-                /* Gráfico ocupando duas colunas em tablets */
                 grid-column: 1 / 3;
                 order: 1;
             }
@@ -92,12 +86,10 @@
 
         @media (min-width: 1024px) {
             .container {
-                /* Em desktops, três colunas */
                 grid-template-columns: 1fr 1fr 1fr;
             }
 
             #chart-card {
-                /* Gráfico voltando a uma coluna em desktops (ou manter a configuração acima se preferir 3 colunas) */
                 grid-column: auto;
                 order: initial;
             }
@@ -121,12 +113,10 @@
             gap: 10px;
             margin-bottom: 10px;
             align-items: center;
-            /* Centraliza os itens dentro de input-group se a largura não for 100% */
             justify-content: space-between;
         }
 
         .input-group label {
-            /* Tamanho fixo para label para alinhar os inputs */
             width: 95px;
             flex-shrink: 0;
             font-size: 0.9em;
@@ -136,15 +126,12 @@
         /* NOVO CONTAINER DE INPUT PARA CENTRALIZAR O CARD DE MEDIDAS */
         #medidas-card .input-container {
             max-width: 350px;
-            /* Limita a largura dos inputs no card de medidas */
             margin: 0 auto 15px auto;
-            /* Centraliza o bloco de inputs */
         }
 
         #medidas-card .input-group {
             width: 100%;
         }
-
 
         .input-group input,
         select {
@@ -177,7 +164,6 @@
             margin-top: 0;
             margin-bottom: 15px;
             text-align: center;
-            /* Centraliza títulos dos cards */
         }
 
         /* CONTAINER DO GRÁFICO */
@@ -310,12 +296,11 @@
             color: #000;
             margin-top: 10px;
         }
-        
-       /* --- CAMPO DE PESQUISA IA (NOVOS ESTILOS) --- */
+
+        /* --- CAMPO DE PESQUISA IA --- */
         #ai-search-card {
-            order: 3; /* Define a ordem no grid para desktops */
+            order: 3;
             background-color: #1a1a1a;
-            /* Nova borda sutil, seguindo o padrão dos outros cards */
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
@@ -332,19 +317,18 @@
             box-sizing: border-box;
         }
 
-       #ai-resposta {
-    margin-top: 15px;
-    padding: 15px;
-    /* Define uma borda neutra, similar a outras partes do layout */
-    border: 1px solid rgba(255, 255, 255, 0.2); 
-    /* Remove o fundo laranja, usa o fundo escuro do card (#1a1a1a) */
-    background-color: transparent; 
-    border-radius: 8px;
-    min-height: 50px;
-    font-size: 0.9em;
-    color: #ccc;
-    white-space: pre-wrap;
-}
+        #ai-resposta {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: transparent;
+            border-radius: 8px;
+            min-height: 50px;
+            font-size: 0.9em;
+            color: #ccc;
+            white-space: pre-wrap;
+        }
+
         #ai-resposta strong {
             color: #ff9933;
         }
@@ -383,9 +367,10 @@
                 <option value="SupinoReto">Supino Reto</option>
                 <option value="PuxadaFrontal">Puxada Frontal</option>
                 <option value="RoscaDireta">Rosca Direta</option>
-                <option value="TricepsPulley">Tríceps Pulley</option>
-                <option value="Desenvolvimento">Desenvolvimento</option>
-                <option value="Extensora">Extensora</option>
+                <option value="TricepsTesta">Tríceps Testa</option>
+                <option value="DesenvolvimentoMilitar">Desenvolvimento Militar</option>
+                <option value="CadeiraExtensora">Cadeira Extensora</option>
+                <option value="ElevacaoPelvica">Elevação Pélvica</option>
             </select>
 
             <div class="chart-container">
@@ -401,7 +386,8 @@
 
         <div id="medidas-card" class="card">
             <h2> Registro de Medidas</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.</p>
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.
+            </p>
 
             <div class="input-container">
                 <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput"
@@ -410,7 +396,8 @@
                         step="1"></div>
                 <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm"
                         step="0.5"></div>
-                <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm" step="1">
+                <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm"
+                        step="1">
                 </div>
                 <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm"
                         step="1"></div>
@@ -425,7 +412,8 @@
             <button class="btn-primary" onclick="registrarMedidas()">Registrar Medidas</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Últimos Registros</h3>
-            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro encontrado.</div>
+            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro
+                encontrado.</div>
             <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
         </div>
 
@@ -440,37 +428,42 @@
             </select>
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
-            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span> | <strong>Data:</strong>
+            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span>
+                | <strong>Data:</strong>
                 <span id="data-atual"></span></p>
 
             <div id="treino-Dia A" class="lista-treino-dia">
                 <h3>Dia A: Peito, Ombros e Tríceps</h3>
                 <ul id="lista-treino-a" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...</li>
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
+                    </li>
                 </ul>
             </div>
 
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
                 <h3>Dia B: Costas e Bíceps</h3>
                 <ul id="lista-treino-b" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...</li>
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
+                    </li>
                 </ul>
             </div>
 
             <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
                 <h3>Dia C: Pernas</h3>
                 <ul id="lista-treino-c" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...</li>
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
+                    </li>
                 </ul>
             </div>
         </div>
-        
+
         <div id="ai-search-card" class="card">
             <h2> Pesquisar Exercício com IA</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta" placeholder="Ex: 'Qual a forma correta de fazer supino reto?' ou 'Quais os músculos ativados no agachamento?'"></textarea>
-            
+            <textarea id="exercicioPergunta" placeholder="Ex: 'Qual a forma correta de fazer agachamento?'
+ou 'Estou com dor no peito durante o treino' ou 'O que é proteína?'"></textarea>
+
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
@@ -480,6 +473,7 @@
         </div>
         <div id="presenca-card" class="card">
             <h2> Presença Mensal</h2>
+
             <p style="text-align: center;">Clique nas datas para marcar.</p>
             <table class="presenca-table">
                 <thead>
@@ -516,11 +510,122 @@
 
         let alunoNome = '';
         let pesoChart;
-
         function getPath(sub) {
             // Remove espaços e garante que a chave do aluno seja formatada corretamente (Ex: Maria_Da_Silva)
             return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
         }
+
+        // --- BANCO DE DADOS LOCAL (IA SIMULADA) ---
+        // Função para normalizar strings (remover acentos e caracteres especiais)
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+        // Dados brutos fornecidos (Exercícios, Nutrição e Saúde)
+        const rawData = [
+            "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco, pés firmes no chão. Segure a barra na largura dos ombros. Desça-a controladamente até o peito. Empurre a barra para cima, estendendo os braços. | Mantenha as escápulas retraídas (ombros para trás e para baixo) para estabilizar e proteger a articulação do ombro.",
+            "Crucifixo com Halteres | Musculação | Peito | Peitoral Maior (Foco no alongamento) | Deitado, segure os halteres acima do peito. Desça os braços lateralmente com os cotovelos levemente flexionados (travados). Retorne, simulando um abraço. | O movimento deve ser controlado e o arco amplo. Pare antes que os ombros fiquem em hiperextensão.",
+            "Puxada Alta (Lat Pulldown) | Musculação | Costas | Latíssimo do Dorso (Grande Dorsal), Bíceps, Romboides | Sentado na máquina, joelhos travados. Puxe a barra em direção ao peito, inclinando levemente o tronco para trás. Concentre-se em conectar o movimento com a retração das escápulas. | Evite o impulso do tronco. Concentre-se em 'puxar com os cotovelos' para isolar as costas.",
+            "Remada Curvada com Barra | Musculação | Costas | Latíssimo do Dorso, Romboides, Trapézio | Incline o tronco para frente a cerca de 45 graus, mantendo a coluna neutra e o peito alto. Puxe a barra em direção à parte inferior do abdômen. | Mantenha a cabeça alinhada com a coluna e evite arredondar as costas para proteger a lombar. ",
+            "Desenvolvimento Militar | Musculação | Ombros | Deltóide Anterior e Medial, Tríceps | Em pé (ou sentado com apoio), comece com a barra/halteres na altura dos ombros. Empurre o peso verticalmente para cima até a extensão completa. | Mantenha o core (abdômen) contraído e evite arquear a lombar (hiperextensão) durante o empurrão.",
+            "Elevação Lateral | Musculação | Ombros | Deltóide Medial (Lateral) | Em pé, segure halteres ao lado do corpo. Levante os braços lateralmente em arco até a altura dos ombros. Mantenha os cotovelos levemente flexionados. | Não use o impulso do corpo. O movimento deve ser suave e o deltóide deve fazer o trabalho, sem sobrecarregar o trapézio superior.",
+            "Rosca Direta com Barra | Musculação | Bíceps | Bíceps Braquial, Braquial | Em pé, segure a barra com pegada supinada (palmas para cima). Mantenha os cotovelos fixos e próximos ao corpo. Flexione-os, levantando a barra em direção ao peito. | Os cotovelos devem permanecer fixos e ao lado do corpo. Evite balançar o tronco (roubar) para preservar a tensão no bíceps.",
+            "Tríceps Testa | Musculação | Tríceps | Tríceps Braquial (principalmente a cabeça longa) | Deitado em um banco, segure a barra ou halteres. Flexione os cotovelos, baixando o peso em direção à testa. Estenda os braços para retornar. | Mantenha os cotovelos apontando para a frente (não para os lados) e use um peso que permita total controle do movimento.",
+            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Com a barra nas costas, desça o quadril como se fosse sentar em uma cadeira, mantendo o peito alto e a coluna neutra. Os joelhos devem seguir a direção dos pés. | A profundidade ideal é abaixo de 90 graus (se a mobilidade permitir). Distribua o peso nos calcanhares e evite que os joelhos 'caiam' para dentro. ",
+            "Leg Press | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo | Sente-se na máquina, posicione os pés na plataforma. Desça a plataforma flexionando os joelhos e empurre-a de volta, sem travar completamente os joelhos no topo. | Mantenha a lombar completamente apoiada no encosto. Reduza a amplitude se sentir que o quadril está saindo do banco.",
+            "Levantamento Terra Romeno (Stiff) | Musculação | Posterior/Glúteos | Isquiotibiais (Posterior da coxa), Glúteo Máximo, Eratores da Espinha | Em pé, segure a barra/halteres. Incline o tronco para frente, empurrando o quadril para trás, mantendo as pernas quase esticadas. | O movimento é uma 'dobra' do quadril. Mantenha a coluna neutra e sinta o alongamento concentrado na parte posterior da coxa.",
+            "Cadeira Extensora | Musculação | Quadríceps | Quadríceps (Isolamento) | Sentado na máquina, estenda as pernas contra a almofada até a total contração do músculo. Volte controladamente, resistindo ao peso. | Conscientemente, contraia o quadríceps no topo do movimento antes de retornar, garantindo o máximo recrutamento.",
+            "Elevação Pélvica (Hip Thrust) | Musculação | Glúteos | Glúteo Máximo, Isquiotibiais | Apoie as escápulas em um banco. Coloque a barra sobre o quadril. Contraia o glúteo para levantar o quadril até formar uma linha reta com ombros e joelhos. | Mantenha o queixo abaixado e a costela 'para dentro'. A força vem da contração máxima do glúteo no topo.",
+            "Prancha (Plank) | Musculação | Core/Abdômen | Reto Abdominal, Oblíquos, Transverso do Abdômen | Apoie-se nos antebraços e pontas dos pés. Mantenha o corpo em linha reta, desde a cabeça até os calcanhares. | Puxe o umbigo em direção à coluna para ativar o músculo transverso. Evite arquear a lombar ou levantar o quadril.",
+            "Agachamento Low Bar (Barra Baixa) | Powerlifting | Agachamento | Glúteo Máximo, Isquiotibiais, Quadríceps | A barra é posicionada mais baixa nas costas (na parte posterior do deltóide). Desça priorizando a inclinação do tronco e o impulso do quadril. | Exige maior mobilidade de ombro e tornozelo. A técnica é voltada para maximizar a carga, mantendo o padrão de movimento competitivo.",
+            "Supino com Pausa | Powerlifting | Supino | Peitoral, Deltóide Anterior, Tríceps | Desça a barra até o peito. Mantenha-a completamente imóvel por 1-2 segundos no peito (pausa). Só então empurre a barra para cima. | Esta pausa é um requisito de competição. Fortalece o músculo sem depender do impulso elástico do 'rebote' no peito.",
+            "Levantamento Terra Convencional | Powerlifting | Terra | Cadeia Posterior (Lombar, Glúteos, Isquiotibiais), Trapézio | Fique com os pés na largura do quadril. Segure a barra fora dos joelhos. Puxe o peso do chão, esticando o quadril e os joelhos simultaneamente. | A coluna deve ser neutra (reta) durante todo o movimento. Mantenha o peso o mais próximo possível do corpo. ",
+            "Supino com Pegada Fechada (Acessório) | Powerlifting | Auxiliar | Tríceps Braquial, Peitoral (porção interna) | Similar ao supino reto, mas as mãos ficam mais próximas (na largura dos ombros). Desça e empurre o peso focado na força do tríceps. | Usado especificamente para aumentar a força de 'lockout' (finalização da extensão) no supino principal.",
+            "Snatch (Arranco) | CrossFit | LPO | Corpo Inteiro (Quadríceps, Trapézio, Ombros, Core) | Movimento explosivo: a barra é puxada do chão até acima da cabeça em um único movimento, terminando em um agachamento completo. | A chave é a 'triple extension' (extensão explosiva de tornozelos, joelhos e quadril) para acelerar a barra antes de se mover para baixo dela.",
+            "Clean & Jerk (Arremesso) | CrossFit | LPO | Corpo Inteiro (Pernas, Ombros, Core) | Clean (Limpo): Levar a barra do chão para os ombros. Jerk (Arremesso): Usar a força das pernas (em split ou push) para levar a barra dos ombros para cima da cabeça. | É crucial receber a barra na posição correta (rack frontal) e usar as pernas para a segunda parte (Jerk).",
+            "Thruster | CrossFit | LPO/Ginástica | Quadríceps, Deltóides, Tríceps | Agachamento Frontal seguido imediatamente por um Desenvolvimento Militar (Press) em um movimento fluido e sem pausas. | Use a força de impulsão das pernas ao sair do agachamento para transferir a energia para o empurrão do peso acima da cabeça.",
+            "Pull-up (Kipado) | CrossFit | Ginástica | Grande Dorsal, Bíceps, Core | Pendurado na barra, use o balanço rítmico do corpo (Kip) e do quadril para auxiliar a elevação e levar o queixo sobre a barra. | Sempre comece e mantenha a tensão no core (posição 'Hollow' e 'Arch') para controlar o balanço e evitar lesões no ombro.",
+            "Muscle-up (Argola/Barra) | CrossFit | Ginástica | Grande Dorsal, Peitoral, Tríceps, Core | Transição da Puxada vertical para o Mergulho (Dip) sobre o aparelho. Exige força e coordenação para 'se projetar' sobre o anel/barra. | O timing da transição é o mais difícil. É um movimento completo que exige força de puxada (back) e empurrão (tríceps/peito). ",
+            "Toes-to-Bar (T2B) | CrossFit | Ginástica | Core (Reto Abdominal e Flexores do Quadril) | Pendurado na barra, use o balanço do corpo (kip) controlado para levantar os pés até que toquem a barra (entre as mãos). | O movimento deve ser controlado pelo core; evite balançar descontroladamente. Foque em manter a forma 'Hollow' e 'Arch'.",
+            "Burpee | CrossFit | Condicionamento | Corpo Inteiro | Deite-se no chão (peito e quadris tocam), levante, salte com os pés para perto das mãos e salte para o alto, batendo as mãos acima da cabeça. | É um movimento de corpo inteiro e alta intensidade. O foco é na fluidez e velocidade entre a transição do chão para o salto.",
+            "Wall Ball Shot | CrossFit | Condicionamento | Quadríceps, Glúteos, Ombros | Segurando a bola medicinal no peito, faça um agachamento completo. Use a força explosiva das pernas para levantar e arremessar a bola no alvo na parede. | Certifique-se de que o quadril desça abaixo da paralela no agachamento. Use a inércia do quadril para impulsionar a bola.",
+            "The Hundred (O Cem) | Pilates | Mat/Solo | Transverso do Abdômen (Core), Reto Abdominal | Deitado de costas, levante a cabeça e os ombros. Pernas a 45 graus. Bombeie os braços ritmicamente. A respiração é coordenada (5 inspirações e 5 expirações por ciclo). | Mantenha a lombar pressionada contra o solo ativamente. A respiração profunda e controlada (no ritmo 5/5) é o foco do exercício. ",
+            "Roll Up | Pilates | Mat/Solo | Reto Abdominal, Músculos da Coluna | Deitado, comece a enrolar o corpo para cima, vértebra por vértebra, formando um 'C' com a coluna para alcançar os pés. Role lentamente de volta. | O controle do movimento é primordial. Use a força abdominal (e não o impulso) para subir e descer de forma suave, articulando a coluna.",
+            "Single Leg Stretch | Pilates | Mat/Solo | Core, Estabilizadores da Pelve | Deitado, levante a cabeça. Puxe um joelho em direção ao peito enquanto estica a outra perna. Troque as pernas de forma controlada e fluida. | Mantenha o 'Powerhouse' (Core) engajado para evitar que a pelve balance. O corpo deve permanecer imóvel enquanto as pernas se movem.",
+            "Teaser | Pilates | Mat/Solo | Reto Abdominal, Flexores do Quadril, Estabilizadores | Sentado, eleve o tronco e as pernas esticadas, formando um 'V' equilibrado. Estique os braços paralelamente às pernas. | A estabilidade do core é o foco. Encontre o equilíbrio nos ísquios. Se for difícil, mantenha os joelhos dobrados (variação 'Table Top').",
+            "Swimming (Natação) | Pilates | Mat/Solo | Paravertebrais (Extensores da Coluna), Glúteos | Deitado de bruços, levante a cabeça. Levante e alterne o braço e perna opostos (braço direito/perna esquerda) em um ritmo de 'natação' suave. | Concentre-se no alongamento axial (crescer a coluna) e na ativação dos glúteos. Evite levantar a cabeça ou o tronco demais (hiperextensão lombar).",
+            "Esteira (Caminhada/Corrida) | Aeróbico | Cardio | Quadríceps, Isquiotibiais, Panturrilhas, Core | Caminhe ou corra em um ritmo constante. A intensidade é controlada ajustando a velocidade (km/h) ou a inclinação (%). | Não se incline para a frente ou se agarre nos apoios, pois isso prejudica a postura natural e reduz o gasto calórico efetivo.",
+            "Bicicleta Ergométrica (Estacionária) | Aeróbico | Cardio | Quadríceps, Isquiotibiais, Panturrilhas, Glúteos | Pedale em um movimento circular constante. A intensidade é ajustada pela Resistência (nível de carga) e pela RPM (rotações por minuto). | Ajuste a altura do selim: o joelho deve estar levemente flexionado no ponto mais baixo do pedal para evitar lesões e maximizar a eficiência.",
+            "Elíptico | Aeróbico | Cardio | Corpo Inteiro (Quadríceps, Glúteos, Peitoral, Dorsal) | Posicione os pés nas plataformas e agarre as alças. Mova braços e pernas em um movimento cíclico e elíptico. A intensidade é ajustada pela Resistência. | Mantenha os calcanhares na plataforma e use os braços ativamente (puxando e empurrando) para recrutar a parte superior do corpo.",
+            "Alongamento de Quadríceps (Em Pé) | Alongamento | Pernas | Quadríceps (Reto Femoral e Vasto) | Em pé e segurando-se em um apoio, dobre o joelho e puxe o tornozelo em direção ao glúteo. Mantenha os joelhos alinhados. | Mantenha o quadril neutro (não empine) para garantir que o alongamento ocorra na parte da frente da coxa, e não na lombar.",
+            "Alongamento de Isquiotibiais (Sentado) | Alongamento | Pernas | Isquiotibiais (Posterior da coxa) | Sentado, estique uma perna e dobre a outra. Incline o tronco para frente, a partir do quadril (mantendo a coluna reta), em direção ao pé esticado. | O alongamento deve ser sentido na parte posterior da coxa. Evite arredondar as costas, focando na flexão do quadril.",
+            "Torção de Coluna (Deitado) | Alongamento | Core/Lombar/Glúteos | Glúteo Máximo, Oblíquos, Paravertebrais | Deitado de costas, puxe um joelho dobrado sobre o corpo, em direção ao chão, no lado oposto. Mantenha os ombros no chão. | Use a respiração: a cada expiração, tente relaxar e aprofundar um pouco mais a torção. Ajuda a aliviar a tensão na lombar.",
+            "Alongamento de Peitoral na Parede | Alongamento | Peito/Ombros | Peitoral Maior, Deltóide Anterior | Em pé, coloque a palma da mão e o antebraço contra a parede (ou porta) em um ângulo de 90 graus. Gire o tronco para frente, afastando-se da parede. | Mantenha o ombro para baixo (longe da orelha) e sinta o alongamento no peito e na parte da frente do ombro.",
+            "Alongamento de Pescoço (Lateral) | Alongamento | Pescoço/Trapézio Superior | Trapézio Superior, Esternocleidomastóideo | Sentado ou em pé, incline suavemente a cabeça para um lado, como se quisesse tocar a orelha no ombro. Use a mão do lado oposto para dar um leve puxão (se necessário). | Faça o movimento lentamente. Relaxe o ombro que está sendo alongado (oposto) para maximizar o efeito.",
+            "Proteína | Nutrição | Macronutriente | Construção e Reparo Muscular | Essencial para a síntese de proteínas musculares (Hipertrofia) e para o reparo das microlesões geradas durante o treino de força. | Ingestão adequada (principalmente em doses pós-treino) é vital para otimizar a recuperação e o crescimento muscular. ",
+            "Carboidrato | Nutrição | Macronutriente | Fonte de Energia Primária (Glicogênio) | Principal combustível para exercícios de alta intensidade e longa duração. Armazenado como glicogênio no fígado e nos músculos. | O consumo pré-treino fornece energia e o pós-treino é crucial para repor as reservas de glicogênio esgotadas.",
+            "Gordura (Lipídios) | Nutrição | Macronutriente | Reserva de Energia e Produção Hormonal | Serve como fonte de energia para exercícios de baixa intensidade e duração prolongada. É fundamental para a produção de hormônios (como a testosterona). | Embora seja fonte de energia, é vital para a saúde celular, funções cerebrais e absorção de vitaminas lipossolúveis (A, D, E, K).",
+            "Aminoácidos | Nutrição | Micromolécula | Bloco Construtor e Anticatabolismo | São os 'tijolos' que compõem a proteína. Os BCAAs (ramificados) são particularmente importantes para sinalizar o início da síntese proteica e reduzir a quebra do tecido muscular. | O equilíbrio de aminoácidos essenciais (aqueles que o corpo não produz) é necessário para qualquer processo de reparo e construção muscular.",
+            "Dor no Peito (Angina) | Saúde e Alerta | Sintoma Grave | Dor, aperto, queimação ou peso no centro do peito que pode irradiar para braço, pescoço ou mandíbula. | Pare imediatamente o exercício e procure assistência médica urgente. Pode ser um sinal de isquemia cardíaca. | Nunca ignore dor ou desconforto torácico, especialmente se acompanhado de falta de ar ou sudorese.",
+            "Tontura ou Vertigem | Saúde e Alerta | Sintoma de Alerta | Sensação de cabeça leve, desmaio iminente ou desequilíbrio durante o exercício. | Pare o exercício, sente-se ou deite-se. Beba água e espere a recuperação. Pode ser desidratação, hipoglicemia (baixa de açúcar) ou hipotensão (pressão baixa). | Verifique o nível de glicose se for diabético e hidrate-se bem antes e durante o treino.",
+            "Falta de Ar Anormal | Saúde e Alerta | Sintoma de Alerta | Dificuldade para respirar ou uma sensação de 'fôlego incompleto' que é desproporcional à intensidade do exercício. | Diminua a intensidade drasticamente ou pare. Observe se a respiração normaliza rapidamente. Se persistir, procure ajuda. | Pode ser um sinal de problemas pulmonares ou cardíacos. Atletas com asma devem ter a medicação de resgate por perto.",
+            "Dor Articular Aguda | Saúde e Alerta | Sintoma de Alerta | Dor súbita e intensa em uma articulação (joelho, ombro, cotovelo) que não melhora com a redução de carga. | Interrompa o exercício que causa a dor. Não tente 'aquecer' ou 'ignorar'. Consulte um profissional para avaliar a lesão. | Dor muscular é normal (fadiga); dor articular aguda é um sinal de lesão potencial. ",
+            "Náusea e Vômito | Saúde e Alerta | Sintoma de Alerta | Sentimento de enjoo ou necessidade de vomitar durante o treino. | Pare o exercício e vá para um local ventilado. Pode ser superaquecimento, desidratação, ou esforço extremo. | Beba pequenos goles de água. Evite refeições pesadas imediatamente antes do treino.",
+            "Palpitações Irregulares | Saúde e Alerta | Sintoma de Alerta | Sensação de que o coração está 'pulando' batidas, batendo muito rápido ou de forma desorganizada. | Pare e descanse. Monitore a pulsação. Se for constante, intenso ou acompanhado de tontura, procure assistência médica. | Arritmias podem ser perigosas. Pacientes com histórico cardíaco devem monitorar a frequência cardíaca.",
+            "Hipertensão (Pressão Alta) | Doença Crônica | Cardiovascular | Manter a pressão arterial sob controle. | Evite exercícios isométricos (que exijam muita força sem movimento, como a prancha máxima) e a Manobra de Valsalva (prender a respiração durante o levantamento de peso). | Mantenha a respiração fluida e evite picos de alta intensidade. Comece com intensidade moderada e mantenha-se hidratado.",
+            "Hipotensão (Pressão Baixa) | Doença Crônica | Cardiovascular | Evitar tonturas e desmaios (síncope). | Realize transições de postura lentas (ex: de deitado para em pé). Aumente a ingestão de líquidos (se permitido pelo médico) e sal. | Cuidado especial ao levantar após exercícios no chão (abdominais, alongamentos). A hidratação é essencial.",
+            "Diabetes Tipo 1 e 2 | Doença Crônica | Metabólica | Controlar a glicemia e prevenir hipo/hiperglicemia. | Monitore os níveis de glicose antes, durante e após o exercício. Tenha sempre uma fonte de carboidrato de rápida absorção (glicose, suco) por perto. | Exercícios de alta intensidade podem, inicialmente, elevar a glicose (hiperglicemia). O treino moderado geralmente a reduz (hipoglicemia).",
+            "Asma | Doença Crônica | Pulmonar | Manter a função respiratória e prevenir broncoespasmos induzidos pelo exercício. | Faça um bom aquecimento para preparar as vias aéreas. Evite treinar em ambientes muito frios ou secos, se forem gatilhos. | Tenha sempre o inalador de resgate (broncodilatador) acessível e use-o preventivamente se necessário, sob orientação médica.",
+            "Problemas Articulares (Osteoartrite) | Doença Crônica | Musculoesquelética | Fortalecer os músculos ao redor da articulação, minimizando o impacto. | Opte por exercícios de baixo impacto (natação, bicicleta, elíptico) e controle de carga. Priorize a técnica perfeita sobre o peso. | Evite cargas excessivas e movimentos explosivos. A dor articular é o limite: se doer, pare e ajuste o movimento."
+        ];
+
+        const bancoDeExercicios = {};
+
+        // Processa os dados brutos para criar o objeto de pesquisa otimizado
+        rawData.forEach(item => {
+            const parts = item.split(' | ');
+            if (parts.length === 6) {
+                const [nome, modalidade, categoria, musculos, execucao, dica] = parts;
+
+                // Chave primária (simplificada) para o objeto
+                const key = normalize(nome).replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+
+                // Gera termos de pesquisa, incluindo palavras de cada campo e termos comuns
+                const searchTerms = [
+                    ...nome.split(/\s+/).map(normalize),
+                    ...musculos.split(/,\s*/).map(normalize).filter(t => t.length > 2),
+                    normalize(categoria),
+                    normalize(modalidade),
+                    normalize(execucao), // Permite buscar por detalhes da execução
+                    normalize(dica) // Permite buscar por dicas
+                ];
+
+                // Termos especiais para alta relevância
+                if (nome.includes("Supino")) searchTerms.push("supino", "peito");
+                if (nome.includes("Agachamento")) searchTerms.push("agachamento", "agacha", "perna", "gluteo");
+                if (nome.includes("Puxada")) searchTerms.push("puxada", "costas", "dorsal");
+                if (nome.includes("Remada")) searchTerms.push("remada", "costas");
+                if (nome.includes("Rosca")) searchTerms.push("rosca", "biceps");
+                if (nome.includes("Tríceps")) searchTerms.push("triceps", "triceps");
+                if (nome.includes("Terra")) searchTerms.push("terra", "stiff", "posterior", "lombar");
+                if (nome.includes("Lateral")) searchTerms.push("lateral", "ombro", "deltoide");
+                if (nome.includes("Extensora")) searchTerms.push("extensora", "quadriceps");
+                if (nome.includes("Press")) searchTerms.push("legpress", "perna");
+                if (nome.includes("Plank")) searchTerms.push("prancha", "core", "abdomen");
+                if (nome.includes("Dor no Peito")) searchTerms.push("coracao", "infarto", "cardiaco");
+                if (nome.includes("Diabetes")) searchTerms.push("glicose", "acucar");
+
+                bancoDeExercicios[key] = {
+                    nome: nome,
+                    modalidade: modalidade,
+                    categoria: categoria,
+                    musculos: musculos,
+                    execucao: execucao,
+                    dica: dica,
+                    // Remove duplicatas
+                    termos: [...new Set(searchTerms.filter(t => t))]
+                };
+            }
+        });
+        // --- FIM DO BANCO DE DADOS LOCAL ---
 
         function obterNomeAluno() {
             alunoNome = localStorage.getItem('nomeAluno');
@@ -565,7 +670,6 @@
             }
 
             const ctx = document.getElementById('pesoChart').getContext('2d');
-
             // 2. Escuta o Firebase em tempo real (on)
             database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
                 const dados = [];
@@ -637,11 +741,9 @@
                 return;
             }
             const ex = document.getElementById('seletorExercicio').value;
-
             const agora = new Date();
             const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
                 ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
             database.ref(getPath(`cargas/${ex}`)).push({
                 data: dataLegivel,
                 peso: parseFloat(p),
@@ -671,7 +773,6 @@
                 panturrilha: document.getElementById('panturrilhaInput').value,
                 antebraco: document.getElementById('antebracoInput').value
             };
-
             database.ref(getPath('medidas')).push(m);
             alert('Medidas Salvas!');
             document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
@@ -724,11 +825,11 @@
             });
         }
 
-        // 🔥 FUNÇÃO CORRIGIDA: Usa snap.forEach para garantir a ordem
         function carregarTreinoDoProfessor(dia) {
-            const idLista = dia === 'Dia A' ? 'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
+            const idLista = dia === 'Dia A' ?
+                'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
             const ul = document.getElementById(idLista);
-            
+
             // Remove listener anterior para não duplicar eventos
             database.ref(getPath(`treinoModel/${dia}`)).off('value');
 
@@ -744,7 +845,6 @@
                 // USO DO FOREACH DO SNAPSHOT: Garante a ordem do banco de dados (inserção ou array)
                 snap.forEach(childSnapshot => {
                     const t = childSnapshot.val();
-                    
                     // Verifica se o objeto tem os dados mínimos
                     if (t && t.nome) {
                         const id = t.nome.replace(/\s/g, '');
@@ -758,7 +858,7 @@
                         ul.appendChild(li);
                     }
                 });
-                
+
                 // Recupera status (checked/unchecked)
                 carregarCheckboxes(dia);
             });
@@ -817,130 +917,120 @@
                 });
             });
         }
-        
-       // --- INTERAÇÃO COM IA (FUNÇÃO REAL) ---
-        // 🚩 AQUI INICIA O BLOCO PARA SUBSTITUIÇÃO
-async function simularPesquisaIA() {
-    const pergunta = document.getElementById('exercicioPergunta').value.trim();
-    const respostaDiv = document.getElementById('ai-resposta');
-    const botao = document.querySelector('#ai-search-card .btn-primary');
 
-    // 1. Validação
-    if (pergunta.length < 3) {
-        respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
-        return;
-    }
+        // --- INTERAÇÃO COM IA (FUNÇÃO SIMULADA LOCAL) ---
+        async function simularPesquisaIA() {
+            const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
+            const perguntaNormalizada = normalize(pergunta);
+            const respostaDiv = document.getElementById('ai-resposta');
+            const botao = document.querySelector('#ai-search-card .btn-primary');
 
-    // 2. Interface de carregamento
-    botao.disabled = true;
-    botao.textContent = 'Consultando IA... 🧠';
-    respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">O Personal Virtual está pensando...</p>';
+            // 1. Validação
+            if (pergunta.length < 3) {
+                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+                return;
+            }
 
-    // ---------------------------------------------------------
-    // 3. CONFIGURAÇÃO DA API (SUA CHAVE)
-    // ---------------------------------------------------------
-    // CHAVE: AIzaSyCubAh5LAL40M62-IL4bbVcecE-Z8t9xLE
-    const API_KEY = 'AIzaSyCubAh5LAL40M62-IL4bbVcecE-Z8t9xLE'; 
-    
-    // URL de requisição (modelo gemini-1.5-flash)
-    // URL de requisição (MODELO CORRIGIDO)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+            // 2. Interface de carregamento
+            botao.disabled = true;
+            botao.textContent = 'Pesquisando no Banco de Dados... 📚';
+            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
 
-    const promptContexto = `
-        Aja como um Personal Trainer profissional e motivador.
-        O aluno perguntou: "${pergunta}"
-        Responda de forma curta (máximo 3 frases), direta e segura.
-    `;
+            // Simula um atraso de 1 segundo (para dar a sensação de processamento)
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const data = {
-        contents: [{
-            parts: [{ text: promptContexto }]
-        }]
-    };
+            let respostaTexto = '';
+            let exercicioEncontrado = null;
 
-    try {
-        // 4. Conexão Real
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
+            // 3. Busca o Exercício pela Palavra-Chave
+            for (const key in bancoDeExercicios) {
+                const ex = bancoDeExercicios[key];
+                // Verifica se a pergunta tem alguma das palavras-chave do exercício
+                if (ex.termos.some(term => perguntaNormalizada.includes(term))) {
+                    exercicioEncontrado = ex;
+                    break;
+                }
+            }
 
-        const json = await response.json();
+            if (exercicioEncontrado) {
+                const nomeEx = exercicioEncontrado.nome;
 
-        // 5. Processamento e exibição da resposta (AGORA COM DIAGNÓSTICO)
-        if (json.candidates && json.candidates[0].content) {
-            const respostaTexto = json.candidates[0].content.parts[0].text;
-            let respostaFormatada = respostaTexto
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
+                // 4. Determina a informação específica com base no tipo de dado (Exercício vs. Outros)
+                if (exercicioEncontrado.categoria === "Saúde e Alerta" || exercicioEncontrado.categoria === "Doença Crônica") {
+                    // Resposta específica para Saúde
+                    respostaTexto = `**⚠️ ALERTA DE SAÚDE: ${nomeEx}**\n\n**Sintomas/Definição:** ${exercicioEncontrado.musculos}\n**O que fazer:** ${exercicioEncontrado.execucao}\n**Prevenção/Dica:** ${exercicioEncontrado.dica}`;
+                } else if (exercicioEncontrado.categoria === "Nutrição") {
+                    // Resposta específica para Nutrição
+                    respostaTexto = `**Informação Nutricional: ${nomeEx}**\n\n**Função:** ${exercicioEncontrado.musculos}\n**Detalhes:** ${exercicioEncontrado.execucao}\n**Importância:** ${exercicioEncontrado.dica}`;
+                } else {
+                    // Resposta padrão para Exercícios
+                    if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
+                        respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
+                    } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
+                        respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
+                    } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
+                        respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
+                    } else {
+                        // Resumo completo
+                        respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Categoria:** ${exercicioEncontrado.categoria}\n**Músculos/Função:** ${exercicioEncontrado.musculos}\n**Execução/Detalhes:** ${exercicioEncontrado.execucao}\n**Dica:** ${exercicioEncontrado.dica}`;
+                    }
+                }
 
-            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
-        } else {
-            // --- BLOCO DE DIAGNÓSTICO ---
-            console.error("Detalhes do Erro da API Gemini:", json);
-            let motivo = "motivo desconhecido (Verifique o console F12)";
+            } else {
+                // Se nenhum exercício foi encontrado
+                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}"). Tente pesquisar por um exercício específico (Ex: Agachamento, Supino), nutrição (Ex: Proteína) ou sintoma (Ex: Dor no peito).`;
+            }
 
-            if (json.promptFeedback && json.promptFeedback.blockReason) {
-                motivo = `Bloqueio de Segurança: ${json.promptFeedback.blockReason}`;
-            } else if (json.error && json.error.message) {
-                motivo = `Erro da API: ${json.error.message}`;
-            }
-            
-            // Exibe o motivo do erro na tela
-            respostaDiv.innerHTML = `<span style="color:red">A IA não conseguiu responder. Motivo: ${motivo}</span>`;
-            // --- FIM BLOCO DE DIAGNÓSTICO ---
-        }
+            // 5. Formata a Resposta (mantém o negrito do markdown)
+            let respostaFormatada = respostaTexto
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>'); // Substitui quebras de linha por <br>
 
-    } catch (error) {
-        console.error('Erro de conexão ou requisição:', error);
-        respostaDiv.innerHTML = '<span style="color:red">Erro de conexão.</span>';
-    } finally {
-        // 6. Restaura o botão
-        botao.disabled = false;
-        botao.textContent = 'Perguntar à IA';
-    }
-}
-// 🏁 AQUI TERMINA O BLOCO (Este '}' final fecha a função simularPesquisaIA)
+            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
 
-    
-        // --- RESET GERAL ---
-        function resetarDados(tipo) {
-            let path;
-            let msg;
 
-            switch (tipo) {
-                case 'presenca':
-                    path = 'presenca';
-                    msg = 'histórico de presenças';
-                    break;
-                case 'cargas':
-                    path = `cargas/${document.getElementById('seletorExercicio').value}`;
-                    msg = 'histórico de cargas para este exercício';
-                    break;
-                case 'medidas':
-                    path = 'medidas';
-                    msg = 'histórico de medidas corporais';
-                    break;
-                default:
-                    return;
-            }
+            // 6. Restaura o botão
+            botao.disabled = false;
+            botao.textContent = 'Perguntar à IA';
+        }
 
-            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
-                database.ref(getPath(path)).remove()
-                    .then(() => {
-                        alert('Histórico apagado com sucesso!');
-                        if (tipo === 'presenca') gerarCalendario();
-                        if (tipo === 'cargas') inicializarGrafico();
-                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
-                    })
-                    .catch(error => {
-                        console.error("Erro ao resetar dados:", error);
-                        alert("Erro ao apagar dados.");
-                    });
-            }
-        }
-    </script>
+        // --- RESET GERAL ---
+        function resetarDados(tipo) {
+            let path;
+            let msg;
+
+            switch (tipo) {
+                case 'presenca':
+                    path = 'presenca';
+                    msg = 'histórico de presenças';
+                    break;
+                case 'cargas':
+                    path = `cargas/${document.getElementById('seletorExercicio').value}`;
+                    msg = 'histórico de cargas para este exercício';
+                    break;
+                case 'medidas':
+                    path = 'medidas';
+                    msg = 'histórico de medidas corporais';
+                    break;
+                default:
+                    return;
+            }
+
+            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
+                database.ref(getPath(path)).remove()
+                    .then(() => {
+                        alert('Histórico apagado com sucesso!');
+                        if (tipo === 'presenca') gerarCalendario();
+                        if (tipo === 'cargas') inicializarGrafico();
+                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
+                    })
+                    .catch(error => {
+                        console.error("Erro ao resetar dados:", error);
+                        alert("Erro ao apagar dados.");
+                    });
+            }
+        }
+    </script>
 </body>
 
 </html>
