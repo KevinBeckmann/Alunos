@@ -7,106 +7,152 @@
     <title>Dashboard do Aluno - Dark Mode</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js">
+// ---------- função: finalizarTreino (salva treino finalizado com Firebase SDK) ----------
 function finalizarTreino() {
-    const dia = document.getElementById('seletorTreino').value || 'Dia A';
-    const agora = new Date();
-    const dataLegivel = agora.toLocaleDateString('pt-BR');
-    const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    try {
+        const dia = document.getElementById('seletorTreino') ? document.getElementById('seletorTreino').value : 'Dia A';
+        const agora = new Date();
+        const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+        const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-    // coletar exercícios marcados dentro do treino atual
-    let idLista = '';
-    if (dia === 'Dia A') idLista = 'lista-treino-a';
-    else if (dia === 'Dia B') idLista = 'lista-treino-b';
-    else if (dia === 'Dia C') idLista = 'lista-treino-c';
-
-    const listaEl = document.getElementById(idLista);
-    const checked = [];
-    if (listaEl) {
-        // procura inputs type checkbox dentro da lista
-        const boxes = listaEl.querySelectorAll('input[type="checkbox"]');
-        boxes.forEach(b => {
-            if (b.checked) {
-                // tenta achar label/texto associado (data-name or parent .exercicio-info)
-                let nome = b.getAttribute('data-nome') || '';
-                if (!nome) {
-                    const parent = b.closest('.exercicio-item');
-                    if (parent) {
-                        const s = parent.querySelector('.exercicio-info strong');
-                        if (s) nome = s.textContent.trim();
+        // coleta checkboxes marcados no treino atual
+        let idLista = (dia === 'Dia A') ? 'lista-treino-a' : ((dia === 'Dia B') ? 'lista-treino-b' : 'lista-treino-c');
+        const listaEl = document.getElementById(idLista);
+        const concluidos = [];
+        if (listaEl) {
+            listaEl.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => {
+                if (cb.checked) {
+                    let nome = cb.getAttribute('data-nome') || '';
+                    if (!nome) {
+                        const li = cb.closest('li');
+                        if (li) {
+                            const s = li.querySelector('.exercicio-info strong');
+                            if (s) nome = s.textContent.trim();
+                        }
                     }
+                    if (!nome) nome = 'Exercício marcado';
+                    concluidos.push(nome);
                 }
-                if (!nome) nome = 'Exercício marcado';
-                checked.push(nome);
-            }
-        });
+            });
+        }
+
+        const payload = {
+            dia: dia,
+            data: dataLegivel,
+            hora: horaLegivel,
+            timestamp: Date.now(),
+            concluido: true,
+            concluidoCount: concluidos.length,
+            exerciciosConcluidos: concluidos
+        };
+
+        const ref = database.ref(getPath('treinosFinalizados')).push();
+        ref.set(payload)
+            .then(() => {
+                try { carregarUltimoTreino(); } catch(e){console.warn('carregarUltimoTreino erro',e);}
+                try { contarTreinosDoMes(); } catch(e){console.warn('contarTreinosDoMes erro',e);}
+                try { marcarTreinoNoCalendario(new Date()); } catch(e){console.warn('marcarTreinoNoCalendario erro',e);}
+                try { carregarTreinosFinalizados(); } catch(e){console.warn('carregarTreinosFinalizados erro',e);}
+                // feedback
+                alert('Treino registrado com sucesso!');
+            })
+            .catch(err => {
+                console.error('Erro ao salvar treino finalizado:', err);
+                alert('Erro ao registrar treino. Tente novamente.');
+            });
+    } catch(err) {
+        console.error('Erro em finalizarTreino():', err);
+        alert('Erro ao registrar treino. Tente novamente.');
     }
-
-    const ref = database.ref(getPath('treinosFinalizados')).push();
-    const payload = {
-        dia: dia,
-        data: dataLegivel,
-        hora: horaLegivel,
-        timestamp: Date.now(),
-        concluido: true,
-        concluidoCount: checked.length,
-        exerciciosConcluidos: checked
-    };
-
-    ref.set(payload)
-        .then(() => {
-            // feedback
-            // atualiza UI
-            carregarUltimoTreino();
-            contarTreinosDoMes();
-            marcarTreinoNoCalendario(new Date());
-            renderTreinosBarChart();
-        })
-        .catch(err => {
-            console.error('Erro ao salvar treino finalizado:', err);
-            alert('Erro ao registrar treino. Tente novamente.');
-        });
 }
 
 
-function renderTreinosBarChart() {
-    const ref = database.ref(getPath('treinosFinalizados'));
-    ref.orderByChild('timestamp').once('value').then(snap => {
-        const hoje = new Date();
-        const mesAtual = hoje.getMonth() + 1;
-        const countsByDay = {}; // key: DD/MM, value: count
-
-        snap.forEach(c => {
-            const t = c.val();
-            if (!t || !t.data) return;
-            const parts = t.data.split('/');
-            const dia = parts[0];
-            const mes = parseInt(parts[1],10);
-            if (mes !== mesAtual) return;
-            const label = dia + '/' + parts[1];
-            countsByDay[label] = (countsByDay[label] || 0) + 1;
+// ---------- Funções de carregamento e gráfico de treinos finalizados ----------
+function carregarUltimoTreino() {
+    try {
+        const ref = database.ref(getPath('treinosFinalizados'));
+        ref.orderByChild('timestamp').limitToLast(1).on('value', snap => {
+            const p = document.getElementById('ultimo-treino');
+            if (!p) return;
+            if (!snap.exists()) {
+                p.textContent = 'Nenhum treino registrado ainda.';
+                return;
+            }
+            snap.forEach(child => {
+                const t = child.val();
+                p.textContent = `Último treino: ${t.dia} — ${t.data} às ${t.hora}`;
+            });
         });
+    } catch (err) { console.warn('carregarUltimoTreino erro', err); }
+}
 
-        // sort labels by day number
-        const labels = Object.keys(countsByDay).sort((a,b)=> parseInt(a.split('/')[0]) - parseInt(b.split('/')[0]));
-        const data = labels.map(l => countsByDay[l]);
+function contarTreinosDoMes() {
+    try {
+        const mesAtual = new Date().getMonth() + 1;
+        let total = 0;
+        database.ref(getPath('treinosFinalizados')).once('value').then(snap => {
+            snap.forEach(c => {
+                const t = c.val();
+                if (!t || !t.data) return;
+                const parts = t.data.split('/');
+                const mesT = parseInt(parts[1], 10);
+                if (mesT === mesAtual) total++;
+            });
+            const el = document.getElementById('contador-treinos');
+            if (el) el.textContent = `Treinos no mês: ${total}`;
+        }).catch(err => console.warn('contarTreinosDoMes erro', err));
+    } catch (err) { console.warn('contarTreinosDoMes erro', err); }
+}
 
-        // create / update chart
-        const ctx = document.getElementById('treinosChart');
-        if (!ctx) return;
-        if (window.treinosBarChart) {
-            window.treinosBarChart.data.labels = labels;
-            window.treinosBarChart.data.datasets[0].data = data;
-            window.treinosBarChart.update();
-            return;
-        }
-        window.treinosBarChart = new Chart(ctx.getContext('2d'), {
+function carregarTreinosFinalizados() {
+    try {
+        const ref = database.ref(getPath('treinosFinalizados'));
+        ref.orderByChild('timestamp').once('value').then(snap => {
+            const lista = [];
+            snap.forEach(c => lista.push(c.val()));
+            // atualizar lista textual
+            const divList = document.getElementById('lista-historico-treinos');
+            if (divList) {
+                if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
+                else {
+                    let html = '<ul style="padding-left:16px;">';
+                    lista.slice().reverse().forEach(t => {
+                        html += `<li style="margin:6px 0;">${t.data} — ${t.dia} — ${t.concluidoCount || 0} exercícios</li>`;
+                    });
+                    html += '</ul>';
+                    divList.innerHTML = html;
+                }
+            }
+
+            // agrupamento por data para gráfico
+            const agrupado = {};
+            lista.forEach(t => {
+                const key = t.data || 'Sem data';
+                agrupado[key] = (agrupado[key] || 0) + 1;
+            });
+            renderTreinosBarChart(agrupado);
+        }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
+    } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
+}
+
+let chartTreinos = null;
+function renderTreinosBarChart(dataObj) {
+    try {
+        const canvas = document.getElementById('graficoTreinos');
+        if (!canvas) return;
+        const labels = Object.keys(dataObj || {});
+        const data = labels.map(l => dataObj[l] || 0);
+        if (typeof Chart === 'undefined') { console.warn('Chart.js não carregado'); return; }
+        const ctx = canvas.getContext('2d');
+        if (chartTreinos) chartTreinos.destroy();
+        chartTreinos = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Treinos por dia (mês atual)',
+                    label: 'Treinos (por data)',
                     data: data,
-                    backgroundColor: 'rgba(255,193,7,0.8)',
+                    backgroundColor: 'rgba(255,193,7,0.9)',
                     borderColor: 'rgba(255,193,7,1)',
                     borderWidth: 1
                 }]
@@ -118,257 +164,26 @@ function renderTreinosBarChart() {
                     x: { ticks: { color: '#f0f0f0' } },
                     y: { beginAtZero: true, ticks: { color: '#f0f0f0' } }
                 },
-                plugins: {
-                    legend: { labels: { color: '#f0f0f0' } }
-                }
+                plugins: { legend: { labels: { color: '#f0f0f0' } } }
             }
         });
-    }).catch(err => console.error('Erro renderTreinosBarChart', err));
+    } catch(err) { console.warn('renderTreinosBarChart erro', err); }
+}
+
+// marcar treino no calendario
+function marcarTreinoNoCalendario(dataObj) {
+    try {
+        const dia = String(dataObj.getDate()).padStart(2,'0');
+        const mes = String(dataObj.getMonth()+1).padStart(2,'0');
+        const ano = dataObj.getFullYear();
+        const chave = `${dia}-${mes}-${ano}`;
+        database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
+    } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
 }
 
 </script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js">
-function finalizarTreino() {
-    const dia = document.getElementById('seletorTreino').value || 'Dia A';
-    const agora = new Date();
-    const dataLegivel = agora.toLocaleDateString('pt-BR');
-    const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-    // coletar exercícios marcados dentro do treino atual
-    let idLista = '';
-    if (dia === 'Dia A') idLista = 'lista-treino-a';
-    else if (dia === 'Dia B') idLista = 'lista-treino-b';
-    else if (dia === 'Dia C') idLista = 'lista-treino-c';
-
-    const listaEl = document.getElementById(idLista);
-    const checked = [];
-    if (listaEl) {
-        // procura inputs type checkbox dentro da lista
-        const boxes = listaEl.querySelectorAll('input[type="checkbox"]');
-        boxes.forEach(b => {
-            if (b.checked) {
-                // tenta achar label/texto associado (data-name or parent .exercicio-info)
-                let nome = b.getAttribute('data-nome') || '';
-                if (!nome) {
-                    const parent = b.closest('.exercicio-item');
-                    if (parent) {
-                        const s = parent.querySelector('.exercicio-info strong');
-                        if (s) nome = s.textContent.trim();
-                    }
-                }
-                if (!nome) nome = 'Exercício marcado';
-                checked.push(nome);
-            }
-        });
-    }
-
-    const ref = database.ref(getPath('treinosFinalizados')).push();
-    const payload = {
-        dia: dia,
-        data: dataLegivel,
-        hora: horaLegivel,
-        timestamp: Date.now(),
-        concluido: true,
-        concluidoCount: checked.length,
-        exerciciosConcluidos: checked
-    };
-
-    ref.set(payload)
-        .then(() => {
-            // feedback
-            // atualiza UI
-            carregarUltimoTreino();
-            contarTreinosDoMes();
-            marcarTreinoNoCalendario(new Date());
-            renderTreinosBarChart();
-        })
-        .catch(err => {
-            console.error('Erro ao salvar treino finalizado:', err);
-            alert('Erro ao registrar treino. Tente novamente.');
-        });
-}
-
-
-function renderTreinosBarChart() {
-    const ref = database.ref(getPath('treinosFinalizados'));
-    ref.orderByChild('timestamp').once('value').then(snap => {
-        const hoje = new Date();
-        const mesAtual = hoje.getMonth() + 1;
-        const countsByDay = {}; // key: DD/MM, value: count
-
-        snap.forEach(c => {
-            const t = c.val();
-            if (!t || !t.data) return;
-            const parts = t.data.split('/');
-            const dia = parts[0];
-            const mes = parseInt(parts[1],10);
-            if (mes !== mesAtual) return;
-            const label = dia + '/' + parts[1];
-            countsByDay[label] = (countsByDay[label] || 0) + 1;
-        });
-
-        // sort labels by day number
-        const labels = Object.keys(countsByDay).sort((a,b)=> parseInt(a.split('/')[0]) - parseInt(b.split('/')[0]));
-        const data = labels.map(l => countsByDay[l]);
-
-        // create / update chart
-        const ctx = document.getElementById('treinosChart');
-        if (!ctx) return;
-        if (window.treinosBarChart) {
-            window.treinosBarChart.data.labels = labels;
-            window.treinosBarChart.data.datasets[0].data = data;
-            window.treinosBarChart.update();
-            return;
-        }
-        window.treinosBarChart = new Chart(ctx.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Treinos por dia (mês atual)',
-                    data: data,
-                    backgroundColor: 'rgba(255,193,7,0.8)',
-                    borderColor: 'rgba(255,193,7,1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: '#f0f0f0' } },
-                    y: { beginAtZero: true, ticks: { color: '#f0f0f0' } }
-                },
-                plugins: {
-                    legend: { labels: { color: '#f0f0f0' } }
-                }
-            }
-        });
-    }).catch(err => console.error('Erro renderTreinosBarChart', err));
-}
-
-</script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js">
-function finalizarTreino() {
-    const dia = document.getElementById('seletorTreino').value || 'Dia A';
-    const agora = new Date();
-    const dataLegivel = agora.toLocaleDateString('pt-BR');
-    const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-    // coletar exercícios marcados dentro do treino atual
-    let idLista = '';
-    if (dia === 'Dia A') idLista = 'lista-treino-a';
-    else if (dia === 'Dia B') idLista = 'lista-treino-b';
-    else if (dia === 'Dia C') idLista = 'lista-treino-c';
-
-    const listaEl = document.getElementById(idLista);
-    const checked = [];
-    if (listaEl) {
-        // procura inputs type checkbox dentro da lista
-        const boxes = listaEl.querySelectorAll('input[type="checkbox"]');
-        boxes.forEach(b => {
-            if (b.checked) {
-                // tenta achar label/texto associado (data-name or parent .exercicio-info)
-                let nome = b.getAttribute('data-nome') || '';
-                if (!nome) {
-                    const parent = b.closest('.exercicio-item');
-                    if (parent) {
-                        const s = parent.querySelector('.exercicio-info strong');
-                        if (s) nome = s.textContent.trim();
-                    }
-                }
-                if (!nome) nome = 'Exercício marcado';
-                checked.push(nome);
-            }
-        });
-    }
-
-    const ref = database.ref(getPath('treinosFinalizados')).push();
-    const payload = {
-        dia: dia,
-        data: dataLegivel,
-        hora: horaLegivel,
-        timestamp: Date.now(),
-        concluido: true,
-        concluidoCount: checked.length,
-        exerciciosConcluidos: checked
-    };
-
-    ref.set(payload)
-        .then(() => {
-            // feedback
-            // atualiza UI
-            carregarUltimoTreino();
-            contarTreinosDoMes();
-            marcarTreinoNoCalendario(new Date());
-            renderTreinosBarChart();
-        })
-        .catch(err => {
-            console.error('Erro ao salvar treino finalizado:', err);
-            alert('Erro ao registrar treino. Tente novamente.');
-        });
-}
-
-
-function renderTreinosBarChart() {
-    const ref = database.ref(getPath('treinosFinalizados'));
-    ref.orderByChild('timestamp').once('value').then(snap => {
-        const hoje = new Date();
-        const mesAtual = hoje.getMonth() + 1;
-        const countsByDay = {}; // key: DD/MM, value: count
-
-        snap.forEach(c => {
-            const t = c.val();
-            if (!t || !t.data) return;
-            const parts = t.data.split('/');
-            const dia = parts[0];
-            const mes = parseInt(parts[1],10);
-            if (mes !== mesAtual) return;
-            const label = dia + '/' + parts[1];
-            countsByDay[label] = (countsByDay[label] || 0) + 1;
-        });
-
-        // sort labels by day number
-        const labels = Object.keys(countsByDay).sort((a,b)=> parseInt(a.split('/')[0]) - parseInt(b.split('/')[0]));
-        const data = labels.map(l => countsByDay[l]);
-
-        // create / update chart
-        const ctx = document.getElementById('treinosChart');
-        if (!ctx) return;
-        if (window.treinosBarChart) {
-            window.treinosBarChart.data.labels = labels;
-            window.treinosBarChart.data.datasets[0].data = data;
-            window.treinosBarChart.update();
-            return;
-        }
-        window.treinosBarChart = new Chart(ctx.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Treinos por dia (mês atual)',
-                    data: data,
-                    backgroundColor: 'rgba(255,193,7,0.8)',
-                    borderColor: 'rgba(255,193,7,1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: '#f0f0f0' } },
-                    y: { beginAtZero: true, ticks: { color: '#f0f0f0' } }
-                },
-                plugins: {
-                    legend: { labels: { color: '#f0f0f0' } }
-                }
-            }
-        });
-    }).catch(err => console.error('Erro renderTreinosBarChart', err));
-}
-
-</script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
 
     <style>
         /* --- ESTILOS GERAIS --- */
@@ -804,9 +619,8 @@ function renderTreinosBarChart() {
                     <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
-            
-    <button class="btn-primary" onclick="finalizarTreino()" style="margin-top:12px; width:100%;">Finalizar Treino do Dia A</button>
-</div>
+            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
+            </div>
 
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
                 <h3>Dia B: </h3>
@@ -814,9 +628,8 @@ function renderTreinosBarChart() {
                     <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
-            
-    <button class="btn-primary" onclick="finalizarTreino()" style="margin-top:12px; width:100%;">Finalizar Treino do Dia B</button>
-</div>
+            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
+            </div>
 
             <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
                 <h3>Dia C: </h3>
@@ -824,9 +637,8 @@ function renderTreinosBarChart() {
                     <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
-            
-    <button class="btn-primary" onclick="finalizarTreino()" style="margin-top:12px; width:100%;">Finalizar Treino do Dia C</button>
-</div>
+            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
+            </div>
         </div>
 
         <div id="ai-search-card" class="card">
@@ -860,6 +672,18 @@ function renderTreinosBarChart() {
                 </thead>
                 <tbody id="calendario-body"></tbody>
             </table>
+    <!-- HISTÓRICO / GRÁFICO DE TREINOS (colocado abaixo do calendário) -->
+    <div id="status-treino" class="card" style="margin-top:15px; text-align:center;">
+        <p id="ultimo-treino" style="color:#ff9933;">Carregando último treino...</p>
+        <p id="contador-treinos" style="color:#ffd700; font-weight:bold;">Treinos no mês: 0</p>
+
+        <div style="max-width:640px; margin:10px auto;">
+            <canvas id="graficoTreinos" height="200"></canvas>
+        </div>
+
+        <div id="lista-historico-treinos" style="max-width:640px; margin:8px auto; color:#ddd; text-align:left;"></div>
+    </div>
+    
             <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
         </div>
 
@@ -1110,10 +934,11 @@ function renderTreinosBarChart() {
             carregarUltimasMedidas();
             alternarTreino();
             gerarCalendario();
-    carregarUltimoTreino();
-    contarTreinosDoMes();
-    renderTreinosBarChart();
-        }
+        
+            carregarUltimoTreino();
+            contarTreinosDoMes();
+            carregarTreinosFinalizados();
+}
 
         // 🎯 FUNÇÃO DE GRÁFICO
         function inicializarGrafico() {
@@ -1486,127 +1311,7 @@ Tente pesquisar pelo nome exato do exercício ou sintoma.`;
                     });
             }
         }
-    
-function finalizarTreino() {
-    const dia = document.getElementById('seletorTreino').value || 'Dia A';
-    const agora = new Date();
-    const dataLegivel = agora.toLocaleDateString('pt-BR');
-    const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-    // coletar exercícios marcados dentro do treino atual
-    let idLista = '';
-    if (dia === 'Dia A') idLista = 'lista-treino-a';
-    else if (dia === 'Dia B') idLista = 'lista-treino-b';
-    else if (dia === 'Dia C') idLista = 'lista-treino-c';
-
-    const listaEl = document.getElementById(idLista);
-    const checked = [];
-    if (listaEl) {
-        // procura inputs type checkbox dentro da lista
-        const boxes = listaEl.querySelectorAll('input[type="checkbox"]');
-        boxes.forEach(b => {
-            if (b.checked) {
-                // tenta achar label/texto associado (data-name or parent .exercicio-info)
-                let nome = b.getAttribute('data-nome') || '';
-                if (!nome) {
-                    const parent = b.closest('.exercicio-item');
-                    if (parent) {
-                        const s = parent.querySelector('.exercicio-info strong');
-                        if (s) nome = s.textContent.trim();
-                    }
-                }
-                if (!nome) nome = 'Exercício marcado';
-                checked.push(nome);
-            }
-        });
-    }
-
-    const ref = database.ref(getPath('treinosFinalizados')).push();
-    const payload = {
-        dia: dia,
-        data: dataLegivel,
-        hora: horaLegivel,
-        timestamp: Date.now(),
-        concluido: true,
-        concluidoCount: checked.length,
-        exerciciosConcluidos: checked
-    };
-
-    ref.set(payload)
-        .then(() => {
-            // feedback
-            // atualiza UI
-            carregarUltimoTreino();
-            contarTreinosDoMes();
-            marcarTreinoNoCalendario(new Date());
-            renderTreinosBarChart();
-        })
-        .catch(err => {
-            console.error('Erro ao salvar treino finalizado:', err);
-            alert('Erro ao registrar treino. Tente novamente.');
-        });
-}
-
-
-function renderTreinosBarChart() {
-    const ref = database.ref(getPath('treinosFinalizados'));
-    ref.orderByChild('timestamp').once('value').then(snap => {
-        const hoje = new Date();
-        const mesAtual = hoje.getMonth() + 1;
-        const countsByDay = {}; // key: DD/MM, value: count
-
-        snap.forEach(c => {
-            const t = c.val();
-            if (!t || !t.data) return;
-            const parts = t.data.split('/');
-            const dia = parts[0];
-            const mes = parseInt(parts[1],10);
-            if (mes !== mesAtual) return;
-            const label = dia + '/' + parts[1];
-            countsByDay[label] = (countsByDay[label] || 0) + 1;
-        });
-
-        // sort labels by day number
-        const labels = Object.keys(countsByDay).sort((a,b)=> parseInt(a.split('/')[0]) - parseInt(b.split('/')[0]));
-        const data = labels.map(l => countsByDay[l]);
-
-        // create / update chart
-        const ctx = document.getElementById('treinosChart');
-        if (!ctx) return;
-        if (window.treinosBarChart) {
-            window.treinosBarChart.data.labels = labels;
-            window.treinosBarChart.data.datasets[0].data = data;
-            window.treinosBarChart.update();
-            return;
-        }
-        window.treinosBarChart = new Chart(ctx.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Treinos por dia (mês atual)',
-                    data: data,
-                    backgroundColor: 'rgba(255,193,7,0.8)',
-                    borderColor: 'rgba(255,193,7,1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: '#f0f0f0' } },
-                    y: { beginAtZero: true, ticks: { color: '#f0f0f0' } }
-                },
-                plugins: {
-                    legend: { labels: { color: '#f0f0f0' } }
-                }
-            }
-        });
-    }).catch(err => console.error('Erro renderTreinosBarChart', err));
-}
-
-</script>
+    </script>
 </body>
 
 </html>
