@@ -5,9 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard do Aluno - Dark Mode</title>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js">
 // ---------- função: finalizarTreino (salva treino finalizado com Firebase SDK) ----------
@@ -1300,37 +1297,21 @@ Tente pesquisar pelo nome exato do exercício ou sintoma.`;
                     return;
             }
 
-            <script>
-if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
-    database.ref(getPath(path)).remove()
-        .then(() => {
-            alert('Histórico apagado com sucesso!');
-            if (tipo === 'presenca') gerarCalendario();
-            if (tipo === 'cargas') inicializarGrafico();
-            if (tipo === 'medidas')
-                document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
-        })
-        .catch(error => {
-            console.error("Erro ao resetar dados:", error);
-            alert("Erro ao apagar dados.");
-        });
-}
-</script>
-
-<!-- ✅ SERVICE WORKER (SEPARADO E CORRETO) -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(function (reg) {
-        console.log('Service Worker registrado:', reg.scope);
-      })
-      .catch(function (err) {
-        console.error('Erro no Service Worker:', err);
-      });
-  });
-}
-</script>
-
+            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
+                database.ref(getPath(path)).remove()
+                    .then(() => {
+                        alert('Histórico apagado com sucesso!');
+                        if (tipo === 'presenca') gerarCalendario();
+                        if (tipo === 'cargas') inicializarGrafico();
+                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
+                    })
+                    .catch(error => {
+                        console.error("Erro ao resetar dados:", error);
+                        alert("Erro ao apagar dados.");
+                    });
+            }
+        }
+    </script>
 </body>
+
 </html>
