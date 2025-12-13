@@ -1312,6 +1312,25 @@ Tente pesquisar pelo nome exato do exercício ou sintoma.`;
             }
         }
     </script>
+    <script>
+  // TODO o seu JS grande (firebase, funções, etc)
+</script>
+
+<!-- 🔽 AQUI entra o script do PWA -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('./service-worker.js', { scope: './' })
+      .then(reg => console.log('SW ativo:', reg.scope))
+      .catch(err => console.error('Erro no SW:', err));
+  });
+}
+</script>
+
+</body>
+</html>
+
 </body>
 
 </html>
