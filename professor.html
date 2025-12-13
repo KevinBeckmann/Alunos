@@ -4,22 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Meta tags PWA adicionadas -->
-    <meta name="theme-color" content="#121212">
-    <meta name="description" content="Painel do Treinador - Administração de alunos e treinos">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Painel Professor">
-    
-    <!-- Link para o manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Ícones para iOS -->
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    
     <title>Painel do Treinador - Admin</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -216,20 +200,8 @@
             <button class="btn-save" onclick="salvarNovoDia()">Criar Dia</button>
         </div>
     </div>
-    
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker registrado com sucesso:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('❌ Falha ao registrar Service Worker:', error);
-                    });
-            });
-        }
-
+        
         // --- VARIÁVEIS GLOBAIS ---
         let alunoSelecionadoNome = ''; 
         let pesoChart = null; 
@@ -449,227 +421,444 @@
         }
 
         function salvarNovoDia() {
-            const novoDia = document.getElementById('dia-nome').value.trim();
-            if (!novoDia) {
-                alert('Por favor, insira um nome para o novo dia.');
-                return;
+            const nomeDia = document.getElementById('dia-nome').value.trim();
+
+            if (!nomeDia) {
+                return alert('Por favor, digite o nome do novo Dia de Treino.');
             }
+
+            // Pega a lista atual de dias
             database.ref(CHAVE_DIAS).once('value', snap => {
                 let dias = snap.val() || [];
-                if (!dias.includes(novoDia)) {
-                    dias.push(novoDia);
-                    database.ref(CHAVE_DIAS).set(dias);
-                    alert('Dia adicionado com sucesso!');
-                } else {
-                    alert('Este dia já existe.');
+                
+                if (dias.includes(nomeDia)) {
+                    alert(`Erro: O dia de treino "${nomeDia}" já existe.`);
+                    return;
                 }
-                document.getElementById('modalDia').style.display = 'none';
-                carregarDiasTreino();
+
+                dias.push(nomeDia);
+                
+                // Salva a lista atualizada
+                database.ref(CHAVE_DIAS).set(dias)
+                    .then(() => {
+                        alert(`Dia "${nomeDia}" adicionado com sucesso!`);
+                        document.getElementById('modalDia').style.display = 'none';
+                        
+                        // Recarrega a lista do select e seleciona o novo dia
+                        carregarDiasTreino(); 
+                        document.getElementById('selectDia').value = nomeDia;
+                    })
+                    .catch(e => alert('Erro ao adicionar dia: ' + e.message));
             });
         }
 
         function removerDiaTreino() {
-            const selDia = document.getElementById('selectDia');
-            const diaSelecionado = selDia.value;
-            database.ref(CHAVE_DIAS).once('value', snap => {
-                let dias = snap.val() || [];
-                const novoDias = dias.filter(dia => dia !== diaSelecionado);
-                database.ref(CHAVE_DIAS).set(novoDias);
-                alert('Dia removido com sucesso!');
-                carregarDiasTreino();
-            });
+            const select = document.getElementById('selectDia');
+            const diaParaRemover = select.value;
+
+            if (!diaParaRemover || select.options.length === 0) {
+                return alert('Selecione um Dia de Treino para remover.');
+            }
+            
+            // Impede a remoção se só restar um dia
+            if (select.options.length <= 1) { 
+                 return alert('Você deve manter pelo menos um Dia de Treino. Adicione outro antes de remover este.');
+            }
+
+            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o dia de treino "${diaParaRemover}" e seus dados de treino para TODOS os alunos? Esta ação é IRREVERSÍVEL.`)) {
+                
+                // 1. Remove da lista de dias da config
+                database.ref(CHAVE_DIAS).once('value', snap => {
+                    let dias = snap.val() || [];
+                    
+                    const novaLista = dias.filter(d => d !== diaParaRemover);
+
+                    database.ref(CHAVE_DIAS).set(novaLista)
+                    .then(() => {
+                        // 2. Remove o treino de TODOS os alunos (chave do Firebase é o Nome do Aluno)
+                        database.ref('alunos/').once('value', alunosSnap => {
+                            const updates = {};
+                            alunosSnap.forEach(alunoSnap => {
+                                const chaveAluno = alunoSnap.key;
+                                updates[`alunos/${chaveAluno}/treinoModel/${diaParaRemover}`] = null; // Deleta o nó do treino
+                            });
+                            
+                            // Aplica a remoção em massa
+                            database.ref().update(updates)
+                            .then(() => {
+                                alert(`Dia "${diaParaRemover}" removido com sucesso de todos os alunos!`);
+                                carregarDiasTreino(); // Recarrega a lista
+                            })
+                            .catch(e => alert('Erro ao remover treinos dos alunos: ' + e.message));
+                        });
+                    })
+                    .catch(e => alert('Erro ao remover dia da lista de configuração: ' + e.message));
+                });
+            }
         }
+        
+        // ------------------------------------
+        // === FUNÇÕES DE GESTÃO DE ALUNOS (ADICIONAR/EXCLUIR/RENOMEAR) ===
+        // ------------------------------------
 
         function abrirModalAluno() {
-            document.getElementById('modalAluno').style.display = 'block';
+            const modal = document.getElementById('modalAluno');
+            document.getElementById('modal-titulo').textContent = 'Adicionar Novo Aluno';
+            document.getElementById('btn-salvar-aluno').textContent = 'Criar Aluno';
             document.getElementById('aluno-nome').value = '';
             document.getElementById('aluno-email').value = '';
+            modal.style.display = 'block';
         }
 
         function salvarAluno() {
             const nome = document.getElementById('aluno-nome').value.trim();
-            const email = document.getElementById('aluno-email').value.trim();
-            if (!nome || !email) {
-                alert('Por favor, preencha o nome e o e-mail do aluno.');
-                return;
-            }
-            const chave = formatarNomeParaChave(email);
-            database.ref(`alunos/${chave}`).set({
-                info: {
-                    nome: nome
-                }
-            });
-            alert('Aluno adicionado com sucesso!');
-            document.getElementById('modalAluno').style.display = 'none';
-            carregarListaAlunos();
-        }
+            const email = document.getElementById('aluno-email').value.trim(); 
+            const chave = formatarNomeParaChave(nome);
 
+            if (!nome || !email) {
+                return alert('Por favor, preencha o Nome e o E-mail.');
+            }
+
+            database.ref(`alunos/${chave}`).once('value')
+                .then(snap => {
+                    if (snap.exists()) {
+                        alert(`Erro: Já existe um aluno com a chave: ${chave} (Nome: ${nome}).`);
+                    } else {
+                        database.ref(`alunos/${chave}/info`).set({
+                            nome: nome,
+                            email: email,
+                            criacao: firebase.database.ServerValue.TIMESTAMP
+                        })
+                        .then(() => {
+                            alert(`Aluno "${nome}" adicionado com sucesso!`);
+                            document.getElementById('modalAluno').style.display = 'none';
+                            alunoSelecionadoNome = nome; 
+                            carregarListaAlunos();
+                        })
+                        .catch(e => alert('Erro ao adicionar aluno: ' + e.message));
+                    }
+                });
+        }
+        
+        function excluirAluno() {
+            if (!alunoSelecionadoNome) {
+                return alert('Selecione um aluno para excluir.');
+            }
+
+            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o aluno "${alunoSelecionadoNome}" e todos os seus dados? Esta ação é IRREVERSÍVEL.`)) {
+                const chave = formatarNomeParaChave(alunoSelecionadoNome);
+                database.ref(`alunos/${chave}`).remove()
+                .then(() => {
+                    alert(`Aluno "${alunoSelecionadoNome}" excluído com sucesso!`);
+                    alunoSelecionadoNome = ''; 
+                    carregarListaAlunos();
+                })
+                .catch(e => alert('Erro ao excluir aluno: ' + e.message));
+            }
+        }
+        
         function abrirModalRenomearAluno() {
-            const sel = document.getElementById('selectAluno');
-            const nomeAntigo = sel.value;
+            if (!alunoSelecionadoNome) {
+                return alert('Selecione um aluno para renomear.');
+            }
+            document.getElementById('nome-aluno-antigo').textContent = alunoSelecionadoNome;
+            document.getElementById('novo-nome-aluno').value = alunoSelecionadoNome;
             document.getElementById('modalEditarNome').style.display = 'block';
-            document.getElementById('nome-aluno-antigo').textContent = nomeAntigo;
-            document.getElementById('novo-nome-aluno').value = '';
         }
 
         function renomearAluno() {
-            const nomeAntigo = document.getElementById('selectAluno').value;
             const novoNome = document.getElementById('novo-nome-aluno').value.trim();
-            if (!novoNome) {
-                alert('Por favor, insira um novo nome para o aluno.');
+            const nomeAntigo = alunoSelecionadoNome;
+
+            if (!novoNome || novoNome === nomeAntigo) {
+                return alert('O novo nome deve ser diferente e não pode ser vazio.');
+            }
+
+            const chaveAntiga = formatarNomeParaChave(nomeAntigo);
+            const chaveNova = formatarNomeParaChave(novoNome);
+            if (confirm(`Confirma a renomeação de "${nomeAntigo}" para "${novoNome}"? TODOS os dados serão movidos.`)) {
+                
+                database.ref(`alunos/${chaveNova}`).once('value')
+                .then(snapNova => {
+                    if (snapNova.exists()) {
+                        return Promise.reject(new Error(`Já existe um aluno com a chave: ${chaveNova} (Nome: ${novoNome}).`));
+                    }
+
+                    return database.ref(`alunos/${chaveAntiga}`).once('value');
+                })
+                .then(snapAntiga => {
+                    if (!snapAntiga.exists()) {
+                        return Promise.reject(new Error(`Erro: Aluno antigo "${nomeAntigo}" não encontrado.`));
+                    }
+                    const dadosAluno = snapAntiga.val();
+
+                    if (dadosAluno.info) {
+                        dadosAluno.info.nome = novoNome;
+                    } else {
+                         dadosAluno.info = { nome: novoNome, email: 'N/A', criacao: firebase.database.ServerValue.TIMESTAMP };
+                    }
+
+                    return database.ref(`alunos/${chaveNova}`).set(dadosAluno)
+                    .then(() => {
+                        return database.ref(`alunos/${chaveAntiga}`).remove();
+                    });
+                })
+                .then(() => {
+                    alert(`Aluno renomeado com sucesso de "${nomeAntigo}" para "${novoNome}".`);
+                    document.getElementById('modalEditarNome').style.display = 'none';
+                    alunoSelecionadoNome = novoNome; 
+                    carregarListaAlunos();
+                })
+                .catch(e => {
+                    alert('Erro ao renomear aluno: ' + e.message);
+                    console.error(e);
+                });
+            }
+        }
+
+        // ------------------------------------
+        // === FUNÇÕES DE ACOMPANHAMENTO (GRÁFICO E MEDIDAS) ===
+        // ------------------------------------
+
+        function carregarMedidas() {
+            if (!alunoSelecionadoNome) return;
+            const tb = document.getElementById('tabela-medidas-admin');
+            document.getElementById('chart-empty-message').style.display = 'none'; // Esconde a mensagem
+
+            if (medidasRef) database.ref(medidasRef).off('value');
+            
+            tb.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+            medidasRef = getPath('medidas');
+            database.ref(medidasRef).limitToLast(5).on('value', snap => {
+                tb.innerHTML = '';
+                if(!snap.exists()) { tb.innerHTML = '<tr><td colspan="4" class="sem-dados">Sem registros de medidas</td></tr>'; return; }
+                
+                const arr = [];
+                snap.forEach(c => {
+                    const val = c.val();
+                    arr.push(val);
+                });
+                
+                arr.sort((a,b) => b.timestamp - a.timestamp); 
+              
+                arr.forEach(m => {
+                    const peso = m.peso || m.carga || m.weight || '-';
+                    const cintura = m.cintura || m.waist || '-';
+                    const braco = m.braco || m.arm || '-';
+                    const data = m.data || m.date || new Date(m.timestamp).toLocaleDateString();
+
+                    const tr = tb.insertRow();
+                    tr.innerHTML = `<td>${data}</td><td>${peso}kg</td><td>${cintura}cm</td><td>${braco}cm</td>`;
+                });
+            });
+        }
+
+        function inicializarGraficoAluno(exKey) {
+            if (!alunoSelecionadoNome) return;
+            if(pesoChart) {
+                pesoChart.destroy();
+                pesoChart = null;
+            }
+            // Assume que não há dados no início
+            document.getElementById('chart-empty-message').style.display = 'flex'; 
+            
+            const pathPrincipal = getPath(`cargas/${exKey}`);
+            database.ref(pathPrincipal).once('value', snap => {
+                let dados = [];
+                
+                if(snap.exists()){
+                    snap.forEach(c => {
+                        dados.push(c.val());
+                    });
+                    renderizarGrafico(dados, exKey);
+                } else {
+                    const pathFallback = getPath(`cargas/${exKey.toLowerCase()}`);
+                    database.ref(pathFallback).once('value', snapBk => {
+                        if(snapBk.exists()){
+                            snapBk.forEach(c => {
+                                dados.push(c.val());
+                            });
+                        }
+                        renderizarGrafico(dados, exKey);
+                    });
+                }
+            });
+        }
+
+        function renderizarGrafico(dados, exKey) {
+            const ctx = document.getElementById('chartAdmin').getContext('2d');
+            const select = document.getElementById('selectGrafico');
+            const titulo = select.options[select.selectedIndex].text;
+
+            if(dados.length === 0) {
+                // Se não há dados, garante que a mensagem de 'sem dados' esteja visível
+                document.getElementById('chart-empty-message').textContent = `Sem dados para o exercício: ${titulo}`;
+                document.getElementById('chart-empty-message').style.display = 'flex';
                 return;
             }
-            const chaveAntiga = formatarNomeParaChave(document.getElementById('selectAluno').value);
-            const chaveNova = formatarNomeParaChave(novoNome);
-            database.ref(`alunos/${chaveAntiga}`).once('value', snap => {
-                const alunoData = snap.val();
-                database.ref(`alunos/${chaveNova}`).set(alunoData);
-                database.ref(`alunos/${chaveAntiga}`).remove();
-                alert('Aluno renomeado com sucesso!');
-                document.getElementById('modalEditarNome').style.display = 'none';
-                carregarListaAlunos();
+
+            // Se há dados, esconde a mensagem e desenha o gráfico
+            document.getElementById('chart-empty-message').style.display = 'none';
+
+            const exemplo = dados.find(d => d.peso || d.carga || d.weight) || dados[0];
+            let chavePeso = 'peso'; 
+            if(exemplo) {
+                if (exemplo.carga !== undefined) chavePeso = 'carga';
+                else if (exemplo.weight !== undefined) chavePeso = 'weight';
+            }
+
+            dados.sort((a,b) => a.timestamp - b.timestamp);
+            pesoChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dados.map(d => d.data || d.date || new Date(d.timestamp).toLocaleDateString()),
+                    datasets: [{
+                        label: `${titulo} (kg)`,
+                        data: dados.map(d => parseFloat(d[chavePeso]) || 0),
+                        borderColor: '#00d4ff',
+                        backgroundColor: 'rgba(0,212,255,0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { beginAtZero: true, grid:{color:'#333'}, ticks: { color: '#e0e0e0' } }, 
+                        x: { grid:{color:'#333'}, ticks: { color: '#e0e0e0' } } 
+                    },
+                    plugins: { legend: { labels: { color: '#e0e0e0' } } }
+                }
             });
+        }
+
+        // ------------------------------------
+        // === FUNÇÕES DE EDIÇÃO DE TREINO (ATUALIZADAS PARA DRAG AND DROP) ===
+        // ------------------------------------
+        
+        function initSortable() {
+            const container = document.getElementById('editor-container');
+            // GARANTE: Desliga qualquer instância anterior (IMPORTANTE!)
+            if (container.sortable) {
+                container.sortable.destroy();
+            }
+
+            // Inicializa o SortableJS no container.
+            const sortableInstance = Sortable.create(container, {
+                animation: 150, 
+                // CORRIGIDO: Usa a classe 'handle-drag' para indicar a área de arrastar (o ícone ☰)
+                handle: '.handle-drag', 
+                ghostClass: 'sortable-ghost', 
+                forceFallback: true, 
+                // Impede que o drag inicie ao clicar em inputs/botões
+                filter: 'input, button', 
+            });
+            // Armazena a instância para poder destruí-la na próxima chamada
+            container.sortable = sortableInstance;
         }
 
         function carregarTreinoDia() {
-            const selDia = document.getElementById('selectDia');
-            const diaSelecionado = selDia.value;
-            const editorContainer = document.getElementById('editor-container');
-            editorContainer.innerHTML = '<div style="text-align:center; margin-top:20px;">Carregando Treino...</div>';
-            database.ref(getPath(`treinos/${diaSelecionado}`)).once('value', snap => {
+            const dia = document.getElementById('selectDia').value;
+            if(!alunoSelecionadoNome || !dia || dia === 'Carregando Dias...') return; // Proteção adicional
+            const container = document.getElementById('editor-container');
+            container.innerHTML = 'Carregando...';
+
+            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
                 const treino = snap.val();
-                editorContainer.innerHTML = '';
-                if (!treino) {
-                    editorContainer.innerHTML = '<div style="text-align:center; margin-top:20px;">Nenhum treino definido para este dia.</div>';
-                    return;
+                container.innerHTML = ''; // Limpa o conteúdo
+                
+                if(Array.isArray(treino) && treino.length > 0) {
+                    treino.forEach(t => addLinha(t.nome, t.series, t.reps, true)); // Passa true para não adicionar botão
+                } else {
+                    addLinha('Ex: Supino Reto com Halteres', '4', '10', true);
                 }
-                const sortable = Sortable.create(editorContainer, {
-                    animation: 150,
-                    ghostClass: 'sortable-ghost',
-                    handle: '.handle-drag'
-                });
-                treino.forEach((exercicio, index) => {
-                    const row = document.createElement('div');
-                    row.className = 'treino-row';
-                    row.innerHTML = `
-                        <input type="text" value="${exercicio.nome}" placeholder="Nome do Exercício" required>
-                        <input type="number" value="${exercicio.series}" placeholder="Séries" required>
-                        <input type="number" value="${exercicio.repeticoes}" placeholder="Repetições" required>
-                        <span class="handle-drag">☰</span>
-                        <button class="btn-remover" onclick="removerExercicio(${index})">🗑️</button>
-                    `;
-                    editorContainer.appendChild(row);
-                });
+
+                // Cria e insere o botão de adicionar exercício (FICA SEMPRE POR ÚLTIMO)
+                const btn = document.createElement('button');
+                btn.textContent = '+ Add Exercício';
+                btn.id = 'btnAddExercicio';
+                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:10px; width:100%; margin-top:10px; cursor:pointer; border-radius: 5px;';
+                btn.onclick = () => addLinha('', '', '', false); // Adiciona e reposiciona o botão
+                container.appendChild(btn);
+                // Inicializa/Reinicializa o SortableJS APÓS carregar os elementos
+                initSortable();
             });
+        }
+
+        // Função addLinha com parâmetro opcional para saber se deve reposicionar o botão
+        function addLinha(n, s, r, isInitialLoad) {
+            const container = document.getElementById('editor-container');
+            const div = document.createElement('div');
+            div.className = 'treino-row';
+            div.innerHTML = `
+                <div><label>Ex</label><input type="text" class="i-nome" value="${n}"></div>
+                <div><label>Sér</label><input type="text" class="i-series" value="${s}"></div>
+                <div><label>Rep</label><input type="text" class="i-reps" value="${r}"></div>
+                <div class="handle-drag" style="width: 30px; text-align: center; color: #aaa; align-self: center;">☰</div> 
+                <div><button class="btn-remover">X</button></div>`;
+            
+            div.querySelector('.btn-remover').onclick = () => div.remove();
+            
+            const addButton = document.getElementById('btnAddExercicio');
+            // Lógica para garantir que o botão "Add Exercício" fique sempre no final:
+            if (!isInitialLoad && addButton) {
+                // Se for uma adição dinâmica, insere a nova linha antes do botão
+                container.insertBefore(div, addButton);
+            } else {
+                // Se for a carga inicial, apenas adiciona no final
+                container.appendChild(div);
+            }
         }
 
         function salvarTreino() {
-            const selDia = document.getElementById('selectDia');
-            const diaSelecionado = selDia.value;
-            const editorContainer = document.getElementById('editor-container');
-            const exercicios = [];
-            editorContainer.querySelectorAll('.treino-row').forEach(row => {
-                const nome = row.querySelector('input[type="text"]').value.trim();
-                const series = parseInt(row.querySelector('input[type="number"]:first-of-type').value, 10);
-                const repeticoes = parseInt(row.querySelector('input[type="number"]:last-of-type').value, 10);
-                if (nome && series && repeticoes) {
-                    exercicios.push({ nome, series, repeticoes });
-                }
-            });
-            database.ref(getPath(`treinos/${diaSelecionado}`)).set(exercicios);
-            alert('Treino salvo com sucesso!');
-        }
-
-        function removerExercicio(index) {
-            const editorContainer = document.getElementById('editor-container');
-            const exercicios = Array.from(editorContainer.querySelectorAll('.treino-row'));
-            exercicios.splice(index, 1);
-            editorContainer.innerHTML = '';
-            exercicios.forEach(row => editorContainer.appendChild(row));
-        }
-
-        function carregarMedidas() {
-            const tabelaMedidas = document.getElementById('tabela-medidas-admin');
-            tabelaMedidas.innerHTML = '<tr><td colspan="4" class="sem-dados">Carregando medidas...</td></tr>';
-            database.ref(getPath('medidas')).once('value', snap => {
-                const medidas = snap.val();
-                tabelaMedidas.innerHTML = '';
-                if (!medidas) {
-                    tabelaMedidas.innerHTML = '<tr><td colspan="4" class="sem-dados">Nenhuma medida registrada.</td></tr>';
-                    return;
-                }
-                for (const data in medidas) {
-                    const medida = medidas[data];
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${data}</td>
-                        <td>${medida.peso}</td>
-                        <td>${medida.cintura}</td>
-                        <td>${medida.braco}</td>
-                    `;
-                    tabelaMedidas.appendChild(row);
-                }
-            });
-        }
-
-        function carregarPresenca() {
-            const listaPresenca = document.getElementById('lista-presenca');
-            listaPresenca.innerHTML = '<li style="text-align:center;">Carregando presença...</li>';
-            database.ref(getPath('presenca')).once('value', snap => {
-                const presenca = snap.val();
-                listaPresenca.innerHTML = '';
-                if (!presenca) {
-                    listaPresenca.innerHTML = '<li style="text-align:center;">Nenhuma presença registrada.</li>';
-                    return;
-                }
-                for (const data in presenca) {
-                    const presente = presenca[data];
-                    const item = document.createElement('li');
-                    item.textContent = `${data}: ${presente ? 'Presente' : 'Ausente'}`;
-                    listaPresenca.appendChild(item);
-                }
-            });
-        }
-
-        function inicializarGraficoAluno(exercicioSelecionado) {
-            const chartContainer = document.getElementById('chartAdmin');
-            const chartEmptyMessage = document.getElementById('chart-empty-message');
-            chartContainer.innerHTML = '';
-            chartEmptyMessage.style.display = 'flex';
-            database.ref(getPath(`cargas/${exercicioSelecionado}`)).once('value', snap => {
-                const cargas = snap.val();
-                if (!cargas) return;
-                chartEmptyMessage.style.display = 'none';
-                if (pesoChart) pesoChart.destroy();
-                pesoChart = new Chart(chartContainer, {
-                    type: 'line',
-                    data: {
-                        labels: Object.keys(cargas),
-                        datasets: [{
-                            label: `Carga de ${exercicioSelecionado}`,
-                            data: Object.values(cargas),
-                            backgroundColor: 'rgba(0, 204, 255, 0.2)',
-                            borderColor: 'rgba(0, 204, 255, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
+            if(!alunoSelecionadoNome) return alert('Selecione um aluno');
+            const dia = document.getElementById('selectDia').value;
+            
+            // Pega as linhas na ordem ATUAL (após o drag and drop)
+            const rows = document.querySelectorAll('#editor-container .treino-row');
+            const dados = [];
+            
+            rows.forEach(r => {
+                const n = r.querySelector('.i-nome').value;
+                if(n) dados.push({ 
+                    nome: n, 
+                    series: r.querySelector('.i-series').value, 
+                    reps: r.querySelector('.i-reps').value 
                 });
             });
+            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
+                .then(() => alert('Treino salvo! A nova ordem foi registrada.'))
+                .catch(e => alert('Erro: ' + e.message));
         }
+        
+        // --- 6. PRESENÇA ---
+        function carregarPresenca() {
+            if (!alunoSelecionadoNome) return;
+            const ul = document.getElementById('lista-presenca');
+            const st = document.getElementById('status-frequencia');
 
-        function excluirAluno() {
-            const sel = document.getElementById('selectAluno');
-            const chave = formatarNomeParaChave(sel.value);
-            database.ref(`alunos/${chave}`).remove();
-            alert('Aluno excluído com sucesso!');
-            carregarListaAlunos();
+            if (presencaRef) database.ref(presencaRef).off('value');
+            ul.innerHTML = 'Carregando...';
+            st.textContent = '...';
+            presencaRef = getPath('presenca');
+            database.ref(presencaRef).on('value', snap => {
+                ul.innerHTML = '';
+                if(!snap.exists()) { st.textContent = '0 Presenças'; return; }
+                
+                const dias = Object.keys(snap.val()).reverse(); 
+                st.textContent = `${dias.length} Presenças totais`;
+                
+                dias.slice(0, 10).forEach(d => {
+                    const li = document.createElement('li');
+                    li.textContent = `✅ ${d.replace(/-/g, '/')}`;
+                    li.style.borderBottom = '1px dotted #333';
+                    li.style.padding = '5px 0';
+                    ul.appendChild(li);
+                });
+            });
         }
     </script>
 </body>
