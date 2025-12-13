@@ -1312,11 +1312,31 @@ Tente pesquisar pelo nome exato do exercício ou sintoma.`;
             }
         }
     </script>
-    <script>
-  // TODO o seu JS grande (firebase, funções, etc)
+
+<!-- 🔐 INICIALIZADOR SEGURO (COLOQUE AQUI) -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('App inicializado');
+
+  if (typeof obterNomeAluno === 'function') {
+    obterNomeAluno();
+  }
+
+  if (typeof carregarUltimoTreino === 'function') {
+    carregarUltimoTreino();
+  }
+
+  if (typeof gerarCalendario === 'function') {
+    gerarCalendario();
+  }
+
+  if (typeof inicializarGrafico === 'function') {
+    inicializarGrafico();
+  }
+});
 </script>
 
-<!-- 🔽 AQUI entra o script do PWA -->
+<!-- 🚀 SCRIPT DO PWA (JÁ EXISTENTE, NÃO ALTERAR) -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1329,8 +1349,4 @@ if ('serviceWorker' in navigator) {
 </script>
 
 </body>
-</html>
-
-</body>
-
 </html>
