@@ -1296,25 +1296,21 @@ Tente pesquisar pelo nome exato do exercício ou sintoma.`;
                 default:
                     return;
             }
-if (confirm(...)) {
-  database.ref(getPath(path)).remove()
-    .then(() => {
-      alert('Histórico apagado com sucesso!');
-      if (tipo === 'presenca') gerarCalendario();
-      if (tipo === 'cargas') inicializarGrafico();
-      if (tipo === 'medidas')
-        document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
-    })
-    .catch(error => {
-      console.error('Erro ao resetar dados:', error);
-      alert('Erro ao apagar dados.');
-    });
-}
 
-function carregarUltimoTreino() {
-  console.log('carregarUltimoTreino chamada');
-}
-
+            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
+                database.ref(getPath(path)).remove()
+                    .then(() => {
+                        alert('Histórico apagado com sucesso!');
+                        if (tipo === 'presenca') gerarCalendario();
+                        if (tipo === 'cargas') inicializarGrafico();
+                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
+                    })
+                    .catch(error => {
+                        console.error("Erro ao resetar dados:", error);
+                        alert("Erro ao apagar dados.");
+                    });
+            }
+        }
     </script>
 </body>
 
