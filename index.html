@@ -595,7 +595,26 @@
             }
         });
 
-        // ---------- função: finalizarTreino (salva treino finalizado com Firebase SDK) ----------
+        
+        function obterNomeAluno() {
+            const nomeLocal = localStorage.getItem('nomeAluno');
+            if (!nomeLocal) {
+                document.getElementById('modal-nome').style.display = 'flex';
+            } else {
+                alunoNome = nomeLocal;
+                start();
+            }
+        }
+
+        function salvarNomeModal() {
+            const n = document.getElementById('nomeModalInput').value.trim();
+            if (n.length < 2) return alert('Por favor, insira um nome válido!');
+            alunoNome = n;
+            localStorage.setItem('nomeAluno', n);
+            document.getElementById('modal-nome').style.display = 'none';
+            start();
+        }
+
         function finalizarTreino() {
             try {
                 const dia = document.getElementById('seletorTreino') ? document.getElementById('seletorTreino').value : 'Dia A';
@@ -603,12 +622,11 @@
                 const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
                 const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                // coleta checkboxes marcados no treino atual
                 let idLista = (dia === 'Dia A') ? 'lista-treino-a' : ((dia === 'Dia B') ? 'lista-treino-b' : 'lista-treino-c');
                 const listaEl = document.getElementById(idLista);
                 const concluidos = [];
                 if (listaEl) {
-                    listaEl.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => {
+                    listaEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                         if (cb.checked) {
                             let nome = cb.getAttribute('data-nome') || '';
                             if (!nome) {
@@ -641,7 +659,6 @@
                         try { contarTreinosDoMes(); } catch(e){console.warn('contarTreinosDoMes erro',e);}
                         try { marcarTreinoNoCalendario(new Date()); } catch(e){console.warn('marcarTreinoNoCalendario erro',e);}
                         try { carregarTreinosFinalizados(); } catch(e){console.warn('carregarTreinosFinalizados erro',e);}
-                        // feedback
                         alert('Treino registrado com sucesso!');
                     })
                     .catch(err => {
@@ -654,7 +671,6 @@
             }
         }
 
-        // Funções de carregamento e gráfico de treinos finalizados
         function carregarUltimoTreino() {
             try {
                 const ref = database.ref(getPath('treinosFinalizados'));
@@ -697,7 +713,6 @@
                 ref.orderByChild('timestamp').once('value').then(snap => {
                     const lista = [];
                     snap.forEach(c => lista.push(c.val()));
-                    // atualizar lista textual
                     const divList = document.getElementById('lista-historico-treinos');
                     if (divList) {
                         if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
@@ -711,7 +726,6 @@
                         }
                     }
 
-                    // agrupamento por data para gráfico
                     const agrupado = {};
                     lista.forEach(t => {
                         const key = t.data || 'Sem data';
@@ -757,7 +771,6 @@
             } catch(err) { console.warn('renderTreinosBarChart erro', err); }
         }
 
-        // marcar treino no calendario
         function marcarTreinoNoCalendario(dataObj) {
             try {
                 const dia = String(dataObj.getDate()).padStart(2,'0');
@@ -783,44 +796,332 @@
             carregarTreinosFinalizados();
         }
 
-        function obterNomeAluno() {
-            // Implementação para obter o nome do aluno
-        }
-
-        function salvarNomeModal() {
-            // Implementação para salvar o nome do aluno
-        }
-
         function inicializarGrafico() {
-            // Implementação para inicializar o gráfico
-        }
+            const ex = document.getElementById('seletorExercicio').value;
+            database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
+                const datas = [];
+                const pesos = [];
+                snap.forEach(c => {
+                    const v = c.val();
+                    datas.push(v.data);
+                    pesos.push(v.peso);
+                });
 
-        function carregarUltimasMedidas() {
-            // Implementação para carregar as últimas medidas
-        }
-
-        function alternarTreino() {
-            // Implementação para alternar entre os dias de treino
-        }
-
-        function gerarCalendario() {
-            // Implementação para gerar o calendário de presença
+                const ctx = document.getElementById('pesoChart').getContext('2d');
+                if (pesoChart) pesoChart.destroy();
+                pesoChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: datas,
+                        datasets: [{
+                            label: `Carga (kg)`,
+                            data: pesos,
+                            borderColor: '#ff8c00',
+                            backgroundColor: 'rgba(255,140,0,0.2)',
+                            tension: 0.2,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' }
+                            },
+                            x: {
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#f0f0f0' } }
+                        }
+                    }
+                });
+            });
         }
 
         function adicionarPeso() {
-            // Implementação para adicionar peso ao gráfico
+            const p = document.getElementById('pesoInput').value;
+            if (!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
+                alert('Por favor, insira uma carga válida e positiva.');
+                return;
+            }
+            const ex = document.getElementById('seletorExercicio').value;
+            const agora = new Date();
+            const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
+                ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            database.ref(getPath(`cargas/${ex}`)).push({
+                data: dataLegivel,
+                peso: parseFloat(p),
+                timestamp: Date.now()
+            }).then(() => {
+                document.getElementById('pesoInput').value = '';
+            }).catch(error => {
+                console.error("Erro ao adicionar peso:", error);
+                alert("Erro ao registrar carga.");
+            });
         }
 
         function registrarMedidas() {
-            // Implementação para registrar medidas
+            const peso = document.getElementById('pesoCorporalInput').value;
+            if (!peso) return alert('O peso é obrigatório!');
+
+            const m = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                timestamp: Date.now(),
+                peso: peso,
+                cintura: document.getElementById('cinturaInput').value,
+                braco: document.getElementById('bracoInput').value,
+                torax: document.getElementById('toraxInput').value,
+                abdomen: document.getElementById('abdomenInput').value,
+                coxa: document.getElementById('coxaInput').value,
+                panturrilha: document.getElementById('panturrilhaInput').value,
+                antebraco: document.getElementById('antebracoInput').value
+            };
+            database.ref(getPath('medidas')).push(m);
+            alert('Medidas Salvas!');
+            document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
+            carregarUltimasMedidas();
+        }
+
+        function carregarUltimasMedidas() {
+            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
+                const div = document.getElementById('ultimasMedidas');
+                div.innerHTML = 'Nenhum registro encontrado.';
+                snap.forEach(c => {
+                    const d = c.val();
+                    div.innerHTML =
+                        `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura||'-'} | Braço: ${d.braco||'-'}`;
+                });
+            });
+        }
+
+        function alternarTreino() {
+            const dia = document.getElementById('seletorTreino').value;
+            document.querySelectorAll('.lista-treino-dia').forEach(e => e.style.display = 'none');
+            document.getElementById(`treino-${dia}`).style.display = 'block';
+
+            carregarTreinoDoProfessor(dia);
+        }
+
+        function marcarConcluido(chk, dia, id) {
+            const li = chk.closest('li');
+            chk.checked ? li.classList.add('concluido') : li.classList.remove('concluido');
+            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
+        }
+
+        function carregarCheckboxes(dia) {
+            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
+                const s = snap.val() || {};
+                document.getElementById(`treino-${dia}`).querySelectorAll('li').forEach(li => {
+                    const id = li.getAttribute('data-exercicio');
+                    const chk = li.querySelector('input');
+                    if (chk) {
+                        if (s[id]) {
+                            chk.checked = true;
+                            li.classList.add('concluido');
+                        } else {
+                            chk.checked = false;
+                            li.classList.remove('concluido');
+                        }
+                    }
+                });
+            });
+        }
+
+        function carregarTreinoDoProfessor(dia) {
+            const idLista = dia === 'Dia A' ?
+                'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
+            const ul = document.getElementById(idLista);
+            
+            database.ref(getPath(`treinoModel/${dia}`)).off('value');
+            
+            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
+                ul.innerHTML = ''; 
+
+                if (!snap.exists()) {
+                    ul.innerHTML = '<li class="exercicio-item" style="background: none; border: none; color: #ff9933; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px;">Seu treino ainda não foi enviado.</li>';
+                    return;
+                }
+
+                snap.forEach(childSnapshot => {
+                    const t = childSnapshot.val();
+                    if (t && t.nome) {
+                        const id = t.nome.replace(/\s/g, '');
+                        const li = document.createElement('li');
+                        li.className = 'exercicio-item';
+                        li.setAttribute('data-exercicio', id);
+                        li.innerHTML = `
+                            <div class="exercicio-info"><strong>${t.nome}</strong><span>${t.series}x | ${t.reps}</span></div>
+                            <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')"></div>
+                        `;
+                        ul.appendChild(li);
+                    }
+                });
+                carregarCheckboxes(dia);
+            });
+        }
+
+        function gerarCalendario() {
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth();
+            const anoAtual = hoje.getFullYear();
+
+            const primeiroDiaSemana = new Date(anoAtual, mesAtual, 1).getDay();
+            const ultimoDiaMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
+
+            let html = '<tr>';
+            let contadorDias = 1;
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < primeiroDiaSemana) {
+                        html += '<td></td>';
+                    } else if (contadorDias > ultimoDiaMes) {
+                        html += '<td></td>';
+                    } else {
+                        const chaveData = `${String(contadorDias).padStart(2,'0')}-${String(mesAtual+1).padStart(2,'0')}-${anoAtual}`;
+                        html += `<td id="dia-${chaveData}" onclick="togglePresenca('${chaveData}')">${contadorDias}</td>`;
+                        contadorDias++;
+                    }
+                }
+                html += '</tr>';
+                if (contadorDias > ultimoDiaMes) break;
+            }
+            document.getElementById('calendario-body').innerHTML = html;
+            carregarPresencas();
+        }
+
+        function togglePresenca(key) {
+            const td = document.getElementById(`dia-${key}`);
+            const status = td.classList.contains('presente');
+            if (status) {
+                database.ref(getPath(`presenca/${key}`)).remove();
+                td.classList.remove('presente');
+            } else {
+                database.ref(getPath(`presenca/${key}`)).set(true);
+                td.classList.add('presente');
+            }
+        }
+
+        function carregarPresencas() {
+            database.ref(getPath('presenca')).on('value', snap => {
+                const p = snap.val() || {};
+                document.querySelectorAll('#calendario-body td').forEach(td => td.classList.remove('presente'));
+                Object.keys(p).forEach(k => {
+                    const td = document.getElementById(`dia-${k}`);
+                    if (td) td.classList.add('presente');
+                });
+            });
+        }
+
+        async function simularPesquisaIA() {
+            const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
+            const perguntaNormalizada = normalize(pergunta);
+            const respostaDiv = document.getElementById('ai-resposta');
+            const botao = document.querySelector('#ai-search-card .btn-primary');
+            
+            if (pergunta.length < 3) {
+                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = 'Pesquisando no Banco de Dados...';
+            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            let respostaTexto = '';
+            let exercicioEncontrado = null;
+
+            const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
+            let maxPontos = 0;
+
+            for (const key in bancoDeExercicios) {
+                const ex = bancoDeExercicios[key];
+                let pontos = 0;
+
+                if (perguntaNormalizada.includes(normalize(ex.nome))) {
+                    pontos += 100;
+                }
+
+                palavrasDaPergunta.forEach(palavra => {
+                    if (ex.termos.includes(palavra)) {
+                        pontos += 1;
+                    }
+                });
+
+                if (pontos > 0 && pontos > maxPontos) {
+                    maxPontos = pontos;
+                    exercicioEncontrado = ex;
+                }
+            }
+
+            if (exercicioEncontrado) {
+                const nomeEx = exercicioEncontrado.nome;
+                if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
+                    respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
+                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
+                    respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
+                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
+                    respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
+                }
+                else {
+                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
+                }
+
+            } else {
+                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").\nNosso banco de dados cobre exercícios de Musculação, Powerlifting, CrossFit, Pilates, Cardio e Saúde.\nTente pesquisar pelo nome exato do exercício ou sintoma.`;
+            }
+
+            let respostaFormatada = respostaTexto
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
+            
+            botao.disabled = false;
+            botao.textContent = 'Perguntar à IA';
         }
 
         function resetarDados(tipo) {
-            // Implementação para resetar dados
-        }
+            let path;
+            let msg;
 
-        function simularPesquisaIA() {
-            // Implementação para simular pesquisa IA
+            switch (tipo) {
+                case 'presenca':
+                    path = 'presenca';
+                    msg = 'histórico de presenças';
+                    break;
+                case 'cargas':
+                    path = `cargas/${document.getElementById('seletorExercicio').value}`;
+                    msg = 'histórico de cargas para este exercício';
+                    break;
+                case 'medidas':
+                    path = 'medidas';
+                    msg = 'histórico de medidas corporais';
+                    break;
+                default:
+                    return;
+            }
+
+            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
+                database.ref(getPath(path)).remove()
+                    .then(() => {
+                        alert('Histórico apagado com sucesso!');
+                        if (tipo === 'presenca') gerarCalendario();
+                        if (tipo === 'cargas') inicializarGrafico();
+                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
+                    })
+                    .catch(error => {
+                        console.error("Erro ao resetar dados:", error);
+                        alert("Erro ao apagar dados.");
+                    });
+            }
         }
     </script>
 </body>
