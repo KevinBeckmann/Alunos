@@ -8,37 +8,33 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js">
 // ---------- função: finalizarTreino (salva treino finalizado com Firebase SDK) ----------
-function carregarTreinosFinalizados() {
+function finalizarTreino() {
     try {
-        const ref = database.ref(getPath('treinosFinalizados'));
-        ref.orderByChild('timestamp').on('value', snap => {
-            const lista = [];
-            snap.forEach(c => lista.push(c.val()));
-            // atualizar lista textual
-            const divList = document.getElementById('lista-historico-treinos');
-            if (divList) {
-                if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
-                else {
-                    let html = '<ul style="padding-left:16px;">';
-                    lista.slice().reverse().forEach(t => {
-                        html += `<li style="margin:6px 0;">${t.data} — ${t.dia} — ${t.concluidoCount || 0} exercícios</li>`;
-                    });
-                    html += '</ul>';
-                    divList.innerHTML = html;
+        const dia = document.getElementById('seletorTreino') ? document.getElementById('seletorTreino').value : 'Dia A';
+        const agora = new Date();
+        const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+        const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+        // coleta checkboxes marcados no treino atual
+        let idLista = (dia === 'Dia A') ? 'lista-treino-a' : ((dia === 'Dia B') ? 'lista-treino-b' : 'lista-treino-c');
+        const listaEl = document.getElementById(idLista);
+        const concluidos = [];
+        if (listaEl) {
+            listaEl.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => {
+                if (cb.checked) {
+                    let nome = cb.getAttribute('data-nome') || '';
+                    if (!nome) {
+                        const li = cb.closest('li');
+                        if (li) {
+                            const s = li.querySelector('.exercicio-info strong');
+                            if (s) nome = s.textContent.trim();
+                        }
+                    }
+                    if (!nome) nome = 'Exercício marcado';
+                    concluidos.push(nome);
                 }
-            }
-
-            // agrupamento por data para gráfico
-            const agrupado = {};
-            lista.forEach(t => {
-                const key = t.data || 'Sem data';
-                agrupado[key] = (agrupado[key] || 0) + 1;
             });
-            renderTreinosBarChart(agrupado);
-        }, err => console.warn('carregarTreinosFinalizados erro', err));
-    } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
-}
-
+        }
 
         const payload = {
             dia: dia,
@@ -942,6 +938,37 @@ function marcarTreinoNoCalendario(dataObj) {
             carregarUltimoTreino();
             contarTreinosDoMes();
             carregarTreinosFinalizados();
+}
+
+        function carregarTreinosFinalizados() {
+    try {
+        const ref = database.ref(getPath('treinosFinalizados'));
+        ref.orderByChild('timestamp').on('value', snap => {
+            const lista = [];
+            snap.forEach(c => lista.push(c.val()));
+            // atualizar lista textual
+            const divList = document.getElementById('lista-historico-treinos');
+            if (divList) {
+                if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
+                else {
+                    let html = '<ul style="padding-left:16px;">';
+                    lista.slice().reverse().forEach(t => {
+                        html += `<li style="margin:6px 0;">${t.data} — ${t.dia} — ${t.concluidoCount || 0} exercícios</li>`;
+                    });
+                    html += '</ul>';
+                    divList.innerHTML = html;
+                }
+            }
+
+            // agrupamento por data para gráfico
+            const agrupado = {};
+            lista.forEach(t => {
+                const key = t.data || 'Sem data';
+                agrupado[key] = (agrupado[key] || 0) + 1;
+            });
+            renderTreinosBarChart(agrupado);
+        }, err => console.warn('carregarTreinosFinalizados erro', err));
+    } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
 }
 
         // 🎯 FUNÇÃO DE GRÁFICO
