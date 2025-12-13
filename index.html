@@ -4,25 +4,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Meta tags PWA adicionadas para instalabilidade -->
-    <meta name="theme-color" content="#000000">
-    <meta name="description" content="Dashboard do Aluno - Acompanhe seu treino, medidas e progresso">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Dashboard Aluno">
-    
-    <!-- Link para o manifest.json -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Ícones para dispositivos Apple -->
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    
     <title>Dashboard do Aluno - Dark Mode</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js">
+// ---------- função: finalizarTreino (salva treino finalizado com Firebase SDK) ----------
+function finalizarTreino() {
+    try {
+        const dia = document.getElementById('seletorTreino') ?
+document.getElementById('seletorTreino').value : 'Dia A';
+        const agora = new Date();
+        const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+// coleta checkboxes marcados no treino atual
+        let idLista = (dia === 'Dia A') ?
+'lista-treino-a' : ((dia === 'Dia B') ? 'lista-treino-b' : 'lista-treino-c');
+        const listaEl = document.getElementById(idLista);
+        const concluidos = [];
+if (listaEl) {
+            listaEl.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => {
+                if (cb.checked) {
+                    let nome = cb.getAttribute('data-nome') || '';
+                    if (!nome) {
+                   
+const li = cb.closest('li');
+                        if (li) {
+                            const s = li.querySelector('.exercicio-info strong');
+                            if (s) nome = s.textContent.trim();
+  
+}
+                    }
+                    if (!nome) nome = 'Exercício marcado';
+                    concluidos.push(nome);
+             
+}
+            });
+}
+
+        const payload = {
+            dia: dia,
+            data: dataLegivel,
+            hora: horaLegivel,
+            timestamp: Date.now(),
+            concluido: true,
+            concluidoCount: concluidos.length,
+           
+exerciciosConcluidos: concluidos
+        };
+
+        const ref = database.ref(getPath('treinosFinalizados')).push();
+ref.set(payload)
+            .then(() => {
+                try { carregarUltimoTreino(); } catch(e){console.warn('carregarUltimoTreino erro',e);}
+                try { contarTreinosDoMes(); } catch(e){console.warn('contarTreinosDoMes erro',e);}
+                try { marcarTreinoNoCalendario(new Date()); } catch(e){console.warn('marcarTreinoNoCalendario erro',e);}
+                try { carregarTreinosFinalizados(); } catch(e){console.warn('carregarTreinosFinalizados erro',e);}
+ 
+// feedback
+                alert('Treino registrado com sucesso!');
+            })
+            .catch(err => {
+                console.error('Erro ao salvar treino finalizado:', err);
+                alert('Erro ao 
+registrar treino. Tente novamente.');
+            });
+} catch(err) {
+        console.error('Erro em finalizarTreino():', err);
+        alert('Erro ao registrar treino. Tente novamente.');
+}
+}
+
+
+// ---------- Funções de carregamento e gráfico de treinos finalizados ----------
+function carregarUltimoTreino() {
+    try {
+        const ref = database.ref(getPath('treinosFinalizados'));
+ref.orderByChild('timestamp').limitToLast(1).on('value', snap => {
+            const p = document.getElementById('ultimo-treino');
+            if (!p) return;
+            if (!snap.exists()) {
+                p.textContent = 'Nenhum treino registrado ainda.';
+                return;
+            }
+     
+snap.forEach(child => {
+                const t = child.val();
+                p.textContent = `Último treino: ${t.dia} — ${t.data} às ${t.hora}`;
+            });
+        });
+} catch (err) { console.warn('carregarUltimoTreino erro', err); }
+}
+
+function contarTreinosDoMes() {
+    try {
+        const mesAtual = new Date().getMonth() + 1;
+let total = 0;
+        database.ref(getPath('treinosFinalizados')).once('value').then(snap => {
+            snap.forEach(c => {
+                const t = c.val();
+                if (!t || !t.data) return;
+                const parts = t.data.split('/');
+                const mesT = parseInt(parts[1], 10);
+  
+if (mesT === mesAtual) total++;
+            });
+            const el = document.getElementById('contador-treinos');
+            if (el) el.textContent = `Treinos no mês: ${total}`;
+        }).catch(err => console.warn('contarTreinosDoMes erro', err));
+} catch (err) { console.warn('contarTreinosDoMes erro', err); }
+}
+
+function carregarTreinosFinalizados() {
+    try {
+        const ref = database.ref(getPath('treinosFinalizados'));
+ref.orderByChild('timestamp').once('value').then(snap => {
+            const lista = [];
+            snap.forEach(c => lista.push(c.val()));
+            // atualizar lista textual
+            const divList = document.getElementById('lista-historico-treinos');
+            if (divList) {
+                if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
+  
+else {
+                    let html = '<ul style="padding-left:16px;">';
+                    lista.slice().reverse().forEach(t => {
+                        html += `<li style="margin:6px 0;">${t.data} — ${t.dia} — ${t.concluidoCount || 0} exercícios</li>`;
+    
+});
+                    html += '</ul>';
+                    divList.innerHTML = html;
+                }
+            }
+
+            
+// agrupamento por data para gráfico
+            const agrupado = {};
+            lista.forEach(t => {
+                const key = t.data ||
+'Sem data';
+                agrupado[key] = (agrupado[key] || 0) + 1;
+            });
+            renderTreinosBarChart(agrupado);
+        }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
+} catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
+}
+
+let chartTreinos = null;
+function renderTreinosBarChart(dataObj) {
+    try {
+        const canvas = document.getElementById('graficoTreinos');
+if (!canvas) return;
+        const labels = Object.keys(dataObj || {});
+        const data = labels.map(l => dataObj[l] || 0);
+if (typeof Chart === 'undefined') { console.warn('Chart.js não carregado'); return;
+}
+        const ctx = canvas.getContext('2d');
+        if (chartTreinos) chartTreinos.destroy();
+chartTreinos = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Treinos (por data)',
+             
+data: data,
+                    backgroundColor: 'rgba(255,193,7,0.9)',
+                    borderColor: 'rgba(255,193,7,1)',
+                    borderWidth: 1
+                }]
+            },
+ 
+options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: '#f0f0f0' } },
+          
+y: { beginAtZero: true, ticks: { color: '#f0f0f0' } }
+                },
+                plugins: { legend: { labels: { color: '#f0f0f0' } } }
+            }
+        });
+} catch(err) { console.warn('renderTreinosBarChart erro', err); }
+}
+
+// marcar treino no calendario
+function marcarTreinoNoCalendario(dataObj) {
+    try {
+        const dia = String(dataObj.getDate()).padStart(2,'0');
+const mes = String(dataObj.getMonth()+1).padStart(2,'0');
+        const ano = dataObj.getFullYear();
+        const chave = `${dia}-${mes}-${ano}`;
+        database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
+} catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
+}
+
+</script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
 
@@ -30,49 +206,49 @@
         /* --- ESTILOS GERAIS --- */
         body {
             font-family: 'Arial', sans-serif;
-            margin: 0;
+margin: 0;
             padding: 20px;
             background-color: #000000;
             color: #f0f0f0;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
+}
 
         nav {
             width: 100%;
-            max-width: 1200px;
+max-width: 1200px;
             text-align: right;
             margin-bottom: 10px;
         }
 
         nav a {
             color: #ff8c00;
-            text-decoration: none;
+text-decoration: none;
             font-size: 0.9em;
         }
 
         /* HEADER */
         .header-content {
             display: flex;
-            align-items: center;
+align-items: center;
             justify-content: center;
             flex-wrap: wrap;
             margin-bottom: 30px;
             gap: 20px;
             text-align: center;
             max-width: 100%;
-        }
+}
 
         .header-content img {
             max-width: 80px;
-            height: auto;
+height: auto;
             border-radius: 10px;
         }
 
         .header-content h1 {
             color: #ff8c00;
-            margin: 0;
+margin: 0;
             font-size: 2.2em;
             line-height: 1.2;
         }
@@ -80,50 +256,50 @@
         /* LAYOUT RESPONSIVO (GRID) */
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+margin: 0 auto;
             display: grid;
             gap: 20px;
             width: 100%;
             justify-content: center;
             grid-template-columns: 1fr;
-        }
+}
 
         @media (min-width: 768px) {
             .container {
                 grid-template-columns: 1fr 1fr;
-            }
+}
             #chart-card {
                 grid-column: 1 / 3;
-                order: 1;
+order: 1;
             }
         }
 
         @media (min-width: 1024px) {
             .container {
                 grid-template-columns: 1fr 1fr 1fr;
-            }
+}
             #chart-card {
                 grid-column: auto;
-                order: initial;
+order: initial;
             }
         }
 
         /* CARDS */
         .card {
             background-color: rgba(255, 255, 255, 0.1);
-            padding: 25px;
+padding: 25px;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+}
 
         #medidas-card {
             order: 2;
-        }
+}
 
         /* FORMULÁRIOS E INPUTS */
         .input-group {
             display: flex;
-            gap: 10px;
+gap: 10px;
             margin-bottom: 10px;
             align-items: center;
             justify-content: space-between;
@@ -131,54 +307,55 @@
 
         .input-group label {
             width: 95px;
-            flex-shrink: 0;
+flex-shrink: 0;
             font-size: 0.9em;
             color: #ccc;
         }
 
         #medidas-card .input-container {
             max-width: 350px;
-            margin: 0 auto 15px auto;
+margin: 0 auto 15px auto;
         }
 
         #medidas-card .input-group {
             width: 100%;
-        }
+}
 
         .input-group input,
         select {
             flex-grow: 1;
-            padding: 8px;
+padding: 8px;
             background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #f0f0f0;
             border-radius: 4px;
             width: 100%;
-            box-sizing: border-box;
+box-sizing: border-box;
         }
 
         select {
-            appearance: none;
+            margin-bottom: 15px;
+appearance: none;
             background-image: url('data:image/svg+xml;utf8,<svg fill="%23ff9933" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
             background-repeat: no-repeat;
-            background-position: right 8px center;
+background-position: right 8px center;
             padding-right: 30px;
         }
 
         select option {
             background-color: #1a1a1a;
-        }
+}
 
         h2 {
             color: #ff9933;
-            margin-top: 0;
+margin-top: 0;
             margin-bottom: 15px;
             text-align: center;
         }
 
         .chart-container {
             position: relative;
-            height: 300px;
+height: 300px;
             width: 100%;
             margin-bottom: 20px;
         }
@@ -186,33 +363,33 @@
         /* LISTA DE TREINO */
         .exercicio-item {
             display: flex;
-            justify-content: space-between;
+justify-content: space-between;
             align-items: center;
             padding: 15px;
             margin-bottom: 10px;
             background-color: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             transition: background-color 0.3s;
-        }
+}
 
         .exercicio-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
-        }
+}
 
         .exercicio-info strong {
             font-size: 1.1em;
-            display: block;
+display: block;
             margin-bottom: 5px;
         }
 
         .checkbox-container input[type="checkbox"] {
             transform: scale(1.3);
-            cursor: pointer;
+cursor: pointer;
         }
 
         .concluido {
             background-color: #387038;
-            opacity: 0.7;
+opacity: 0.7;
             text-decoration: line-through;
             color: #a0a0a0;
         }
@@ -220,61 +397,61 @@
         /* TABELA PRESENÇA */
         .presenca-table {
             width: 100%;
-            border-collapse: collapse;
+border-collapse: collapse;
             text-align: center;
         }
 
         .presenca-table th,
         .presenca-table td {
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px;
+padding: 8px;
             cursor: pointer;
         }
 
         .presenca-table th {
             background-color: #ff8c00;
-            color: white;
+color: white;
         }
 
         .presente {
             background-color: #5cb85c !important;
-            color: white;
+color: white;
         }
 
         /* BOTÕES */
         button {
             padding: 10px 15px;
-            border: none;
+border: none;
             border-radius: 4px;
             cursor: pointer;
             width: 100%;
             font-weight: bold;
             transition: 0.3s;
-        }
+}
 
         .btn-primary {
             background-color: #ffc107;
-            color: #333;
+color: #333;
         }
 
         .btn-primary:hover {
             background-color: #e0a800;
-        }
+}
 
         .reset-btn {
             margin-top: 15px;
-            background-color: #dc3545;
+background-color: #dc3545;
             color: white;
         }
 
         .reset-btn:hover {
             background-color: #c9302c;
-        }
+}
 
         /* MODAL */
         .modal-overlay {
             position: fixed;
-            top: 0;
+top: 0;
             left: 0;
             width: 100%;
             height: 100%;
@@ -282,65 +459,65 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+zIndex: 1000;
         }
 
         .modal-content {
             background-color: #0d0d0d;
-            padding: 30px;
+padding: 30px;
             border-radius: 12px;
             width: 90%;
             max-width: 400px;
             text-align: center;
             border: 2px solid #ff8c00;
-        }
+}
 
         .modal-content img {
             max-width: 100px;
-            margin-bottom: 20px;
+margin-bottom: 20px;
         }
 
         #botaoSalvarNome {
             background-color: #ff8c00;
-            color: #000;
+color: #000;
             margin-top: 10px;
         }
 
         /* --- CAMPO DE PESQUISA IA --- */
         #ai-search-card {
             order: 3;
-            background-color: #1a1a1a;
+background-color: #1a1a1a;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         #ai-search-card textarea {
             width: 100%;
-            min-height: 100px;
+min-height: 100px;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             background-color: #000000;
             color: #f0f0f0;
-            resize: vertical;
-            box-sizing: border-box;
+resize: vertical;
+box-sizing: border-box;
         }
 
         #ai-resposta {
             margin-top: 15px;
-            padding: 15px;
+padding: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             background-color: transparent;
             border-radius: 8px;
             min-height: 50px;
             font-size: 0.9em;
             color: #ccc;
-            white-space: pre-wrap;
+white-space: pre-wrap;
         }
 
         #ai-resposta strong {
             color: #ff9933;
-        }
+}
     </style>
 </head>
 
@@ -355,7 +532,8 @@
             <img src="logotipo.png" alt="Logo PTF3" onerror="this.style.display='none'">
             <h3>Bem-vindo(a)!</h3>
             <p>Por favor, insira seu nome:</p>
-            <input type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva"
+            <input 
+type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva"
     style="
         width: 100%;
         padding: 12px;
@@ -366,7 +544,8 @@
         border: 1px solid rgba(255,255,255,0.3);
         border-radius: 6px;
         display: block;
-        box-sizing: border-box;
+        
+box-sizing: border-box; /* 🔥 FAZ FICAR EXATAMENTE IGUAL AO BOTÃO */
     ">
 
             <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
@@ -381,20 +560,23 @@
     <div class="container">
 
         <div id="chart-card" class="card">
-            <h2> Progressão de Carga</h2>
+           
+<h2> Progressão de Carga</h2>
             <label for="seletorExercicio">Visualizar Exercício:</label>
             <select id="seletorExercicio" onchange="inicializarGrafico()">
                 <option value="AgachamentoLivre">Agachamento Livre</option>
                 <option value="SupinoReto">Supino Reto</option>
                 <option value="PuxadaFrontal">Puxada Frontal</option>
-                <option value="RoscaDireta">Rosca Direta</option>
+              
+<option value="RoscaDireta">Rosca Direta</option>
                 <option value="TricepsTesta">Tríceps Testa</option>
                 <option value="DesenvolvimentoMilitar">Desenvolvimento Militar</option>
                 <option value="CadeiraExtensora">Cadeira Extensora</option>
                 <option value="ElevacaoPelvica">Elevação Pélvica</option>
             </select>
 
-            <div class="chart-container">
+            
+<div class="chart-container">
                 <canvas id="pesoChart"></canvas>
             </div>
 
@@ -402,38 +584,46 @@
                 <input type="number" id="pesoInput" placeholder="Carga (kg)" step="0.5">
                 <button class="btn-primary" onclick="adicionarPeso()">Registrar Carga</button>
             </div>
-            <button class="reset-btn" onclick="resetarDados('cargas')">Resetar Histórico</button>
+     
+<button class="reset-btn" onclick="resetarDados('cargas')">Resetar Histórico</button>
         </div>
 
         <div id="medidas-card" class="card">
             <h2> Registro de Medidas</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.
+            <p style="margin-bottom: 15px;
+font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.
             </p>
 
             <div class="input-container">
                 <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput"
                         placeholder="Ex: 75.5" step="0.1"></div>
                 <div class="input-group"><label>Cintura</label><input type="number" id="cinturaInput" placeholder="cm"
-                        step="1"></div>
+  
+                       step="1"></div>
                 <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm"
                         step="0.5"></div>
                 <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm"
-                        step="1">
+             
+            step="1">
                 </div>
                 <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm"
                         step="1"></div>
                 <div class="input-group"><label>Coxa D.</label><input type="number" id="coxaInput" placeholder="cm"
-                        step="0.5"></div>
+        
+                 step="0.5"></div>
                 <div class="input-group"><label>Panturrilha</label><input type="number" id="panturrilhaInput"
                         placeholder="cm" step="0.5"></div>
                 <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput"
-                        placeholder="cm" step="0.5"></div>
+                     
+    placeholder="cm" step="0.5"></div>
             </div>
 
             <button class="btn-primary" onclick="registrarMedidas()">Registrar Medidas</button>
 
-            <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Últimos Registros</h3>
-            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro
+            <h3 style="margin-top: 15px;
+color: #ff9933; text-align: center;">Últimos Registros</h3>
+            <div id="ultimasMedidas" style="font-size: 0.9em;
+color: #ccc; text-align: center;">Nenhum registro
                 encontrado.</div>
             <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
         </div>
@@ -443,38 +633,48 @@
 
             <label for="seletorTreino">Selecionar Dia:</label>
             <select id="seletorTreino" onchange="alternarTreino()">
-                <option value="Dia A">Dia A </option>
+    
+<option value="Dia A">Dia A </option>
                 <option value="Dia B">Dia B </option>
                 <option value="Dia C">Dia C </option>
             </select>
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
-            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff9933">...</span>
+            <p style="text-align: center;"><strong>Aluno:</strong> 
+<span id="nome-aluno" style="color:#ff8c00">...</span>
                 | <strong>Data:</strong>
                 <span id="data-atual"></span></p>
 
             <div id="treino-Dia A" class="lista-treino-dia">
                 <h3>Dia A: </h3>
-                <ul id="lista-treino-a" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
+                <ul id="lista-treino-a" style="list-style: none;
+padding: 0;">
+                    <li class="exercicio-item" style="background: none;
+border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
             <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
             </div>
 
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
-                <h3>Dia B: </h3>
-                <ul id="lista-treino-b" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
+              
+<h3>Dia B: </h3>
+                <ul id="lista-treino-b" style="list-style: none;
+padding: 0;">
+                    <li class="exercicio-item" style="background: none;
+border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
             <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
             </div>
 
             <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
-                <h3>Dia C: </h3>
-                <ul id="lista-treino-c" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
+              
+<h3>Dia C: </h3>
+                <ul id="lista-treino-c" style="list-style: none;
+padding: 0;">
+                    <li class="exercicio-item" style="background: none;
+border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
             <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
@@ -482,14 +682,17 @@
         </div>
 
         <div id="ai-search-card" class="card">
-            <h2> IA PTF3</h2>
+            <h2> 
+IA PTF3</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta" placeholder= "Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'" ></textarea>
+            <textarea id="exercicioPergunta" placeholder= "Ex:'Qual a forma correta de fazer agachamento livre?'
+Ou 'Quais os músculos ativados no supino?'" ></textarea>
 
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
 
-            <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
+            <h3 style="margin-top: 15px;
+color: #ff9933; text-align: center;">Resposta da IA</h3>
             <div id="ai-resposta">
                 
             </div>
@@ -498,29 +701,36 @@
             <h2> Presença Mensal</h2>
 
             <p style="text-align: center;">Clique nas datas para marcar.</p>
-            <table class="presenca-table">
+    
+<table class="presenca-table">
                 <thead>
                     <tr>
                         <th>Dom</th>
                         <th>Seg</th>
-                        <th>Ter</th>
+       
+<th>Ter</th>
                         <th>Qua</th>
                         <th>Qui</th>
                         <th>Sex</th>
-                        <th>Sáb</th>
+           
+<th>Sáb</th>
                     </tr>
                 </thead>
                 <tbody id="calendario-body"></tbody>
             </table>
-    <div id="status-treino" class="card" style="margin-top:15px; text-align:center;">
+    <div id="status-treino" class="card" style="margin-top:15px;
+text-align:center;">
         <p id="ultimo-treino" style="color:#ff9933;">Carregando último treino...</p>
-        <p id="contador-treinos" style="color:#ffd700; font-weight:bold;">Treinos no mês: 0</p>
+        <p id="contador-treinos" style="color:#ffd700;
+font-weight:bold;">Treinos no mês: 0</p>
 
-        <div style="max-width:640px; margin:10px auto;">
+        <div style="max-width:640px;
+margin:10px auto;">
             <canvas id="graficoTreinos" height="200"></canvas>
         </div>
 
-        <div id="lista-historico-treinos" style="max-width:640px; margin:8px auto; color:#ddd; text-align:left;"></div>
+        <div id="lista-historico-treinos" style="max-width:640px;
+margin:8px auto; color:#ddd; text-align:left;"></div>
     </div>
     
             <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
@@ -529,23 +739,12 @@
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registrado com sucesso:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Falha ao registrar Service Worker:', error);
-                    });
-            });
-        }
-
         // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
-            apiKey: "AIzaSyDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
+            apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
-            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+           
+databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
             projectId: "ptf03-26fdb",
             storageBucket: "ptf03-26fdb.firebaseapp.com",
             messagingSenderId: "1020981883676",
@@ -555,444 +754,555 @@
         const database = firebase.database();
 
         let alunoNome = '';
-        let pesoChart;
+     
+let pesoChart;
 
         function getPath(sub) {
             return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
         }
 
+        // --- BANCO DE DADOS LOCAL (ATUALIZADO E COMPLETO) ---
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        // Dados brutos fornecidos (Musculação, Powerlifting, CrossFit, Pilates, Cardio, Nutrição, Saúde)
         const rawData = [
-            "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco, pés firmes no chão. Segure a barra na largura dos ombros. Desça-a controladamente até o peito. Empurre a barra para cima, estendendo os braços. | Mantenha as escápulas retraídas (ombros para trás e para baixo) para estabilizar e proteger a articulação do ombro.",
-            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Com a barra nas costas, desça o quadril como se fosse sentar em uma cadeira, mantendo o peito alto e a coluna neutra. Os joelhos devem seguir a direção dos pés. | A profundidade ideal é abaixo de 90 graus (se a mobilidade permitir). Distribua o peso nos calcanhares e evite que os joelhos 'caiam' para dentro."
+            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Peito ==================
+            "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco, pés firmes no chão. Desça a barra até tocar (ou quase tocar) o meio do peito e empurre. | Concentre-se em 'quebrar a barra' com as mãos para engajar os ombros e estabilizar.",
+            "Supino Inclinado | Musculação | Peito | Peitoral Maior (Foco na parte superior), Deltóide Anterior, Tríceps | Semelhante ao reto, mas em um banco inclinado (30-45 graus). | Excelente para isolar a porção clavicular (superior) do peito. Não incline demais para evitar recrutar apenas os ombros.",
+            "Crossover (Cabo) | Musculação | Peito | Peitoral Maior (Foco na parte interna) | Fique no centro da máquina, cabos em nível alto. Leve as mãos em arco para baixo e para frente, cruzando-as na frente do corpo. | Foque na contração máxima do peito ao 'espremer' as mãos na frente. Mantenha os cotovelos levemente flexionados.",
+            "Flexão de Braço (Push-up) | Musculação | Peito/Core | Peitoral, Deltóide Anterior, Tríceps, Core | Deite de bruços, apoie as mãos na largura dos ombros. Mantenha o corpo reto e desça o peito próximo ao chão. | Mantenha o core (abdômen) contraído e as escápulas estáveis para proteger a lombar.",
+            
+            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Costas ==================
+            "Puxada Alta (Lat Pulldown) | Musculação | Costas | Latíssimo do Dorso (Grande Dorsal), Bíceps, Romboides | Sentado na máquina, joelhos travados. Puxe a barra em direção ao peito, inclinando levemente o tronco para trás. | Concentre-se em conectar o movimento com a retração das escápulas. Evite o impulso do tronco. Concentre-se em 'puxar com os cotovelos' para isolar as costas.",
+            "Remada Curvada com Barra | Musculação | Costas | Latíssimo do Dorso, Romboides, Trapézio | Incline o tronco para frente (45-70 graus), mantendo a coluna reta (neutra). Puxe a barra em direção ao abdômen inferior. | O tronco deve permanecer fixo. Não use as pernas para levantar o peso. Mantenha a barra próxima ao corpo.",
+            "Remada Sentada (Cabo) | Musculação | Costas | Latíssimo do Dorso, Romboides, Trapézio Médio | Sente-se na máquina com o tronco reto. Puxe o cabo em direção ao abdômen, retraindo as escápulas. | Mantenha a coluna reta. Concentre-se em levar os cotovelos para trás, sentindo a contração das costas.",
+            "Pullover | Musculação | Costas/Peito | Latíssimo do Dorso, Peitoral Maior, Tríceps | Deitado no banco (transversalmente para maior amplitude), segure um halter acima da cabeça. Desça o peso em arco para trás e retorne. | Excelente para alongamento do latíssimo e na expansão da caixa torácica.",
+            "Hiperextensão Lombar | Musculação | Costas | Eratores da Espinha, Glúteos, Isquiotibiais | Na máquina, prenda os pés e incline o tronco para baixo. Use a força da lombar e glúteos para levantar o tronco até a linha reta. | Mantenha o movimento controlado e evite a hiperextensão na parte superior. Foco na força da parte inferior das costas.",
+
+            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Ombros ==================
+            "Desenvolvimento Militar | Musculação | Ombros | Deltóide Anterior e Medial, Tríceps | Em pé (ou sentado com apoio), comece com a barra/halteres na altura dos ombros. Empurre o peso verticalmente para cima até a extensão completa. | Mantenha o core (abdômen) contraído e evite arquear a lombar (hiperextensão) durante o empurrão.",
+            "Elevação Lateral | Musculação | Ombros | Deltóide Medial (Lateral) | Em pé, segure halteres ao lado do corpo. Levante os braços lateralmente em arco até a altura dos ombros. Mantenha os cotovelos levemente flexionados. | Não use o impulso do corpo. O movimento deve ser suave e o peso controlado. Pare na altura do ombro.",
+            "Elevação Frontal | Musculação | Ombros | Deltóide Anterior | Em pé, levante os halteres à sua frente até a altura dos ombros. | Mantenha o controle do movimento. Não use pesos muito pesados para evitar o recrutamento do trapézio.",
+            "Face Pull (Cabo) | Musculação | Ombros/Costas | Deltóide Posterior, Romboides, Trapézio | Puxe a corda do cabo alto em direção ao rosto, abrindo as mãos no final do movimento. | Excelente para saúde e estabilidade do ombro, focando na parte posterior (que geralmente é negligenciada).",
+            "Crucifixo Invertido (Máquina/Halteres) | Musculação | Ombros/Costas | Deltóide Posterior | Incline-se para frente ou use a máquina. Abra os braços para fora. | O movimento é o inverso da elevação lateral. Foco na contração da parte de trás do ombro, não no trapézio.",
+
+            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Braços ==================
+            "Rosca Direta com Barra | Musculação | Bíceps | Bíceps Braquial, Braquial | Em pé, segure a barra com pegada supinada (palmas para cima). Mantenha os cotovelos fixos e próximos ao corpo. Flexione-os, levantando a barra em direção ao peito. | Os cotovelos devem permanecer fixos e ao lado do corpo. Evite balançar o tronco (roubar) para preservar a tensão no bíceps.",
+            "Rosca Alternada | Musculação | Bíceps/Antebraço | Bíceps Braquial, Braquial | Em pé, alterne a flexão dos cotovelos, usando uma pegada supinada. | Concentre-se em girar o pulso (supinação) no topo do movimento para maximizar a contração do bíceps.",
+            "Rosca Martelo | Musculação | Bíceps/Antebraço | Braquial, Braquiorradial (Antebraço), Bíceps | Em pé, segure halteres com as palmas voltadas uma para a outra (pegada neutra). Flexione os cotovelos. | Foco no desenvolvimento do pico do bíceps e do antebraço.",
+            "Tríceps Testa | Musculação | Tríceps | Tríceps Braquial (Foco na cabeça longa) | Deitado no banco, estenda os braços com barra/halteres. Flexione os cotovelos, baixando o peso em direção à testa. Estenda. | Mantenha os cotovelos fixos e apontando para o teto. Não permita que eles se abram para os lados.",
+            "Tríceps Pulley (Corda) | Musculação | Tríceps | Tríceps Braquial (Foco na cabeça lateral) | Segure a corda no cabo alto. Empurre a corda para baixo, abrindo as mãos no final do movimento. | Mantenha os cotovelos fixos ao lado do corpo e o tronco levemente inclinado para frente.",
+            "Tríceps Coice | Musculação | Tríceps | Tríceps Braquial (Isolamento) | Incline o tronco para frente (45°), cotovelo fixo. Estenda o braço para trás, contraindo o tríceps. | Mantenha o cotovelo fixo e não balance o braço. Foco na extensão completa no topo do movimento.",
+            "Paralelas (Dips) | Musculação | Tríceps/Peito | Tríceps Braquial, Peitoral Inferior, Deltóide Anterior | Segure nas barras paralelas. Desça o corpo flexionando os cotovelos e empurre de volta. | Para focar no tríceps, mantenha o tronco mais vertical. Para focar no peito, incline-se para frente.",
+            "Tríceps Francês | Musculação | Tríceps | Tríceps Braquial (Foco na cabeça longa) | Sentado ou em pé, segure um peso acima da cabeça. Flexione os cotovelos, baixando o peso atrás da cabeça e estenda. | Mantenha os cotovelos próximos à cabeça para isolar a cabeça longa.",
+
+            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Pernas/Glúteos ==================
+            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Barra nas costas (trapézio superior). Desça o quadril abaixo da linha do joelho. Mantenha o tronco reto. | Use calçados de sola reta ou eleve o calcanhar (para quem tem pouca mobilidade). O joelho deve acompanhar a direção da ponta do pé.",
+            "Leg Press 45° | Musculação | Pernas/Glúteos | Quadríceps (principalmente), Glúteo Máximo, Isquiotibiais | Sente-se na máquina. Empurre a plataforma com os pés. | Não trave os joelhos no topo. Não desça com o quadril saindo do banco.",
+            "Elevação Pélvica (Hip Thrust) | Musculação | Glúteos | Glúteo Máximo (Foco principal), Isquiotibiais | Apoie as costas no banco. Barra na linha do quadril. Levante o quadril em direção ao teto, contraindo o glúteo no topo. | Mantenha o queixo 'preso' (olhando para a frente) para evitar arquear a lombar. Foco na contração máxima do glúteo no topo.",
+            "Mesa Flexora | Musculação | Posterior de Coxa | Isquiotibiais (Bíceps Femoral, Semitendíneo, Semimembranoso) | Deitado ou sentado na máquina, flexione os joelhos, puxando a almofada em direção ao glúteo. | Foco na fase negativa (retorno) para maximizar o dano muscular.",
+            "Cadeira Extensora | Musculação | Quadríceps | Quadríceps (Isolamento) | Sentado na máquina, estenda as pernas contra a almofada até a total contração do músculo. Volte controladamente, resistindo ao peso. | Conscientemente, contraia o quadríceps no topo do movimento antes de retornar, garantindo o máximo recrutamento.",
+            "Agachamento Hack | Musculação | Pernas/Quadríceps | Quadríceps (Isolamento) | Use a máquina Hack. Apoie as costas e os ombros. Desça flexionando os joelhos. | A máquina auxilia na estabilização. A profundidade é limitada pela flexibilidade do quadril.",
+            "Passada (Lunge) | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Dê um passo grande para frente e abaixe o quadril até que o joelho de trás quase toque o chão. Empurre para retornar. | Mantenha o tronco reto. O joelho da frente não deve ultrapassar a ponta do pé excessivamente.",
+            "Agachamento Búlgaro | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo | Apoie um pé em um banco atrás de você. Agache com a perna da frente, mantendo o tronco ereto. | É um exercício unilateral que exige equilíbrio. Foco em descer verticalmente.",
+            "Stiff (com Barra/Halteres) | Musculação | Posterior de Coxa/Glúteos | Isquiotibiais, Glúteo Máximo, Eretores da Espinha | Em pé, joelhos levemente flexionados (não travados). Desça a barra rente às pernas, inclinando o tronco. | O movimento é no quadril. Mantenha a coluna reta (neutra). Foco no alongamento dos isquiotibiais.",
+            "Cadeira Adutora | Musculação | Adutores | Adutores da Coxa | Sente-se na máquina. Junte as pernas contra a resistência. | Importante para a força e estabilidade do quadril e prevenção de lesões na virilha.",
+            "Glute Ham Raise (GHR) | Musculação | Posterior/Glúteos | Isquiotibiais, Glúteos, Lombar | Use a máquina GHR. Prenda os pés e o joelho. Desça o tronco esticado para o chão e volte usando a força dos isquiotibiais e glúteos. | É um exercício avançado que trabalha a cadeia posterior de forma completa.",
+            "Abdução de Quadril (Máquina) | Musculação | Glúteos | Glúteo Médio e Mínimo | Sente-se na máquina. Empurre as pernas para fora, contra a resistência. | Foco nos músculos estabilizadores do quadril. Importante para a saúde do joelho e alinhamento pélvico.",
+            "Elevação de Panturrilha em Pé | Musculação | Panturrilha | Gastrocnêmio (Músculo externo e interno) | Em pé, suba nos dedos do pé, elevando os calcanhares o máximo possível. | Use uma plataforma para permitir maior amplitude de movimento (alongamento na parte inferior).",
+            "Elevação de Panturrilha Sentado | Musculação | Panturrilha | Sóleo (Músculo profundo) | Sentado na máquina, suba nos dedos dos pés contra a resistência. | Ao sentar, o joelho está dobrado, o que isola o músculo sóleo. Importante para o volume total da panturrilha.",
+
+            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Abdômen/Core ==================
+            "Abdominal Crunch | Musculação | Core/Abdômen | Reto Abdominal | Deitado de costas, flexione o tronco, levantando os ombros e a cabeça. | Concentre-se em 'enrolar' a coluna. Evite puxar com os braços ou usar impulso.",
+            "Russian Twist | Musculação | Core/Abdômen | Oblíquos Internos e Externos | Sentado no chão, tronco inclinado para trás, pés no ar (ou no chão). Gire o tronco de um lado para o outro. | Mantenha o core engajado. O movimento deve vir da rotação do tronco, não apenas dos braços.",
+
+            // ================== 2. POWERLIFTING ==================
+            "Agachamento Low Bar (Barra Baixa) | Powerlifting | Agachamento | Glúteo Máximo, Isquiotibiais, Quadríceps | A barra é posicionada mais baixa nas costas (na parte posterior do deltóide). Desça priorizando a inclinação do tronco e o impulso do quadril. | Exige maior mobilidade de ombro e tornozelo. A técnica é voltada para maximizar a carga, mantendo o padrão de movimento competitivo.",
+            "Agachamento High Bar | Powerlifting | Agachamento | Quadríceps, Glúteo Máximo | A barra é posicionada mais alta, sobre o trapézio superior. O tronco permanece mais vertical. | Mais amigável para iniciantes e foca mais no quadríceps. Menor inclinação do tronco. Mais comum em LPO.",
+            "Supino com Pausa | Powerlifting | Supino | Peitoral, Tríceps, Deltóide Anterior | O movimento é igual ao supino reto, mas exige uma pausa de 1 segundo *logo acima* do peito, sem tocar. Empurre de volta. | Fortalece o controle e a tensão na parte inferior do movimento, crucial para estabilidade.",
+            "Floor Press (Supino no chão) | Powerlifting | Supino | Tríceps Braquial, Peitoral | Deite no chão. A amplitude é limitada pelo contato dos cotovelos com o chão. | Excelente isolamento do tríceps e reduz o estresse do ombro. Útil para superar o ponto de 'lockout'.",
+            "Levantamento Terra Convencional | Powerlifting | Terra | Cadeia Posterior (Lombar, Glúteos, Isquiotibiais), Trapézio | Fique com os pés na largura do quadril. Segure a barra fora dos joelhos. Puxe o peso do chão, esticando o quadril e os joelhos simultaneamente. | A coluna deve ser neutra (reta) durante todo o movimento. Mantenha o peso o mais próximo possível do corpo.",
+            "Levantamento Terra Sumô | Powerlifting | Terra | Glúteo Máximo, Quadríceps (mais ênfase) | Pegada dentro das pernas e pés bem abertos. O tronco fica mais vertical que no convencional. | Exige menos mobilidade de quadril para profundidade, mas requer forte abdução do quadril. Tende a ser menos estressante para a lombar.",
+
+            // ================== 3. CROSSFIT (LPO - Levantamento de Peso Olímpico) ==================
+            "Snatch (Arranco) | CrossFit | LPO | Corpo Inteiro, Principalmente Quadríceps, Trapézio | O peso é levantado do chão em um movimento explosivo e único até acima da cabeça. O atleta recebe a barra na posição de Agachamento Overhead (OHS). | É o movimento mais técnico. Exige velocidade, flexibilidade e força. O foco é a aceleração explosiva.",
+            "Clean and Jerk (Arremesso) | CrossFit | LPO | Corpo Inteiro, Principalmente Quadríceps, Ombros, Tríceps | Movimento em duas partes: 1. Clean (o peso vai do chão para os ombros) e 2. Jerk (o peso vai dos ombros para cima da cabeça). | O Jerk usa a força das pernas (em split ou push) para levar a barra dos ombros para cima da cabeça. É crucial receber a barra na posição correta (rack frontal) e usar as pernas para a segunda parte (Jerk).",
+            "Overhead Squat (OHS) | CrossFit | LPO | Corpo Inteiro, Estabilidade de Ombro/Core | Agache com a barra totalmente estendida acima da cabeça (posição final do Snatch). | Requer excelente mobilidade de ombros, coluna torácica e tornozelos. É um teste de estabilidade de corpo inteiro.",
+            "Hang Power Clean | CrossFit | LPO | Quadríceps, Trapézio, Ombros | O levantamento começa com a barra na altura dos quadris/joelhos (hang) e termina no 'rack' dos ombros sem agachar completamente (power). | Foco na aceleração explosiva e na velocidade da transição.",
+            "Thruster | CrossFit | LPO/Ginástica | Quadríceps, Deltóides, Tríceps | Agachamento Frontal seguido imediatamente por um Desenvolvimento Militar (Press) em um movimento fluido e sem pausas. | Use a força de impulsão das pernas ao sair do agachamento para transferir a energia para o empurrão do peso acima da cabeça.",
+            
+            // ================== 3. CROSSFIT (GINÁSTICA) ==================
+            "Pull-up (Kipado) | CrossFit | Ginástica | Costas, Bíceps, Core | Pendure-se na barra. Use um balanço de quadril e core (Kip) para gerar impulso e levar o queixo acima da barra. | É uma técnica que visa a eficiência e o volume (repetições). O balanço deve ser controlado.",
+            "Muscle Up (Barra) | CrossFit | Ginástica | Costas, Bíceps, Tríceps, Peito, Core | Movimento que leva o corpo debaixo da barra para cima da barra (transição), terminando em um *Dip*. | A transição é o mais difícil. É um movimento completo que exige força de puxada (back) e empurrão (tríceps/peito).",
+            "Toes-to-Bar (T2B) | CrossFit | Ginástica | Core (Reto Abdominal e Flexores do Quadril) | Pendurado na barra, use o balanço do corpo (kip) controlado para levantar os pés até que toquem a barra (entre as mãos). | O movimento deve ser controlado pelo core; evite balançar descontroladamente. Foque em manter a forma 'Hollow' e 'Arch'.",
+            "Handstand Push-up (HSPU) | CrossFit | Ginástica | Deltóides, Tríceps, Core (Invertido) | Em parada de mãos (contra a parede), flexione os cotovelos até a cabeça tocar o chão e empurre de volta. | Mantenha o corpo e o core travados. A cabeça deve tocar o chão à frente das mãos para formar um tripé.",
+            "Ring Dips | CrossFit | Ginástica | Tríceps, Peitoral, Deltóide Anterior | Mergulho nas argolas. Desça até os ombros ficarem abaixo dos cotovelos e estenda. | Exige extrema estabilidade do ombro, pois as argolas são móveis. Mantenha os cotovelos próximos ao corpo.",
+
+            // ================== 3. CROSSFIT (CONDICIONAMENTO) ==================
+            "Wall Ball | CrossFit | Condicionamento | Quadríceps, Glúteos, Deltóides | Segure uma bola medicinal no peito. Agache e use o impulso para arremessar a bola em um alvo na parede. | O agachamento deve ser profundo (abaixo do paralelo). É um exercício que combina força e resistência cardiorrespiratória.",
+            "Kettlebell Swing (Americano) | CrossFit | Condicionamento | Glúteos, Isquiotibiais, Core | Balance o Kettlebell entre as pernas e use o impulso do quadril para levantá-lo acima da cabeça. | A força vem da extensão explosiva do quadril. O padrão Americano exige que o peso vá acima da cabeça.",
+            "Box Jump | CrossFit | Condicionamento | Quadríceps, Glúteos | Salte sobre uma caixa alta, aterrissando com ambos os pés no topo. | Concentre-se no amortecimento suave da aterrissagem para proteger as articulações.",
+            "Double Under (Salto Duplo) | CrossFit | Condicionamento | Panturrilhas, Core, Condicionamento | Salto de corda onde a corda passa duas vezes por baixo dos pés a cada salto. | Exige um salto mais alto e um giro de pulso muito mais rápido. Mantenha o corpo reto e o core ativado.",
+
+            // ================== 4. PILATES ==================
+            "The Hundred (O Cem) | Pilates | Mat/Solo | Transverso do Abdômen (Core), Reto Abdominal | Deitado de costas, levante a cabeça e os ombros. Pernas a 45 graus. Bombeie os braços ritmicamente (5 inspirações/5 expirações). | Mantenha a lombar pressionada contra o solo ativamente. A respiração profunda e controlada é o foco do exercício.",
+            "Roll Up | Pilates | Mat/Solo | Reto Abdominal, Flexibilidade da Coluna | Deitado de costas, suba o tronco vértebra por vértebra, alcançando os pés, e desça da mesma forma. | Use o abdômen, não o impulso. O movimento deve ser lento e controlado, como se estivesse 'descascando' a coluna do chão.",
+            "Single Leg Circle | Pilates | Mat/Solo | Core, Estabilizadores do Quadril | Deitado de costas, pernas esticadas, gire uma perna em pequenos círculos, mantendo o tronco e a pelve fixos no chão. | O desafio é manter o core firme. Os círculos devem ser suaves e controlados.",
+            "Single Leg Stretch | Pilates | Mat/Solo | Reto Abdominal, Flexores do Quadril | Deitado, traga um joelho ao peito e estique a outra perna. Troque as pernas rapidamente, mantendo o tronco elevado. | Mantenha a estabilidade do tronco e controle o movimento das pernas pelo core.",
+            "Rolling Like a Ball | Pilates | Mat/Solo | Core, Massagem da Coluna | Sentado, abrace os joelhos e se curve em formato de bola. Balance para trás e para frente sobre a coluna. | O movimento deve ser suave e fluido. Mantenha a forma de 'C' na coluna.",
+            "Spine Stretch Forward | Pilates | Mat/Solo | Flexibilidade da Coluna, Isquiotibiais | Sentado com as pernas abertas, estique o tronco para frente, curvando a coluna. | Foco na flexão da coluna e no alongamento dos isquiotibiais.",
+            "Single Straight Leg Stretch | Pilates | Mat/Solo | Core, Isquiotibiais, Pelve | Deitado, levante uma perna esticada em direção ao teto e puxe-a suavemente. A outra perna fica esticada próxima ao chão. Troque as pernas. | Foco no alongamento dos isquiotibiais da perna levantada e na estabilidade do core.",
+            "The Saw (O Serrote) | Pilates | Mat/Solo | Oblíquos, Extensão/Flexão da Coluna | Sentado com as pernas abertas, gire o tronco e incline-se para frente, alcançando o dedo mínimo com a mão oposta ('serrando' o ar). | A rotação deve vir da cintura. Mantenha os ísquios firmes no chão e os pés flexionados.",
+            "Teaser | Pilates | Mat/Solo | Reto Abdominal, Flexores do Quadril, Estabilizadores | Sentado, eleve o tronco e as pernas esticadas, formando um 'V' equilibrado. Estique os braços paralelamente às pernas. | A estabilidade do core é o foco. Encontre o equilíbrio nos ísquios. Se for difícil, mantenha os joelhos dobrados (variação 'Table Top').",
+            "Swimming (Natação) | Pilates | Mat/Solo | Paravertebrais (Extensores da Coluna), Glúteos | Deitado de bruços, levante a cabeça, braços e pernas. Alterne braço e perna opostos (como nadando). | Foco na extensão da coluna e no fortalecimento dos músculos da parte de trás do corpo (cadeia posterior).",
+
+            // ================== 5. CARDIO / EXERCÍCIOS FUNCIONAIS ==================
+            "Burpee | Aeróbico | Cardio/Corpo Inteiro | Corpo Inteiro | Comece em pé, agache, coloque as mãos no chão, jogue os pés para trás (posição de prancha), faça uma flexão (opcional), retorne os pés e salte com os braços para cima. | O movimento deve ser rápido e fluido. Mantenha a forma da prancha/flexão para proteger a lombar.",
+            "Pular Corda | Aeróbico | Cardio | Panturrilhas, Condicionamento | Salte sobre a corda, mantendo os joelhos levemente flexionados. | Foco na cadência e no uso dos punhos para girar a corda.",
+            "Corrida (Steady State) | Aeróbico | Cardio | Pernas, Condicionamento Cardíaco | Corrida em ritmo constante e moderado por um período prolongado. | Excelente para queima de gordura e resistência cardiorrespiratória.",
+            "HIIT (Treinamento Intervalado de Alta Intensidade) | Aeróbico | Cardio | Corpo Inteiro | Alternância de períodos curtos e intensos de exercício (30-60s) com períodos de descanso ou baixa intensidade. | Mais eficiente para queima de calorias em menos tempo. A chave é a intensidade máxima no período de trabalho.",
+            "Elíptico | Aeróbico | Cardio | Pernas, Corpo Superior, Condicionamento | Equipamento que simula uma corrida sem impacto. | Mantenha os calcanhares na plataforma e use os braços ativamente (puxando e empurrando) para recrutar a parte superior do corpo.",
+            "Remo (Rowing) | Aeróbico | Cardio | Corpo Inteiro (Pernas, Costas, Core, Braços) | Sente-se na máquina. Empurre com as pernas, puxe a alça para o tronco e estenda o corpo. | O movimento deve ser 60% pernas, 20% tronco e 20% braços. Mantenha a sequência correta: Perna, Tronco, Braço; e Retorno: Braço, Tronco, Perna. Foque na fluidez e potência do impulso da perna.",
+
+            // ================== 6. ALONGAMENTOS ==================
+            "Alongamento de Quadríceps (Em Pé) | Alongamento | Pernas | Quadríceps (Reto Femoral e Vasto) | Em pé e segurando-se em um apoio, dobre o joelho e puxe o tornozelo em direção ao glúteo. Mantenha os joelhos alinhados. | Mantenha o quadril neutro (não empine) para garantir que o alongamento ocorra na parte da frente da coxa, e não na lombar.",
+            "Alongamento de Isquiotibiais (Sentado) | Alongamento | Pernas | Isquiotibiais | Sentado, pernas esticadas, incline o tronco para frente em direção aos pés, mantendo a coluna reta. | Foco em sentir o alongamento na parte de trás da coxa e não na lombar. Se necessário, flexione levemente os joelhos.",
+            "Alongamento de Peito (na Parede) | Alongamento | Peito | Peitoral Maior | Coloque o antebraço na parede, com o cotovelo na altura do ombro. Gire o corpo para fora, sentindo o alongamento na parte frontal do ombro e peito. | Mantenha o ombro para baixo (longe da orelha).",
+            "Alongamento de Tríceps (Acima da Cabeça) | Alongamento | Braços | Tríceps Braquial | Leve um braço dobrado para trás da cabeça. Use a mão oposta para puxar suavemente o cotovelo para trás. | Sinta o alongamento na parte de trás do braço.",
+            "Alongamento de Pescoço (Lateral) | Alongamento | Pescoço | Escalenos, Esternocleidomastóideo | Sentado ou em pé, incline suavemente a cabeça para um lado, como se quisesse tocar a orelha no ombro. Use a mão do lado oposto para dar um leve puxão (se necessário). | Faça o movimento lentamente. Relaxe o ombro que está sendo alongado (oposto) para maximizar o efeito.",
+
+            // ================== 7. INFORMAÇÕES NUTRICIONAIS ==================
+            "Proteína | Nutrição | Macronutriente | Construção e Reparo Muscular | Essencial para a síntese de proteínas musculares (Hipertrofia) e para o reparo das microlesões geradas durante o treino de força. | Ingestão adequada (principalmente em doses pós-treino) é vital para otimizar a recuperação e o crescimento muscular.",
+            "Carboidrato | Nutrição | Macronutriente | Fonte de Energia Primária (Glicogênio) | Principal combustível para exercícios de alta intensidade e longa duração. Armazenado como glicogênio no fígado e nos músculos. | O consumo pré-treino fornece energia e o pós-treino é crucial para repor as reservas de glicogênio esgotadas.",
+            "Gordura (Lipídios) | Nutrição | Macronutriente | Reserva de Energia e Produção Hormonal | Serve como fonte de energia para exercícios de baixa intensidade e duração prolongada. É fundamental para a produção de hormônios (como a testosterona). | Embora seja fonte de energia, é vital para a saúde celular, funções cerebrais e absorção de vitaminas lipossolúveis.",
+            "Água | Nutrição | Micronutriente | Hidratação, Regulação Térmica | Essencial para o transporte de nutrientes, regulação da temperatura corporal e lubrificação das articulações. | A desidratação, mesmo leve, pode prejudicar drasticamente o desempenho no treino e a recuperação.",
+            "Creatina | Nutrição | Suplemento | Força e Potência Muscular | Ajuda a regenerar o ATP (a principal fonte de energia rápida para exercícios de alta intensidade). | É um dos suplementos mais estudados e eficazes para aumentar a força e o volume muscular.",
+            "Whey Protein | Nutrição | Suplemento | Recuperação e Síntese Proteica | Fonte rápida e completa de proteína (alto valor biológico), ideal para o pós-treino imediato. | Deve ser usado para complementar a ingestão diária de proteína se a dieta não for suficiente.",
+
+            // ================== 8. SAÚDE E ALERTAS ==================
+            "Dor Aguda/Ponta | Saúde e Alerta | Sintoma de Alerta | Possível Lesão | Dor súbita, intensa, que pode indicar um problema articular ou muscular mais sério. | Pare o exercício imediatamente. Não continue a treinar com dor aguda. Procure um profissional de saúde/fisioterapeuta.",
+            "Tontura ou Vertigem | Saúde e Alerta | Sintoma de Alerta | Desidratação/Pressão Baixa/Exaustão | Sensação de desmaio iminente ou desequilíbrio durante o exercício. | Pare o exercício, sente-se ou deite-se. Beba água e espere a recuperação. Pode ser desidratação, hipoglicemia (baixa de açúcar) ou hipotensão (pressão baixa). | Verifique o nível de glicose se for diabético e hidrate-se bem antes e durante o treino.",
+            "Falta de Ar Anormal | Saúde e Alerta | Sintoma de Alerta | Dificuldade Respiratória | Dificuldade para respirar ou uma sensação de 'fôlego incompleto' que é desproporcional à intensidade do exercício. | Diminua a intensidade drasticamente ou pare. Observe se a respiração normaliza rapidamente. Se persistir, procure ajuda. | Pode ser um sinal de problemas cardíacos ou respiratórios.",
         ];
 
-        const bancoDeExercicios = {};
+        // --- FUNÇÕES DE CARGA (GRÁFICO) ---
 
-        rawData.forEach(item => {
-            const parts = item.split(' | ');
-            if (parts.length === 6) {
-                const [nome, modalidade, categoria, musculos, execucao, dica] = parts;
-                const key = normalize(nome).replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-                const searchTerms = [
-                    ...nome.split(/\s+/).map(normalize),
-                    ...musculos.split(/,\s*/).map(normalize).filter(t => t.length > 2),
-                    normalize(categoria),
-                    normalize(modalidade)
-                ];
+        // Dados de treino pré-definidos (podem ser personalizados)
+        const treinos = {
+            'Dia A': [
+                { nome: 'Agachamento Livre', series: '3', repeticoes: '8-12', observacoes: 'Com progressão de carga.' },
+                { nome: 'Leg Press 45°', series: '3', repeticoes: '10-15', observacoes: 'Não travar o joelho.' },
+                { nome: 'Cadeira Extensora', series: '3', repeticoes: '15-20', observacoes: 'Foco na contração no topo.' },
+                { nome: 'Cadeira Adutora', series: '3', repeticoes: '12-15', observacoes: 'Controlar a fase negativa.' },
+                { nome: 'Elevação de Panturrilha em Pé', series: '4', repeticoes: '15-20', observacoes: 'Máxima amplitude.' },
+            ],
+            'Dia B': [
+                { nome: 'Supino Reto', series: '3', repeticoes: '8-12', observacoes: 'Progressão de carga.' },
+                { nome: 'Supino Inclinado', series: '3', repeticoes: '10-15', observacoes: 'Foco na parte superior do peito.' },
+                { nome: 'Crossover (Cabo)', series: '3', repeticoes: '12-15', observacoes: 'Focar na contração interna.' },
+                { nome: 'Desenvolvimento Militar', series: '3', repeticoes: '8-12', observacoes: 'Evitar arquear a lombar.' },
+                { nome: 'Elevação Lateral', series: '3', repeticoes: '12-15', observacoes: 'Movimento lento e controlado.' },
+                { nome: 'Tríceps Testa', series: '3', repeticoes: '10-15', observacoes: 'Cotovelos fixos.' },
+                { nome: 'Tríceps Pulley (Corda)', series: '3', repeticoes: '12-15', observacoes: 'Abrir a corda no final.' },
+            ],
+            'Dia C': [
+                { nome: 'Puxada Alta (Lat Pulldown)', series: '3', repeticoes: '8-12', observacoes: 'Conectar com a escápula.' },
+                { nome: 'Remada Curvada com Barra', series: '3', repeticoes: '8-12', observacoes: 'Tronco fixo.' },
+                { nome: 'Remada Sentada (Cabo)', series: '3', repeticoes: '10-15', observacoes: 'Retração máxima da escápula.' },
+                { nome: 'Hiperextensão Lombar', series: '3', repeticoes: '12-15', observacoes: 'Foco no glúteo e lombar.' },
+                { nome: 'Rosca Direta com Barra', series: '3', repeticoes: '10-15', observacoes: 'Cotovelos fixos.' },
+                { nome: 'Rosca Alternada', series: '3', repeticoes: '10-15', observacoes: 'Foco na supinação do pulso.' },
+                { nome: 'Abdominal Crunch', series: '4', repeticoes: '15-20', observacoes: 'Sentir o abdômen "enrolar".' },
+            ]
+        };
 
-                bancoDeExercicios[key] = {
-                    nome: nome,
-                    modalidade: modalidade,
-                    categoria: categoria,
-                    musculos: musculos,
-                    execucao: execucao,
-                    dica: dica,
-                    termos: [...new Set(searchTerms.filter(t => t))]
-                };
+        function renderizarListaDeTreino(dia) {
+            const listaEl = document.getElementById(`lista-treino-${dia.toLowerCase().replace('dia ', '')}`);
+            if (!listaEl) return;
+            
+            const exercicios = treinos[dia] || [];
+            let html = '';
+
+            if (exercicios.length === 0) {
+                html = `<li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Nenhum exercício definido para ${dia}.</li>`;
+            } else {
+                exercicios.forEach(ex => {
+                    html += `
+                        <li class="exercicio-item">
+                            <div class="exercicio-info">
+                                <strong data-nome="${ex.nome}">${ex.nome}</strong>
+                                <p style="margin: 0; font-size: 0.85em; color: #aaa;">
+                                    ${ex.series} Séries de ${ex.repeticoes} Reps.
+                                </p>
+                                <p style="margin: 3px 0 0 0; font-size: 0.75em; color: #ff8c00;">
+                                    ${ex.observacoes}
+                                </p>
+                            </div>
+                            <div class="checkbox-container">
+                                <input type="checkbox" data-nome="${ex.nome}" onchange="marcarConcluido(this)">
+                            </div>
+                        </li>
+                    `;
+                });
             }
-        });
 
-        function normalize(str) {
-            return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+            listaEl.innerHTML = html;
+            carregarConcluidos(dia); // Carrega status do firebase após renderizar a lista
         }
 
+        function alternarTreino() {
+            const seletor = document.getElementById('seletorTreino');
+            const dia = seletor.value;
+
+            document.querySelectorAll('.lista-treino-dia').forEach(div => {
+                div.style.display = 'none';
+            });
+
+            const treinoDiv = document.getElementById(`treino-${dia}`);
+            if (treinoDiv) {
+                treinoDiv.style.display = 'block';
+                renderizarListaDeTreino(dia);
+            }
+        }
+        
+        // Inicializa o primeiro treino na carga
+        document.addEventListener('DOMContentLoaded', () => {
+             alternarTreino();
+        });
+
+
+        // --- FUNÇÕES DE INTERAÇÃO ---
+        
         function obterNomeAluno() {
-            const nomeLocal = localStorage.getItem('nomeAluno');
-            if (!nomeLocal) {
-                document.getElementById('modal-nome').style.display = 'flex';
+            const storedName = localStorage.getItem('alunoNome');
+            if (storedName) {
+                alunoNome = storedName;
+                document.getElementById('main-title').textContent = `Bem-vindo(a), ${alunoNome}.`;
+                document.getElementById('nome-aluno').textContent = alunoNome;
+                // Carregar dados após o nome
+                inicializarApp();
             } else {
-                alunoNome = nomeLocal;
-                start();
+                // Abre o modal
+                document.getElementById('modal-nome').style.display = 'flex';
+                document.getElementById('nomeModalInput').focus();
             }
         }
 
         function salvarNomeModal() {
-            const n = document.getElementById('nomeModalInput').value.trim();
-            if (n.length < 2) return alert('Por favor, insira um nome válido!');
-            alunoNome = n;
-            localStorage.setItem('nomeAluno', n);
-            document.getElementById('modal-nome').style.display = 'none';
-            start();
-        }
-
-        // função: finalizarTreino (salva treino finalizado com Firebase SDK)
-        function finalizarTreino() {
-            try {
-                const dia = document.getElementById('seletorTreino') ? document.getElementById('seletorTreino').value : 'Dia A';
-                const agora = new Date();
-                const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
-                const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-                let idLista = (dia === 'Dia A') ? 'lista-treino-a' : ((dia === 'Dia B') ? 'lista-treino-b' : 'lista-treino-c');
-                const listaEl = document.getElementById(idLista);
-                const concluidos = [];
-                if (listaEl) {
-                    listaEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                        if (cb.checked) {
-                            let nome = cb.getAttribute('data-nome') || '';
-                            if (!nome) {
-                                const li = cb.closest('li');
-                                if (li) {
-                                    const s = li.querySelector('.exercicio-info strong');
-                                    if (s) nome = s.textContent.trim();
-                                }
-                            }
-                            if (!nome) nome = 'Exercício marcado';
-                            concluidos.push(nome);
-                        }
-                    });
-                }
-
-                const payload = {
-                    dia: dia,
-                    data: dataLegivel,
-                    hora: horaLegivel,
-                    timestamp: Date.now(),
-                    concluido: true,
-                    concluidoCount: concluidos.length,
-                    exerciciosConcluidos: concluidos
-                };
-
-                const ref = database.ref(getPath('treinosFinalizados')).push();
-                ref.set(payload)
-                    .then(() => {
-                        try { carregarUltimoTreino(); } catch(e){console.warn('carregarUltimoTreino erro',e);}
-                        try { contarTreinosDoMes(); } catch(e){console.warn('contarTreinosDoMes erro',e);}
-                        try { marcarTreinoNoCalendario(new Date()); } catch(e){console.warn('marcarTreinoNoCalendario erro',e);}
-                        try { carregarTreinosFinalizados(); } catch(e){console.warn('carregarTreinosFinalizados erro',e);}
-                        alert('Treino registrado com sucesso!');
-                    })
-                    .catch(err => {
-                        console.error('Erro ao salvar treino finalizado:', err);
-                        alert('Erro ao registrar treino. Tente novamente.');
-                    });
-            } catch(err) {
-                console.error('Erro em finalizarTreino():', err);
-                alert('Erro ao registrar treino. Tente novamente.');
-            }
-        }
-
-        function carregarUltimoTreino() {
-            try {
-                const ref = database.ref(getPath('treinosFinalizados'));
-                ref.orderByChild('timestamp').limitToLast(1).on('value', snap => {
-                    const p = document.getElementById('ultimo-treino');
-                    if (!p) return;
-                    if (!snap.exists()) {
-                        p.textContent = 'Nenhum treino registrado ainda.';
-                        return;
-                    }
-                    snap.forEach(child => {
-                        const t = child.val();
-                        p.textContent = `Último treino: ${t.dia} — ${t.data} às ${t.hora}`;
-                    });
-                });
-            } catch (err) { console.warn('carregarUltimoTreino erro', err); }
-        }
-
-        function contarTreinosDoMes() {
-            try {
-                const mesAtual = new Date().getMonth() + 1;
-                let total = 0;
-                database.ref(getPath('treinosFinalizados')).once('value').then(snap => {
-                    snap.forEach(c => {
-                        const t = c.val();
-                        if (!t || !t.data) return;
-                        const parts = t.data.split('/');
-                        const mesT = parseInt(parts[1], 10);
-                        if (mesT === mesAtual) total++;
-                    });
-                    const el = document.getElementById('contador-treinos');
-                    if (el) el.textContent = `Treinos no mês: ${total}`;
-                }).catch(err => console.warn('contarTreinosDoMes erro', err));
-            } catch (err) { console.warn('contarTreinosDoMes erro', err); }
-        }
-
-        function carregarTreinosFinalizados() {
-            try {
-                const ref = database.ref(getPath('treinosFinalizados'));
-                ref.orderByChild('timestamp').once('value').then(snap => {
-                    const lista = [];
-                    snap.forEach(c => lista.push(c.val()));
-                    
-                    const divList = document.getElementById('lista-historico-treinos');
-                    if (divList) {
-                        if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
-                        else {
-                            let html = '<ul style="padding-left:16px;">';
-                            lista.slice().reverse().forEach(t => {
-                                html += `<li style="margin:6px 0;">${t.data} — ${t.dia} — ${t.concluidoCount || 0} exercícios</li>`;
-                            });
-                            html += '</ul>';
-                            divList.innerHTML = html;
-                        }
-                    }
-
-                    const agrupado = {};
-                    lista.forEach(t => {
-                        const key = t.data || 'Sem data';
-                        agrupado[key] = (agrupado[key] || 0) + 1;
-                    });
-                    renderTreinosBarChart(agrupado);
-                }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
-            } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
-        }
-
-        let chartTreinos = null;
-        function renderTreinosBarChart(dataObj) {
-            try {
-                const canvas = document.getElementById('graficoTreinos');
-                if (!canvas) return;
-                
-                const labels = Object.keys(dataObj || {});
-                const data = labels.map(l => dataObj[l] || 0);
-                
-                if (typeof Chart === 'undefined') { 
-                    setTimeout(() => renderTreinosBarChart(dataObj), 2000);
-                    return;
-                }
-                
-                const ctx = canvas.getContext('2d');
-                if (chartTreinos) chartTreinos.destroy();
-                
-                chartTreinos = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Treinos (por data)',
-                            data: data,
-                            backgroundColor: 'rgba(255,193,7,0.9)',
-                            borderColor: 'rgba(255,193,7,1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { ticks: { color: '#f0f0f0' } },
-                            y: { beginAtZero: true, ticks: { color: '#f0f0f0', stepSize: 1 } }
-                        },
-                        plugins: { legend: { labels: { color: '#f0f0f0' } } }
-                    }
-                });
-            } catch(err) { console.warn('renderTreinosBarChart erro', err); }
-        }
-
-        function marcarTreinoNoCalendario(dataObj) {
-            try {
-                const dia = String(dataObj.getDate()).padStart(2,'0');
-                const mes = String(dataObj.getMonth()+1).padStart(2,'0');
-                const ano = dataObj.getFullYear();
-                const chave = `${dia}-${mes}-${ano}`;
-                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
-            } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
-        }
-
-        function start() {
-            document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
-            document.getElementById('nome-aluno').textContent = alunoNome;
-            document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
-        
-            inicializarGrafico();
-            carregarUltimasMedidas();
-            alternarTreino();
-            gerarCalendario();
-        
-            carregarUltimoTreino();
-            contarTreinosDoMes();
-            
-            if (typeof Chart !== 'undefined') {
-                carregarTreinosFinalizados();
+            const nomeInput = document.getElementById('nomeModalInput').value.trim();
+            if (nomeInput) {
+                alunoNome = nomeInput.split(' ')[0]; // Pega só o primeiro nome
+                localStorage.setItem('alunoNome', alunoNome);
+                document.getElementById('modal-nome').style.display = 'none';
+                document.getElementById('main-title').textContent = `Bem-vindo(a), ${alunoNome}.`;
+                document.getElementById('nome-aluno').textContent = alunoNome;
+                // Carregar dados
+                inicializarApp();
             } else {
-                setTimeout(() => {
-                    carregarTreinosFinalizados();
-                }, 1000);
+                alert('Por favor, insira seu nome.');
             }
         }
+
+        function inicializarApp() {
+            // Configura a data
+            const hoje = new Date();
+            const dataLegivel = hoje.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+            document.getElementById('data-atual').textContent = dataLegivel;
+
+            // Carrega dados iniciais
+            alternarTreino(); // Renderiza o treino do dia A
+            gerarCalendario(); // Gera e carrega a presenca
+            carregarUltimoTreino(); // Último treino finalizado
+            contarTreinosDoMes(); // Total de treinos no mês
+            carregarTreinosFinalizados(); // Carrega histórico e gráfico de treinos
+            carregarUltimasMedidas(); // Carrega últimas medidas
+            inicializarGrafico(); // Carrega o gráfico de progressão de carga
+
+        }
+
+        // --- FUNÇÕES DE PROGRESSÃO DE CARGA (GRÁFICO) ---
 
         function inicializarGrafico() {
-            const ex = document.getElementById('seletorExercicio').value;
-            database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
-                const datas = [];
-                const pesos = [];
-                snap.forEach(c => {
-                    const v = c.val();
-                    datas.push(v.data);
-                    pesos.push(v.peso);
+            const exercicio = document.getElementById('seletorExercicio').value;
+            const ref = database.ref(getPath(`cargas/${exercicio}`));
+            
+            ref.on('value', snap => {
+                const cargas = [];
+                snap.forEach(child => {
+                    const c = child.val();
+                    cargas.push({
+                        peso: parseFloat(c.peso),
+                        data: c.data
+                    });
                 });
+                
+                // Ordenar por data (opcional, mas bom para garantir)
+                cargas.sort((a, b) => new Date(a.data.split('/').reverse().join('-')) - new Date(b.data.split('/').reverse().join('-')));
+                
+                renderizarGrafico(exercicio, cargas);
+            });
+        }
 
-                const ctx = document.getElementById('pesoChart').getContext('2d');
-                if (pesoChart) pesoChart.destroy();
-                pesoChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: datas,
-                        datasets: [{
-                            label: `Carga (kg)`,
-                            data: pesos,
-                            borderColor: '#ff8c00',
-                            backgroundColor: 'rgba(255,140,0,0.2)',
-                            tension: 0.2,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: '#333' },
-                                ticks: { color: '#f0f0f0' }
+        function renderizarGrafico(exercicio, cargas) {
+            const canvas = document.getElementById('pesoChart');
+            if (!canvas) return;
+
+            const labels = cargas.map(c => c.data);
+            const data = cargas.map(c => c.peso);
+            
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js não carregado');
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+            if (pesoChart) pesoChart.destroy(); // Destrói o gráfico anterior
+            
+            pesoChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Carga Registrada (${exercicio}) em Kg`,
+                        data: data,
+                        borderColor: '#ff8c00', // Cor do Dark Mode
+                        backgroundColor: 'rgba(255, 140, 0, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#ff8c00',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Carga (kg)',
+                                color: '#f0f0f0'
                             },
-                            x: {
-                                grid: { color: '#333' },
-                                ticks: { color: '#f0f0f0' }
+                            ticks: {
+                                color: '#f0f0f0'
                             }
                         },
-                        plugins: {
-                            legend: { labels: { color: '#f0f0f0' } }
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Data',
+                                color: '#f0f0f0'
+                            },
+                            ticks: {
+                                color: '#f0f0f0'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#f0f0f0'
+                            }
                         }
                     }
-                });
+                }
             });
         }
 
         function adicionarPeso() {
-            const p = document.getElementById('pesoInput').value;
-            if (!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
-                alert('Por favor, insira uma carga válida e positiva.');
+            const exercicio = document.getElementById('seletorExercicio').value;
+            const pesoInput = document.getElementById('pesoInput');
+            const peso = parseFloat(pesoInput.value);
+
+            if (isNaN(peso) || peso <= 0) {
+                alert('Por favor, insira uma carga válida.');
                 return;
             }
-            const ex = document.getElementById('seletorExercicio').value;
+
             const agora = new Date();
-            const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
-                ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            database.ref(getPath(`cargas/${ex}`)).push({
+            const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+
+            const payload = {
+                peso: peso,
                 data: dataLegivel,
-                peso: parseFloat(p),
                 timestamp: Date.now()
-            }).then(() => {
-                document.getElementById('pesoInput').value = '';
-            }).catch(error => {
-                console.error("Erro ao adicionar peso:", error);
-                alert("Erro ao registrar carga.");
-            });
+            };
+
+            // Salva no Firebase
+            database.ref(getPath(`cargas/${exercicio}`)).push(payload)
+                .then(() => {
+                    alert(`Carga de ${peso}kg registrada para ${exercicio} com sucesso!`);
+                    pesoInput.value = ''; // Limpa o campo
+                    inicializarGrafico(); // Atualiza o gráfico
+                })
+                .catch(error => {
+                    console.error("Erro ao registrar carga:", error);
+                    alert("Erro ao registrar carga. Tente novamente.");
+                });
         }
 
-        function registrarMedidas() {
-            const peso = document.getElementById('pesoCorporalInput').value;
-            if (!peso) return alert('O peso é obrigatório!');
 
-            const m = {
-                data: new Date().toLocaleDateString('pt-BR'),
+        // --- FUNÇÕES DE MEDIDAS ---
+
+        function registrarMedidas() {
+            const peso = parseFloat(document.getElementById('pesoCorporalInput').value);
+            const cintura = parseFloat(document.getElementById('cinturaInput').value);
+            const braco = parseFloat(document.getElementById('bracoInput').value);
+            const torax = parseFloat(document.getElementById('toraxInput').value);
+            const abdomen = parseFloat(document.getElementById('abdomenInput').value);
+            const coxa = parseFloat(document.getElementById('coxaInput').value);
+            const panturrilha = parseFloat(document.getElementById('panturrilhaInput').value);
+            const antebraco = parseFloat(document.getElementById('antebracoInput').value);
+
+
+            if (isNaN(peso) && isNaN(cintura) && isNaN(braco) && isNaN(torax) && isNaN(abdomen) && isNaN(coxa) && isNaN(panturrilha) && isNaN(antebraco)) {
+                alert('Por favor, preencha pelo menos um campo de medida.');
+                return;
+            }
+
+            const agora = new Date();
+            const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+            
+            const payload = {
+                data: dataLegivel,
                 timestamp: Date.now(),
-                peso: peso,
-                cintura: document.getElementById('cinturaInput').value,
-                braco: document.getElementById('bracoInput').value,
-                torax: document.getElementById('toraxInput').value,
-                abdomen: document.getElementById('abdomenInput').value,
-                coxa: document.getElementById('coxaInput').value,
-                panturrilha: document.getElementById('panturrilhaInput').value,
-                antebraco: document.getElementById('antebracoInput').value
             };
-            database.ref(getPath('medidas')).push(m);
-            alert('Medidas Salvas!');
-            document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
-            carregarUltimasMedidas();
+            
+            if (!isNaN(peso)) payload.peso = peso;
+            if (!isNaN(cintura)) payload.cintura = cintura;
+            if (!isNaN(braco)) payload.braco = braco;
+            if (!isNaN(torax)) payload.torax = torax;
+            if (!isNaN(abdomen)) payload.abdomen = abdomen;
+            if (!isNaN(coxa)) payload.coxa = coxa;
+            if (!isNaN(panturrilha)) payload.panturrilha = panturrilha;
+            if (!isNaN(antebraco)) payload.antebraco = antebraco;
+
+            // Salva no Firebase
+            database.ref(getPath('medidas')).push(payload)
+                .then(() => {
+                    alert('Medidas registradas com sucesso!');
+                    // Limpa os campos
+                    document.getElementById('pesoCorporalInput').value = '';
+                    document.getElementById('cinturaInput').value = '';
+                    document.getElementById('bracoInput').value = '';
+                    document.getElementById('toraxInput').value = '';
+                    document.getElementById('abdomenInput').value = '';
+                    document.getElementById('coxaInput').value = '';
+                    document.getElementById('panturrilhaInput').value = '';
+                    document.getElementById('antebracoInput').value = '';
+                    // Atualiza a lista
+                    carregarUltimasMedidas();
+                })
+                .catch(error => {
+                    console.error("Erro ao registrar medidas:", error);
+                    alert("Erro ao registrar medidas. Tente novamente.");
+                });
         }
 
         function carregarUltimasMedidas() {
-            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
+            const ref = database.ref(getPath('medidas'));
+            ref.orderByChild('timestamp').limitToLast(1).on('value', snap => {
                 const div = document.getElementById('ultimasMedidas');
-                div.innerHTML = 'Nenhum registro encontrado.';
-                snap.forEach(c => {
-                    const d = c.val();
-                    div.innerHTML =
-                        `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura||'-'} | Braço: ${d.braco||'-'}`;
-                });
-            });
-        }
-
-        function alternarTreino() {
-            const dia = document.getElementById('seletorTreino').value;
-            document.querySelectorAll('.lista-treino-dia').forEach(e => e.style.display = 'none');
-            document.getElementById(`treino-${dia}`).style.display = 'block';
-
-            carregarTreinoDoProfessor(dia);
-        }
-
-        function marcarConcluido(chk, dia, id) {
-            const li = chk.closest('li');
-            chk.checked ? li.classList.add('concluido') : li.classList.remove('concluido');
-            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
-        }
-
-        function carregarCheckboxes(dia) {
-            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
-                const s = snap.val() || {};
-                document.getElementById(`treino-${dia}`).querySelectorAll('li').forEach(li => {
-                    const id = li.getAttribute('data-exercicio');
-                    const chk = li.querySelector('input');
-                    if (chk) {
-                        if (s[id]) {
-                            chk.checked = true;
-                            li.classList.add('concluido');
-                        } else {
-                            chk.checked = false;
-                            li.classList.remove('concluido');
-                        }
-                    }
-                });
-            });
-        }
-
-        function carregarTreinoDoProfessor(dia) {
-            const idLista = dia === 'Dia A' ?
-                'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
-            const ul = document.getElementById(idLista);
-            
-            database.ref(getPath(`treinoModel/${dia}`)).off('value');
-            
-            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
-                ul.innerHTML = ''; 
-
+                if (!div) return;
+                
                 if (!snap.exists()) {
-                    ul.innerHTML = '<li class="exercicio-item" style="background: none; border: none; color: #ff9933; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px;">Seu treino ainda não foi enviado.</li>';
+                    div.innerHTML = 'Nenhum registro encontrado.';
                     return;
                 }
-
-                snap.forEach(childSnapshot => {
-                    const t = childSnapshot.val();
-                    if (t && t.nome) {
-                        const id = t.nome.replace(/\s/g, '');
-                        const li = document.createElement('li');
-                        li.className = 'exercicio-item';
-                        li.setAttribute('data-exercicio', id);
-                        li.innerHTML = `
-                            <div class="exercicio-info"><strong>${t.nome}</strong><span>${t.series}x | ${t.reps}</span></div>
-                            <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')"></div>
-                        `;
-                        ul.appendChild(li);
-                    }
+                
+                let ultimaMedida = null;
+                snap.forEach(child => {
+                    ultimaMedida = child.val();
                 });
-                carregarCheckboxes(dia);
+                
+                if (ultimaMedida) {
+                    let html = `<p style="font-weight:bold;margin-bottom:8px;">Último registro: ${ultimaMedida.data}</p>`;
+                    html += '<ul style="list-style:none;padding:0;text-align:left;max-width:200px;margin:0 auto;">';
+                    
+                    const campos = {
+                        peso: 'Peso (kg)',
+                        cintura: 'Cintura (cm)',
+                        braco: 'Braço D. (cm)',
+                        torax: 'Tórax (cm)',
+                        abdomen: 'Abdômen (cm)',
+                        coxa: 'Coxa D. (cm)',
+                        panturrilha: 'Panturrilha (cm)',
+                        antebraco: 'Antebraço (cm)',
+                    };
+                    
+                    Object.keys(campos).forEach(key => {
+                        if (ultimaMedida[key]) {
+                            html += `<li><strong>${campos[key]}:</strong> ${ultimaMedida[key]}</li>`;
+                        }
+                    });
+                    
+                    html += '</ul>';
+                    div.innerHTML = html;
+                }
             });
         }
 
-        function gerarCalendario() {
-            const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const anoAtual = hoje.getFullYear();
 
-            const primeiroDiaSemana = new Date(anoAtual, mesAtual, 1).getDay();
+        // --- FUNÇÕES DE CHECKBOX DE TREINO ---
+        
+        function carregarConcluidos(dia) {
+            const idLista = `lista-treino-${dia.toLowerCase().replace('dia ', '')}`;
+            const listaEl = document.getElementById(idLista);
+            if (!listaEl) return;
+            
+            const ref = database.ref(getPath(`statusTreino/${dia}`));
+            ref.once('value').then(snap => {
+                const status = snap.val() || {};
+                
+                listaEl.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => {
+                    const nomeEx = cb.getAttribute('data-nome');
+                    if (status[nomeEx] && status[nomeEx].concluido) {
+                        cb.checked = true;
+                        cb.closest('li').classList.add('concluido');
+                    } else {
+                        cb.checked = false;
+                        cb.closest('li').classList.remove('concluido');
+                    }
+                });
+            }).catch(e => console.warn('Erro ao carregar concluídos:', e));
+        }
+
+        function marcarConcluido(checkbox) {
+            const dia = document.getElementById('seletorTreino').value;
+            const nomeEx = checkbox.getAttribute('data-nome');
+            const li = checkbox.closest('li');
+            const isChecked = checkbox.checked;
+            
+            const ref = database.ref(getPath(`statusTreino/${dia}/${nomeEx}`));
+            
+            if (isChecked) {
+                ref.set({ concluido: true, timestamp: Date.now() })
+                    .then(() => li.classList.add('concluido'))
+                    .catch(e => console.error('Erro ao marcar:', e));
+            } else {
+                ref.remove()
+                    .then(() => li.classList.remove('concluido'))
+                    .catch(e => console.error('Erro ao desmarcar:', e));
+            }
+        }
+        
+        
+        // --- FUNÇÕES DE CALENDÁRIO / PRESENÇA ---
+        
+        function gerarCalendario() {
+            const agora = new Date();
+            const anoAtual = agora.getFullYear();
+            const mesAtual = agora.getMonth(); // 0 = Jan
+            
+            const dataInicio = new Date(anoAtual, mesAtual, 1);
+            const primeiroDiaSemana = dataInicio.getDay(); // 0 = Dom, 6 = Sab
             const ultimoDiaMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
 
-            let html = '<tr>';
+            let html = '';
             let contadorDias = 1;
+
             for (let i = 0; i < 6; i++) {
+                html += '<tr>';
                 for (let j = 0; j < 7; j++) {
                     if (i === 0 && j < primeiroDiaSemana) {
                         html += '<td></td>';
@@ -1014,6 +1324,7 @@
         function togglePresenca(key) {
             const td = document.getElementById(`dia-${key}`);
             const status = td.classList.contains('presente');
+
             if (status) {
                 database.ref(getPath(`presenca/${key}`)).remove();
                 td.classList.remove('presente');
@@ -1034,78 +1345,80 @@
             });
         }
 
+
+        // --- INTERAÇÃO COM IA (LÓGICA CORRIGIDA E MELHORADA) ---
+
         async function simularPesquisaIA() {
             const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
             const perguntaNormalizada = normalize(pergunta);
             const respostaDiv = document.getElementById('ai-resposta');
-            const botao = document.querySelector('#ai-search-card .btn-primary');
-            
-            if (pergunta.length < 3) {
-                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+            respostaDiv.innerHTML = '<p style="color:#ff9933; text-align:center;">Buscando...</p>';
+
+            if (!pergunta) {
+                respostaDiv.innerHTML = '<p style="color:#ccc; text-align:center;">Por favor, digite uma pergunta.</p>';
                 return;
             }
 
-            botao.disabled = true;
-            botao.textContent = 'Pesquisando no Banco de Dados...';
-            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
-            
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            let respostaTexto = '';
+            // 1. Tentar encontrar exercício e informações
             let exercicioEncontrado = null;
+            let nomeEx = '';
+            
+            const exerciciosMap = rawData.map(item => {
+                const [nome, categoria, foco, musculos, execucao, dica] = item.split(' | ');
+                return { nome: normalize(nome), nomeOriginal: nome, musculos: musculos, execucao: execucao, dica: dica, categoria: categoria, foco: foco };
+            });
 
-            const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
-            let maxPontos = 0;
-
-            for (const key in bancoDeExercicios) {
-                const ex = bancoDeExercicios[key];
-                let pontos = 0;
-
-                if (perguntaNormalizada.includes(normalize(ex.nome))) {
-                    pontos += 100;
-                }
-
-                palavrasDaPergunta.forEach(palavra => {
-                    if (ex.termos.includes(palavra)) {
-                        pontos += 1;
-                    }
-                });
-
-                if (pontos > 0 && pontos > maxPontos) {
-                    maxPontos = pontos;
+            for (const ex of exerciciosMap) {
+                if (perguntaNormalizada.includes(ex.nome)) {
                     exercicioEncontrado = ex;
+                    nomeEx = ex.nomeOriginal;
+                    break;
                 }
             }
-
+            
+            let respostaTexto = '';
+            
             if (exercicioEncontrado) {
-                const nomeEx = exercicioEncontrado.nome;
-                if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
-                    respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
-                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
+                if (perguntaNormalizada.includes("músculo") || perguntaNormalizada.includes("ativado") || perguntaNormalizada.includes("treina")) {
+                    respostaTexto = `**Músculos Ativados em ${nomeEx}:** ${exercicioEncontrado.musculos}`;
+                } else if (perguntaNormalizada.includes("como") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
                     respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
                 } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
                     respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
+                } else { // Resposta padrão se o tópico não for específico
+                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Como Fazer:** ${exercicioEncontrado.execucao}\n\n**Dica:** ${exercicioEncontrado.dica}`;
                 }
-                else {
-                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                }
+            } else if (perguntaNormalizada.includes("nutrição") || perguntaNormalizada.includes("creatina") || perguntaNormalizada.includes("proteína") || perguntaNormalizada.includes("carboidrato")) {
+                 const infoNutricional = exerciciosMap.filter(item => item.categoria === 'Nutrição' && perguntaNormalizada.includes(item.nome));
+                 if(infoNutricional.length > 0) {
+                     const item = infoNutricional[0];
+                     respostaTexto = `**${item.nomeOriginal}:** ${item.foco}\n\n**Detalhes:** ${item.execucao}\n\n**Importância:** ${item.dica}`;
+                 } else {
+                      respostaTexto = "**Tópicos de Nutrição Disponíveis:** Proteína, Carboidrato, Gordura (Lipídios), Água, Creatina, Whey Protein. Por favor, pergunte sobre um destes tópicos. Ex: 'O que é Creatina?'";
+                 }
 
+            } else if (perguntaNormalizada.includes("dor") || perguntaNormalizada.includes("tontura") || perguntaNormalizada.includes("falta de ar")) {
+                const infoSaude = exerciciosMap.filter(item => item.categoria.includes('Saúde') && perguntaNormalizada.includes(item.nome));
+                 if(infoSaude.length > 0) {
+                     const item = infoSaude[0];
+                     respostaTexto = `**Alerta: ${item.nomeOriginal}**\n\n**Sintoma:** ${item.musculos}\n\n**O que Fazer:** ${item.execucao}\n\n**Cuidado Adicional:** ${item.dica}`;
+                 } else {
+                     respostaTexto = "**Alertas de Saúde Disponíveis:** Dor Aguda/Ponta, Tontura ou Vertigem, Falta de Ar Anormal. Por favor, pergunte sobre um destes. Ex: 'O que fazer com Dor Aguda?'";
+                 }
             } else {
-                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").
-Nosso banco de dados cobre exercícios de **Musculação, Powerlifting, CrossFit, Pilates, Cardio e Saúde**.
-Tente pesquisar pelo nome exato do exercício ou sintoma.`;
+                respostaTexto = "Desculpe, não encontrei informações específicas sobre esse exercício/tópico. Tente perguntar o nome de um exercício (ex: 'Agachamento Livre') ou um tópico de saúde/nutrição.";
             }
 
-            let respostaFormatada = respostaTexto
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
+            // Exibe a resposta final (com um pequeno delay para simular o "pensamento" da IA)
+            setTimeout(() => {
+                 document.getElementById('ai-resposta').innerHTML = respostaTexto;
+            }, 500);
 
-            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
-            
-            botao.disabled = false;
-            botao.textContent = 'Perguntar à IA';
         }
 
+
+        // --- FUNÇÕES DE RESET DE DADOS ---
+        
         function resetarDados(tipo) {
             let path;
             let msg;
@@ -1145,4 +1458,3 @@ Tente pesquisar pelo nome exato do exercício ou sintoma.`;
 </body>
 
 </html>
-
