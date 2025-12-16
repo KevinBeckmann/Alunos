@@ -197,8 +197,8 @@
         /* Grid de gráficos */
         .graficos-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 15px;
             margin-top: 20px;
         }
         
@@ -207,6 +207,12 @@
             padding: 15px;
             border-radius: 10px;
             border: 1px solid #333;
+            height: 300px;
+        }
+        
+        .chart-card canvas {
+            width: 100% !important;
+            height: 230px !important;
         }
         
         /* Layout principal */
@@ -214,7 +220,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -222,21 +228,46 @@
             .container {
                 grid-template-columns: 2fr 1fr;
             }
-            
-            .graficos-medidas-section {
-                grid-column: 1 / -1;
+        }
+        
+        @media (min-width: 1400px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
             }
         }
         
-        /* Histórico de envios */
-        #historico-envios {
-            list-style: none;
-            padding: 0;
+        /* Seção de gráficos */
+        .graficos-section {
+            grid-column: 1;
+            grid-row: 2;
         }
         
-        #historico-envios li {
-            padding: 10px;
-            border-bottom: 1px solid #333;
+        @media (min-width: 1024px) {
+            .graficos-section {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+            }
+        }
+        
+        /* Medidas section */
+        .medidas-section {
+            grid-column: 1 / -1;
+        }
+        
+        /* Gestão de Alunos */
+        .gestao-alunos-card {
+            margin-bottom: 20px;
+        }
+        
+        /* Botões compactos */
+        .btn-compact {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+        
+        /* Select alunos nos gráficos */
+        #selectAlunoGraficos {
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -258,9 +289,9 @@
         </div>
 
         <div class="container">
-            <!-- Coluna Esquerda - Treino -->
+            <!-- Coluna Esquerda - Gestão de Alunos e Treino -->
             <div class="left-col">
-                <div class="card" style="margin-bottom: 20px;">
+                <div class="card gestao-alunos-card">
                     <h2> Gestão de Alunos</h2>
                     <button class="btn-save" onclick="abrirModalAluno()" style="background-color: #38c172; margin-top: 0;">+ Adicionar Novo Aluno</button>
                 </div>
@@ -273,8 +304,8 @@
                             <label>Selecione o Aluno:</label>
                             <select id="selectAluno"><option>Carregando...</option></select>
                         </div>
-                        <button class="btn-acao-aluno btn-renomear-aluno" onclick="abrirModalRenomearAluno()" title="Renomear Aluno">✏️</button>
-                        <button class="btn-remover" onclick="excluirAluno()" title="Excluir Aluno">🗑️</button>
+                        <button class="btn-acao-aluno btn-renomear-aluno btn-compact" onclick="abrirModalRenomearAluno()" title="Renomear Aluno">✏️</button>
+                        <button class="btn-remover btn-compact" onclick="excluirAluno()" title="Excluir Aluno">🗑️</button>
                     </div>
 
                     <label>Dia do Treino:</label>
@@ -282,8 +313,8 @@
                         <select id="selectDia" style="flex-grow: 1;">
                             <option>Carregando Dias...</option> 
                         </select>
-                        <button class="btn-acao-aluno" onclick="abrirModalDia()" title="Adicionar Novo Dia" style="background-color: #38c172; width: 40px; height: 40px; font-weight: normal;">+</button>
-                        <button class="btn-remover" onclick="removerDiaTreino()" title="Remover Dia Selecionado" style="width: 40px; height: 40px;">-</button>
+                        <button class="btn-acao-aluno btn-compact" onclick="abrirModalDia()" title="Adicionar Novo Dia" style="background-color: #38c172; width: 40px; height: 40px; font-weight: normal;">+</button>
+                        <button class="btn-remover btn-compact" onclick="removerDiaTreino()" title="Remover Dia Selecionado" style="width: 40px; height: 40px;">-</button>
                     </div>
                     <hr style="border-color: #333; margin: 20px 0;">
                     <p style="font-size: 0.9em; color: #aaa;">Arraste o ícone ☰ para reordenar os exercícios.</p>
@@ -299,19 +330,8 @@
                 </div>
             </div>
 
-            <!-- Coluna Direita - Histórico de Envios -->
-            <div class="right-col">
-                <div class="card" style="margin-top: 20px;">
-                    <h2> Histórico de Envios</h2>
-                    <ul id="historico-envios">
-                        <li style="padding: 10px; border-bottom: 1px solid #333;">Nenhum envio registrado</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Seção de Gráficos e Medidas (Toda a largura) -->
-            <div class="graficos-medidas-section">
-                <!-- Gráficos -->
+            <!-- Coluna Direita - Gráficos -->
+            <div class="graficos-section">
                 <div class="card">
                     <h2>📊 Gráficos do Aluno</h2>
                     <div style="margin-bottom: 15px;">
@@ -327,8 +347,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Medidas -->
+            <!-- Seção de Medidas (Toda a largura) -->
+            <div class="medidas-section">
                 <div class="card">
                     <h2>📏 Gerenciar Medidas</h2>
                     <div style="margin-bottom: 15px;">
@@ -341,20 +363,22 @@
                     <button class="btn-save" onclick="abrirModalMedida()" style="background-color: #38c172; margin-bottom: 20px;">+ Adicionar Medida</button>
                     
                     <h3>Histórico Completo</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Peso (kg)</th>
-                                <th>Cintura (cm)</th>
-                                <th>Braço (cm)</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-medidas-completa">
-                            <tr><td colspan="5" class="sem-dados">Selecione um aluno</td></tr>
-                        </tbody>
-                    </table>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Peso (kg)</th>
+                                    <th>Cintura (cm)</th>
+                                    <th>Braço (cm)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-medidas-completa">
+                                <tr><td colspan="5" class="sem-dados">Selecione um aluno</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -616,8 +640,6 @@
             if(!alunoSelecionadoNome) return;
             
             carregarDiasTreinoDoAluno();
-            carregarTreinoAtualAluno();
-            carregarHistoricoEnvios();
             carregarGraficosAluno();
             carregarMedidasCompletas();
         }
@@ -867,59 +889,10 @@
                 })
                 .then(() => {
                     mostrarMensagem('✅ Treino enviado com sucesso para o aluno!', 'sucesso');
-                    carregarTreinoAtualAluno();
-                    carregarHistoricoEnvios();
                 })
                 .catch(error => {
                     console.error('Erro ao enviar treino:', error);
                     mostrarMensagem('❌ Erro ao enviar treino: ' + error.message, 'erro');
-                });
-            });
-        }
-
-        function carregarTreinoAtualAluno() {
-            if (!alunoSelecionadoChave) return;
-            
-            // Esta função foi mantida para referência interna, mas não é mais exibida na tela
-            database.ref(getPath('treinoDiaAtual')).once('value', snap => {
-                const treinoAtual = snap.val();
-                // Apenas para log interno
-                if (treinoAtual) {
-                    console.log(`Treino atual do aluno carregado: ${treinoAtual.dia || 'Não especificado'}`);
-                }
-            });
-        }
-
-        function carregarHistoricoEnvios() {
-            if (!alunoSelecionadoChave) return;
-            
-            const historico = document.getElementById('historico-envios');
-            historico.innerHTML = '<li style="padding: 10px; border-bottom: 1px solid #333;">Carregando...</li>';
-            
-            database.ref(getPath('historicoEnvios')).limitToLast(5).once('value', snap => {
-                historico.innerHTML = '';
-                
-                if (!snap.exists()) {
-                    historico.innerHTML = '<li style="padding: 10px; border-bottom: 1px solid #333;">Nenhum envio registrado</li>';
-                    return;
-                }
-                
-                const envios = [];
-                snap.forEach(child => {
-                    envios.push({ ...child.val(), id: child.key });
-                });
-                
-                envios.sort((a, b) => b.timestamp - a.timestamp);
-                
-                envios.forEach(envio => {
-                    const data = new Date(envio.timestamp).toLocaleString('pt-BR');
-                    const li = document.createElement('li');
-                    li.style.cssText = 'padding: 10px; border-bottom: 1px solid #333;';
-                    li.innerHTML = `
-                        <strong>${data}</strong><br>
-                        <span style="font-size: 0.9em; color: #aaa;">${envio.dia} • ${envio.exerciciosCount || 0} exercícios</span>
-                    `;
-                    historico.appendChild(li);
                 });
             });
         }
@@ -1127,8 +1100,12 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#e0e0e0' } }
+                        legend: { 
+                            labels: { color: '#e0e0e0' },
+                            position: 'top'
+                        }
                     },
                     scales: {
                         y: { 
@@ -1138,7 +1115,11 @@
                         },
                         x: { 
                             grid: { color: '#333' },
-                            ticks: { color: '#e0e0e0' }
+                            ticks: { 
+                                color: '#e0e0e0',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
                         }
                     }
                 }
@@ -1186,8 +1167,12 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#e0e0e0' } }
+                        legend: { 
+                            labels: { color: '#e0e0e0' },
+                            position: 'top'
+                        }
                     },
                     scales: {
                         y: { 
@@ -1197,7 +1182,11 @@
                         },
                         x: { 
                             grid: { color: '#333' },
-                            ticks: { color: '#e0e0e0' }
+                            ticks: { 
+                                color: '#e0e0e0',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
                         }
                     }
                 }
@@ -1244,8 +1233,12 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#e0e0e0' } }
+                        legend: { 
+                            labels: { color: '#e0e0e0' },
+                            position: 'top'
+                        }
                     },
                     scales: {
                         y: { 
@@ -1258,7 +1251,11 @@
                         },
                         x: { 
                             grid: { color: '#333' },
-                            ticks: { color: '#e0e0e0' }
+                            ticks: { 
+                                color: '#e0e0e0',
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
                         }
                     }
                 }
