@@ -136,9 +136,7 @@
                     <div style="margin-bottom: 10px;">
                         <span>Gráfico de Carga:</span>
                         <select id="selectGrafico" onchange="inicializarGraficoAluno(this.value)">
-                            <option value="AgachamentoLivre">Agachamento Livre</option>
-                            <option value="SupinoReto">Supino Reto</option>
-                            <option value="PuxadaFrontal">Puxada Frontal</option>
+                            <option value="">Carregando exercícios...</option>
                         </select>
                     </div>
                     <div id="chart-container-wrapper">
@@ -210,7 +208,6 @@
         let auth, database;
 
         // === 1. CONFIGURAÇÃO FIREBASE ===
-        // 🚨 POR FAVOR, TROQUE ISTO PELAS SUAS CHAVES REAIS! 🚨
         const firebaseConfig = {
             apiKey: "AIzaSyDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
@@ -249,7 +246,6 @@
                 }
             });
         }
-
 
         // ------------------------------------
         // === FUNÇÕES GERAIS ===
@@ -310,8 +306,6 @@
                 carregarTudo(); 
             };
             
-            // Carrega os dias disponíveis para o aluno selecionado
-            carregarDiasTreinoDoAluno();
             // Carrega a lista de alunos
             carregarListaAlunos();
         }
@@ -339,7 +333,6 @@
 
                 nomesParaSelect.forEach(aluno => {
                     const opt = document.createElement('option');
-                    // O valor da option é o nome legível, que é a base para alunoSelecionadoNome
                     opt.value = aluno.nomeLegivel;
                     opt.textContent = aluno.nomeLegivel;
                     sel.appendChild(opt);
@@ -364,8 +357,66 @@
                     if(pesoChart) pesoChart.destroy();
                     // Garante que a mensagem de "sem dados" do gráfico apareça
                     document.getElementById('chart-empty-message').style.display = 'flex';
+                    document.getElementById('selectGrafico').innerHTML = '<option>Selecione um aluno</option>';
                 }
 
+            });
+        }
+
+        // === NOVA FUNÇÃO: Carrega todos os exercícios do aluno para o gráfico ===
+        function carregarExerciciosDoAluno() {
+            if (!alunoSelecionadoNome) return;
+            
+            const selectGrafico = document.getElementById('selectGrafico');
+            selectGrafico.innerHTML = '<option>Carregando exercícios...</option>';
+            
+            // Busca todos os exercícios que o aluno tem no nó 'cargas'
+            database.ref(getPath('cargas')).once('value', snap => {
+                let exercicios = [];
+                
+                if (snap.exists()) {
+                    snap.forEach(childSnapshot => {
+                        const exercicio = childSnapshot.key;
+                        exercicios.push(exercicio);
+                    });
+                }
+                
+                // Se não houver exercícios, adiciona os padrões do aluno
+                if (exercicios.length === 0) {
+                    exercicios = [
+                        "AgachamentoLivre",
+                        "SupinoReto", 
+                        "PuxadaFrontal",
+                        "RoscaDireta",
+                        "TricepsTesta",
+                        "DesenvolvimentoMilitar",
+                        "CadeiraExtensora",
+                        "ElevacaoPelvica"
+                    ];
+                }
+                
+                // Ordena os exercícios alfabeticamente
+                exercicios.sort();
+                
+                // Popula o select
+                selectGrafico.innerHTML = '';
+                exercicios.forEach(ex => {
+                    // Converte o nome formatado para um nome legível
+                    const nomeLegivel = ex
+                        .replace(/([A-Z])/g, ' $1') // Adiciona espaço antes de letras maiúsculas
+                        .replace(/^./, str => str.toUpperCase()) // Primeira letra maiúscula
+                        .trim();
+                    
+                    const option = document.createElement('option');
+                    option.value = ex;
+                    option.textContent = nomeLegivel;
+                    selectGrafico.appendChild(option);
+                });
+                
+                // Carrega o gráfico do primeiro exercício
+                if (exercicios.length > 0) {
+                    inicializarGraficoAluno(exercicios[0]);
+                }
             });
         }
 
@@ -404,7 +455,7 @@
                 selDia.onchange = carregarTreinoDia;
                 
                 // Carrega o primeiro treino se houver
-                if (selDia.options.length > 0) {
+                if (selDia.options.length > 0 && selDia.value) {
                     carregarTreinoDia();
                 }
             });
@@ -418,7 +469,9 @@
             carregarDiasTreinoDoAluno();
             carregarMedidas(); 
             carregarPresenca(); 
-            inicializarGraficoAluno(document.getElementById('selectGrafico').value); 
+            
+            // Carrega todos os exercícios do aluno para o gráfico
+            carregarExerciciosDoAluno();
         }
 
         // ------------------------------------
@@ -656,12 +709,14 @@
 
         function inicializarGraficoAluno(exKey) {
             if (!alunoSelecionadoNome) return;
+            
             if(pesoChart) {
                 pesoChart.destroy();
                 pesoChart = null;
             }
-            // Assume que não há dados no início
-            document.getElementById('chart-empty-message').style.display = 'flex'; 
+            
+            // Esconde a mensagem de "sem dados" inicialmente
+            document.getElementById('chart-empty-message').style.display = 'none';
             
             const pathPrincipal = getPath(`cargas/${exKey}`);
             database.ref(pathPrincipal).once('value', snap => {
@@ -669,53 +724,71 @@
                 
                 if(snap.exists()){
                     snap.forEach(c => {
-                        dados.push(c.val());
-                    });
-                    renderizarGrafico(dados, exKey);
-                } else {
-                    const pathFallback = getPath(`cargas/${exKey.toLowerCase()}`);
-                    database.ref(pathFallback).once('value', snapBk => {
-                        if(snapBk.exists()){
-                            snapBk.forEach(c => {
-                                dados.push(c.val());
-                            });
+                        const val = c.val();
+                        // Garante que o valor é um número
+                        if (val && (val.peso || val.carga || val.weight)) {
+                            dados.push(val);
                         }
-                        renderizarGrafico(dados, exKey);
                     });
                 }
+                
+                // Se não há dados, mostra mensagem
+                if(dados.length === 0) {
+                    const nomeLegivel = exKey
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase())
+                        .trim();
+                    
+                    document.getElementById('chart-empty-message').textContent = 
+                        `Nenhum dado registrado para: ${nomeLegivel}`;
+                    document.getElementById('chart-empty-message').style.display = 'flex';
+                    return;
+                }
+                
+                renderizarGrafico(dados, exKey);
             });
         }
 
         function renderizarGrafico(dados, exKey) {
             const ctx = document.getElementById('chartAdmin').getContext('2d');
             const select = document.getElementById('selectGrafico');
-            const titulo = select.options[select.selectedIndex].text;
-
-            if(dados.length === 0) {
-                // Se não há dados, garante que a mensagem de 'sem dados' esteja visível
-                document.getElementById('chart-empty-message').textContent = `Sem dados para o exercício: ${titulo}`;
-                document.getElementById('chart-empty-message').style.display = 'flex';
-                return;
-            }
+            const selectedOption = select.options[select.selectedIndex];
+            const titulo = selectedOption ? selectedOption.textContent : exKey;
 
             // Se há dados, esconde a mensagem e desenha o gráfico
             document.getElementById('chart-empty-message').style.display = 'none';
 
-            const exemplo = dados.find(d => d.peso || d.carga || d.weight) || dados[0];
-            let chavePeso = 'peso'; 
-            if(exemplo) {
-                if (exemplo.carga !== undefined) chavePeso = 'carga';
-                else if (exemplo.weight !== undefined) chavePeso = 'weight';
+            // Determina qual chave usar para o peso
+            let chavePeso = 'peso';
+            if (dados.length > 0) {
+                const primeiro = dados[0];
+                if (primeiro.carga !== undefined && primeiro.carga !== null) chavePeso = 'carga';
+                else if (primeiro.weight !== undefined && primeiro.weight !== null) chavePeso = 'weight';
             }
 
-            dados.sort((a,b) => a.timestamp - b.timestamp);
+            // Ordena por timestamp
+            dados.sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0));
+            
+            // Prepara os dados
+            const labels = dados.map(d => {
+                if (d.data) return d.data;
+                if (d.date) return d.date;
+                if (d.timestamp) return new Date(d.timestamp).toLocaleDateString('pt-BR');
+                return '';
+            });
+            
+            const valores = dados.map(d => {
+                const valor = d[chavePeso];
+                return parseFloat(valor) || 0;
+            });
+
             pesoChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dados.map(d => d.data || d.date || new Date(d.timestamp).toLocaleDateString()),
+                    labels: labels,
                     datasets: [{
                         label: `${titulo} (kg)`,
-                        data: dados.map(d => parseFloat(d[chavePeso]) || 0),
+                        data: valores,
                         borderColor: '#00d4ff',
                         backgroundColor: 'rgba(0,212,255,0.1)',
                         fill: true,
@@ -728,10 +801,28 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: { 
-                        y: { beginAtZero: true, grid:{color:'#333'}, ticks: { color: '#e0e0e0' } }, 
-                        x: { grid:{color:'#333'}, ticks: { color: '#e0e0e0' } } 
+                        y: { 
+                            beginAtZero: true, 
+                            grid:{color:'#333'}, 
+                            ticks: { color: '#e0e0e0' } 
+                        }, 
+                        x: { 
+                            grid:{color:'#333'}, 
+                            ticks: { color: '#e0e0e0' } 
+                        } 
                     },
-                    plugins: { legend: { labels: { color: '#e0e0e0' } } }
+                    plugins: { 
+                        legend: { 
+                            labels: { color: '#e0e0e0' } 
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${titulo}: ${context.parsed.y} kg`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
