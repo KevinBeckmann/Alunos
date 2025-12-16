@@ -122,33 +122,7 @@
             border: 1px solid #333;
         }
         
-        /* Estilos para sessões */
-        .sessao-item {
-            background: #2c2c2c;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-        
-        .sessao-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .sessao-title {
-            font-weight: bold;
-            color: #00d4ff;
-        }
-        
-        .btn-pequeno {
-            padding: 5px 10px;
-            font-size: 0.8em;
-        }
-        
-        /* Preview do aluno */
+        /* Estilos para preview do aluno */
         #preview-aluno {
             background: #2c2c2c;
             padding: 15px;
@@ -215,7 +189,6 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="abrirTab('tab-treino')">📋 Treino</button>
             <button class="tab-btn" onclick="abrirTab('tab-graficos')">📊 Gráficos</button>
-            <button class="tab-btn" onclick="abrirTab('tab-sessoes')">📅 Sessões</button>
             <button class="tab-btn" onclick="abrirTab('tab-medidas')">📏 Medidas</button>
         </div>
 
@@ -299,25 +272,6 @@
             </div>
         </div>
 
-        <!-- Tab Sessões -->
-        <div id="tab-sessoes" class="tab-content">
-            <div class="card">
-                <h2>📅 Gerenciar Sessões</h2>
-                <div style="margin-bottom: 15px;">
-                    <label>Selecione o Aluno:</label>
-                    <select id="selectAlunoSessoes" onchange="carregarSessoesAluno()">
-                        <option>Carregando...</option>
-                    </select>
-                </div>
-                
-                <button class="btn-save" onclick="abrirModalSessao()" style="background-color: #38c172; margin-bottom: 20px;">+ Nova Sessão</button>
-                
-                <div id="lista-sessoes">
-                    <p style="color: #777; text-align: center;">Carregando sessões...</p>
-                </div>
-            </div>
-        </div>
-
         <!-- Tab Medidas -->
         <div id="tab-medidas" class="tab-content">
             <div class="card">
@@ -389,30 +343,6 @@
         </div>
     </div>
 
-    <div id="modalSessao" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('modalSessao').style.display='none'">&times;</span>
-            <h2>➕ Nova Sessão</h2>
-            <label>Data da Sessão:</label>
-            <input type="date" id="sessao-data" required>
-            
-            <label>Tipo de Treino:</label>
-            <select id="sessao-tipo">
-                <option value="A">Treino A</option>
-                <option value="B">Treino B</option>
-                <option value="C">Treino C</option>
-                <option value="D">Treino D</option>
-                <option value="cardio">Cardio</option>
-                <option value="descanso">Descanso</option>
-            </select>
-            
-            <label>Observações:</label>
-            <textarea id="sessao-obs" rows="3" placeholder="Observações da sessão..."></textarea>
-
-            <button class="btn-save" onclick="salvarSessao()">Salvar Sessão</button>
-        </div>
-    </div>
-
     <div id="modalMedida" class="modal">
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('modalMedida').style.display='none'">&times;</span>
@@ -437,6 +367,7 @@
         
         // --- VARIÁVEIS GLOBAIS ---
         let alunoSelecionadoNome = ''; 
+        let alunoSelecionadoChave = '';
         let auth, database;
         let editorSortable = null;
         let graficos = {};
@@ -509,8 +440,6 @@
                 carregarDiasTreinoDoAluno();
             } else if (tabId === 'tab-graficos' && alunoSelecionadoNome) {
                 carregarGraficosAluno();
-            } else if (tabId === 'tab-sessoes' && alunoSelecionadoNome) {
-                carregarSessoesAluno();
             } else if (tabId === 'tab-medidas' && alunoSelecionadoNome) {
                 carregarMedidasCompletas();
             }
@@ -526,7 +455,7 @@
         }
 
         function getPath(sub) {
-            return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
+            return `alunos/${alunoSelecionadoChave}/${sub}`;
         }
 
         function mostrarErro(mensagem) {
@@ -561,22 +490,34 @@
         function inicializarPainel() {
             const selTreino = document.getElementById('selectAluno');
             const selGraficos = document.getElementById('selectAlunoGraficos');
-            const selSessoes = document.getElementById('selectAlunoSessoes');
             const selMedidas = document.getElementById('selectAlunoMedidas');
             
-            const atualizarAlunoGlobal = (nome) => {
+            const atualizarAlunoGlobal = (nome, chave) => {
                 alunoSelecionadoNome = nome;
+                alunoSelecionadoChave = chave;
                 selTreino.value = nome;
                 selGraficos.value = nome;
-                selSessoes.value = nome;
                 selMedidas.value = nome;
                 carregarTudo();
             };
             
-            selTreino.onchange = (e) => atualizarAlunoGlobal(e.target.value);
-            selGraficos.onchange = (e) => atualizarAlunoGlobal(e.target.value);
-            selSessoes.onchange = (e) => atualizarAlunoGlobal(e.target.value);
-            selMedidas.onchange = (e) => atualizarAlunoGlobal(e.target.value);
+            selTreino.onchange = (e) => {
+                const nomeSelecionado = e.target.value;
+                // Encontrar a chave correspondente ao nome selecionado
+                database.ref('alunos/').once('value', snap => {
+                    const alunos = snap.val();
+                    for(const chave in alunos) {
+                        const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' ');
+                        if(nomeLegivel === nomeSelecionado) {
+                            atualizarAlunoGlobal(nomeLegivel, chave);
+                            break;
+                        }
+                    }
+                });
+            };
+            
+            selGraficos.onchange = selTreino.onchange;
+            selMedidas.onchange = selTreino.onchange;
             
             carregarListaAlunos();
         }
@@ -585,7 +526,6 @@
             const selects = [
                 document.getElementById('selectAluno'),
                 document.getElementById('selectAlunoGraficos'),
-                document.getElementById('selectAlunoSessoes'),
                 document.getElementById('selectAlunoMedidas')
             ];
             
@@ -602,12 +542,16 @@
                     }
                     
                     let primeiro = null;
+                    let primeiroChave = null;
                     const nomesParaSelect = [];
 
                     for(const chave in alunos) {
                         const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' '); 
                         nomesParaSelect.push({ chave, nomeLegivel });
-                        if(!primeiro) primeiro = nomeLegivel;
+                        if(!primeiro) {
+                            primeiro = nomeLegivel;
+                            primeiroChave = chave;
+                        }
                     }
                   
                     nomesParaSelect.sort((a, b) => a.nomeLegivel.localeCompare(b.nomeLegivel));
@@ -624,6 +568,7 @@
                     } else if(primeiro) {
                         sel.value = primeiro;
                         alunoSelecionadoNome = primeiro;
+                        alunoSelecionadoChave = primeiroChave;
                     }
                 });
 
@@ -644,8 +589,6 @@
                 carregarHistoricoEnvios();
             } else if(tabAtiva === 'tab-graficos') {
                 carregarGraficosAluno();
-            } else if(tabAtiva === 'tab-sessoes') {
-                carregarSessoesAluno();
             } else if(tabAtiva === 'tab-medidas') {
                 carregarMedidasCompletas();
             }
@@ -656,7 +599,7 @@
         // ============================================
 
         function carregarDiasTreinoDoAluno() {
-            if (!alunoSelecionadoNome) {
+            if (!alunoSelecionadoChave) {
                 document.getElementById('selectDia').innerHTML = '<option>Selecione um aluno primeiro</option>';
                 return;
             }
@@ -670,11 +613,6 @@
                 
                 if (!treinoModel || Object.keys(treinoModel).length === 0) {
                     selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
-                    const option = document.createElement('option');
-                    option.value = "Dia A";
-                    option.textContent = "Criar Dia A";
-                    selDia.appendChild(option);
-                    selDia.value = "Dia A";
                 } else {
                     Object.keys(treinoModel).forEach(dia => {
                         const option = document.createElement('option');
@@ -704,7 +642,7 @@
 
         function carregarTreinoDia() {
             const dia = document.getElementById('selectDia').value;
-            if(!alunoSelecionadoNome || !dia || dia === 'Carregando Dias...') {
+            if(!alunoSelecionadoChave || !dia || dia === 'Carregando Dias...' || dia === 'Nenhum treino criado') {
                 console.log("Condições não atendidas para carregar treino");
                 return;
             }
@@ -800,13 +738,13 @@
         }
 
         function salvarTreino() {
-            if(!alunoSelecionadoNome) {
+            if(!alunoSelecionadoChave) {
                 mostrarMensagem('Selecione um aluno primeiro!', 'erro');
                 return;
             }
             
             const dia = document.getElementById('selectDia').value;
-            if(!dia || dia === 'Carregando Dias...') {
+            if(!dia || dia === 'Carregando Dias...' || dia === 'Nenhum treino criado') {
                 mostrarMensagem('Selecione um dia de treino!', 'erro');
                 return;
             }
@@ -847,13 +785,13 @@
         }
 
         function enviarTreinoParaAluno() {
-            if(!alunoSelecionadoNome) {
+            if(!alunoSelecionadoChave) {
                 mostrarMensagem('Selecione um aluno primeiro!', 'erro');
                 return;
             }
             
             const dia = document.getElementById('selectDia').value;
-            if(!dia || dia === 'Carregando Dias...') {
+            if(!dia || dia === 'Carregando Dias...' || dia === 'Nenhum treino criado') {
                 mostrarMensagem('Selecione um dia de treino!', 'erro');
                 return;
             }
@@ -912,7 +850,7 @@
         }
 
         function carregarTreinoAtualAluno() {
-            if (!alunoSelecionadoNome) return;
+            if (!alunoSelecionadoChave) return;
             
             const preview = document.getElementById('preview-aluno');
             preview.innerHTML = '<p style="color: #777; text-align: center;">Carregando treino atual do aluno...</p>';
@@ -964,7 +902,7 @@
         }
 
         function carregarHistoricoEnvios() {
-            if (!alunoSelecionadoNome) return;
+            if (!alunoSelecionadoChave) return;
             
             const historico = document.getElementById('historico-envios');
             historico.innerHTML = '<li style="padding: 10px; border-bottom: 1px solid #333;">Carregando...</li>';
@@ -1002,7 +940,7 @@
         // ============================================
 
         function abrirModalDia() {
-            if (!alunoSelecionadoNome) {
+            if (!alunoSelecionadoChave) {
                 mostrarMensagem('Selecione um aluno primeiro!', 'erro');
                 return;
             }
@@ -1011,7 +949,7 @@
         }
 
         function salvarNovoDia() {
-            if (!alunoSelecionadoNome) {
+            if (!alunoSelecionadoChave) {
                 mostrarMensagem('Selecione um aluno primeiro!', 'erro');
                 return;
             }
@@ -1024,7 +962,7 @@
 
             database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
                 if (snap.exists()) {
-                    mostrarMensagem(`O dia "${nomeDia}" já existe!', 'erro`);
+                    mostrarMensagem(`O dia "${nomeDia}" já existe!`, 'erro');
                     return;
                 }
 
@@ -1048,7 +986,7 @@
         }
 
         function removerDiaTreino() {
-            if (!alunoSelecionadoNome) {
+            if (!alunoSelecionadoChave) {
                 mostrarMensagem('Selecione um aluno primeiro!', 'erro');
                 return;
             }
@@ -1056,7 +994,7 @@
             const select = document.getElementById('selectDia');
             const diaParaRemover = select.value;
 
-            if (!diaParaRemover || select.options.length === 0) {
+            if (!diaParaRemover || select.options.length === 0 || diaParaRemover === 'Nenhum treino criado') {
                 mostrarMensagem('Selecione um dia para remover!', 'erro');
                 return;
             }
@@ -1084,7 +1022,7 @@
         // ============================================
 
         function carregarGraficosAluno() {
-            if (!alunoSelecionadoNome) return;
+            if (!alunoSelecionadoChave) return;
             
             const container = document.getElementById('graficos-container');
             container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 20px;">Carregando gráficos...</div>';
@@ -1339,120 +1277,11 @@
         }
 
         // ============================================
-        // === FUNÇÕES DA TAB SESSÕES ================
-        // ============================================
-
-        function carregarSessoesAluno() {
-            if (!alunoSelecionadoNome) return;
-            
-            const container = document.getElementById('lista-sessoes');
-            container.innerHTML = '<p style="color: #777; text-align: center;">Carregando sessões...</p>';
-            
-            database.ref(getPath('sessoes')).once('value', snap => {
-                container.innerHTML = '';
-                
-                if (!snap.exists()) {
-                    container.innerHTML = '<p style="color: #777; text-align: center;">Nenhuma sessão registrada</p>';
-                    return;
-                }
-                
-                const sessoes = [];
-                snap.forEach(child => {
-                    sessoes.push({ ...child.val(), id: child.key });
-                });
-                
-                sessoes.sort((a, b) => {
-                    const dateA = a.data ? new Date(a.data) : new Date(a.timestamp);
-                    const dateB = b.data ? new Date(b.data) : new Date(b.timestamp);
-                    return dateB - dateA;
-                });
-                
-                sessoes.forEach(sessao => {
-                    const sessaoDiv = document.createElement('div');
-                    sessaoDiv.className = 'sessao-item';
-                    
-                    const dataFormatada = sessao.data || new Date(sessao.timestamp).toLocaleDateString('pt-BR');
-                    
-                    sessaoDiv.innerHTML = `
-                        <div class="sessao-header">
-                            <div class="sessao-title">
-                                ${dataFormatada} - ${sessao.tipo || 'Treino'}
-                            </div>
-                            <div class="btn-acoes">
-                                <button class="btn-pequeno btn-acao-aluno" onclick="editarSessao('${sessao.id}')">✏️</button>
-                                <button class="btn-pequeno btn-remover" onclick="excluirSessao('${sessao.id}')">🗑️</button>
-                            </div>
-                        </div>
-                        ${sessao.observacoes ? `<p style="margin: 0; color: #aaa;">${sessao.observacoes}</p>` : ''}
-                        ${sessao.exercicios ? `<p style="margin: 5px 0 0 0; color: #777; font-size: 0.9em;">${sessao.exercicios} exercícios</p>` : ''}
-                    `;
-                    
-                    container.appendChild(sessaoDiv);
-                });
-            });
-        }
-
-        function abrirModalSessao() {
-            if (!alunoSelecionadoNome) return alert('Selecione um aluno primeiro!');
-            
-            document.getElementById('sessao-data').value = new Date().toISOString().split('T')[0];
-            document.getElementById('sessao-tipo').value = 'A';
-            document.getElementById('sessao-obs').value = '';
-            document.getElementById('modalSessao').style.display = 'block';
-        }
-
-        function salvarSessao() {
-            if (!alunoSelecionadoNome) return;
-            
-            const data = document.getElementById('sessao-data').value;
-            const tipo = document.getElementById('sessao-tipo').value;
-            const obs = document.getElementById('sessao-obs').value;
-            
-            if (!data) return alert('Informe a data da sessão!');
-            
-            const sessaoData = {
-                data: data,
-                tipo: tipo,
-                observacoes: obs,
-                timestamp: Date.now(),
-                criadoPor: auth.currentUser.email
-            };
-            
-            database.ref(getPath('sessoes')).push(sessaoData)
-                .then(() => {
-                    alert('✅ Sessão salva com sucesso!');
-                    document.getElementById('modalSessao').style.display = 'none';
-                    carregarSessoesAluno();
-                })
-                .catch(error => {
-                    alert('❌ Erro ao salvar sessão: ' + error.message);
-                });
-        }
-
-        function excluirSessao(sessaoId) {
-            if (!confirm('Tem certeza que deseja excluir esta sessão?')) return;
-            
-            database.ref(getPath(`sessoes/${sessaoId}`)).remove()
-                .then(() => {
-                    alert('✅ Sessão excluída!');
-                    carregarSessoesAluno();
-                })
-                .catch(error => {
-                    alert('❌ Erro ao excluir sessão: ' + error.message);
-                });
-        }
-
-        function editarSessao(sessaoId) {
-            // Implementar edição de sessão
-            alert('Edição de sessão será implementada em breve!');
-        }
-
-        // ============================================
         // === FUNÇÕES DA TAB MEDIDAS ================
         // ============================================
 
         function carregarMedidasCompletas() {
-            if (!alunoSelecionadoNome) return;
+            if (!alunoSelecionadoChave) return;
             
             const tbody = document.getElementById('tabela-medidas-completa');
             tbody.innerHTML = '<tr><td colspan="5" class="sem-dados">Carregando...</td></tr>';
@@ -1497,7 +1326,7 @@
         }
 
         function abrirModalMedida() {
-            if (!alunoSelecionadoNome) return alert('Selecione um aluno primeiro!');
+            if (!alunoSelecionadoChave) return alert('Selecione um aluno primeiro!');
             
             document.getElementById('medida-data').value = new Date().toISOString().split('T')[0];
             document.getElementById('medida-peso').value = '';
@@ -1507,7 +1336,7 @@
         }
 
         function salvarMedida() {
-            if (!alunoSelecionadoNome) return;
+            if (!alunoSelecionadoChave) return;
             
             const data = document.getElementById('medida-data').value;
             const peso = document.getElementById('medida-peso').value;
@@ -1592,7 +1421,8 @@
                         .then(() => {
                             alert(`✅ Aluno "${nome}" adicionado com sucesso!`);
                             document.getElementById('modalAluno').style.display = 'none';
-                            alunoSelecionadoNome = nome; 
+                            alunoSelecionadoNome = nome;
+                            alunoSelecionadoChave = chave; 
                             carregarListaAlunos();
                         })
                         .catch(e => alert('Erro ao adicionar aluno: ' + e.message));
@@ -1601,16 +1431,16 @@
         }
         
         function excluirAluno() {
-            if (!alunoSelecionadoNome) {
+            if (!alunoSelecionadoChave) {
                 return alert('Selecione um aluno para excluir.');
             }
 
             if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o aluno "${alunoSelecionadoNome}" e todos os seus dados?`)) {
-                const chave = formatarNomeParaChave(alunoSelecionadoNome);
-                database.ref(`alunos/${chave}`).remove()
+                database.ref(`alunos/${alunoSelecionadoChave}`).remove()
                 .then(() => {
                     alert(`✅ Aluno "${alunoSelecionadoNome}" excluído com sucesso!`);
                     alunoSelecionadoNome = ''; 
+                    alunoSelecionadoChave = '';
                     carregarListaAlunos();
                 })
                 .catch(e => alert('Erro ao excluir aluno: ' + e.message));
@@ -1618,7 +1448,7 @@
         }
         
         function abrirModalRenomearAluno() {
-            if (!alunoSelecionadoNome) {
+            if (!alunoSelecionadoChave) {
                 return alert('Selecione um aluno para renomear.');
             }
             document.getElementById('nome-aluno-antigo').textContent = alunoSelecionadoNome;
@@ -1629,12 +1459,12 @@
         function renomearAluno() {
             const novoNome = document.getElementById('novo-nome-aluno').value.trim();
             const nomeAntigo = alunoSelecionadoNome;
+            const chaveAntiga = alunoSelecionadoChave;
 
             if (!novoNome || novoNome === nomeAntigo) {
                 return alert('O novo nome deve ser diferente e não pode ser vazio.');
             }
 
-            const chaveAntiga = formatarNomeParaChave(nomeAntigo);
             const chaveNova = formatarNomeParaChave(novoNome);
             
             if (confirm(`Confirma a renomeação de "${nomeAntigo}" para "${novoNome}"? TODOS os dados serão movidos.`)) {
@@ -1667,7 +1497,8 @@
                 .then(() => {
                     alert(`✅ Aluno renomeado com sucesso de "${nomeAntigo}" para "${novoNome}".`);
                     document.getElementById('modalEditarNome').style.display = 'none';
-                    alunoSelecionadoNome = novoNome; 
+                    alunoSelecionadoNome = novoNome;
+                    alunoSelecionadoChave = chaveNova; 
                     carregarListaAlunos();
                 })
                 .catch(e => {
