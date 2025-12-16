@@ -920,7 +920,7 @@
             carregarUltimasMedidas();
         }
 
-      function carregarUltimasMedidas() {
+               function carregarUltimasMedidas() {
             database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
                 const div = document.getElementById('ultimasMedidas');
                 div.innerHTML = 'Nenhum registro encontrado.';
@@ -932,69 +932,87 @@
             });
         }
 
-        function alternarTreino() {
-            const dia = document.getElementById('seletorTreino').value;
-            document.querySelectorAll('.lista-treino-dia').forEach(e => e.style.display = 'none');
-            document.getElementById(`treino-${dia}`).style.display = 'block';
-
-            carregarTreinoDoProfessor(dia);
+        function carregarTreinoDoProfessor(dia) {
+            const treinoContainer = document.getElementById('treino-dinamico-container');
+            
+            // Atualiza o conteúdo do container
+            treinoContainer.innerHTML = `
+                <h3>${dia}</h3>
+                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                        Carregando treino...
+                    </li>
+                </ul>
+                <div style="margin-top:10px;">
+                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
+                </div>
+            `;
+            
+            // Busca os exercícios do dia específico
+            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
+                const ul = document.getElementById('lista-treino-dinamico');
+                ul.innerHTML = '';
+                
+                if (!snap.exists()) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Treino não encontrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
+                
+                let contador = 0;
+                snap.forEach(childSnapshot => {
+                    contador++;
+                    const t = childSnapshot.val();
+                    if (t && t.nome) {
+                        const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
+                        const li = document.createElement('li');
+                        li.className = 'exercicio-item';
+                        li.setAttribute('data-exercicio', id);
+                        li.innerHTML = `
+                            <div class="exercicio-info">
+                                <strong>${t.nome}</strong>
+                                <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
+                                ${t.nota ? `<br><small style="color:#ccc;">${t.nota}</small>` : ''}
+                            </div>
+                            <div class="checkbox-container">
+                                <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
+                            </div>
+                        `;
+                        ul.appendChild(li);
+                    }
+                });
+                
+                // Carrega status dos checkboxes
+                carregarCheckboxes(dia);
+            });
         }
 
         function marcarConcluido(chk, dia, id) {
             const li = chk.closest('li');
-            chk.checked ? li.classList.add('concluido') : li.classList.remove('concluido');
+            if (chk.checked) {
+                li.classList.add('concluido');
+            } else {
+                li.classList.remove('concluido');
+            }
+            
+            // Salva o status no Firebase
             database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
         }
 
         function carregarCheckboxes(dia) {
             database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
-                const s = snap.val() || {};
-                document.getElementById(`treino-${dia}`).querySelectorAll('li').forEach(li => {
+                const status = snap.val() || {};
+                document.querySelectorAll(`#lista-treino-dinamico li`).forEach(li => {
                     const id = li.getAttribute('data-exercicio');
-                    const chk = li.querySelector('input');
-                    if (chk) {
-                        if (s[id]) {
-                            chk.checked = true;
-                            li.classList.add('concluido');
-                        } else {
-                            chk.checked = false;
-                            li.classList.remove('concluido');
-                        }
+                    const chk = li.querySelector('input[type="checkbox"]');
+                    if (chk && status[id]) {
+                        chk.checked = true;
+                        li.classList.add('concluido');
                     }
                 });
-            });
-        }
-
-        function carregarTreinoDoProfessor(dia) {
-            const idLista = dia === 'Dia A' ?
-                'lista-treino-a' : (dia === 'Dia B' ? 'lista-treino-b' : 'lista-treino-c');
-            const ul = document.getElementById(idLista);
-            
-            database.ref(getPath(`treinoModel/${dia}`)).off('value');
-            
-            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
-                ul.innerHTML = ''; 
-
-                if (!snap.exists()) {
-                    ul.innerHTML = '<li class="exercicio-item" style="background: none; border: none; color: #ff9933; border-bottom: 1px dashed rgba(255, 255, 255, 0.2); padding: 10px;">Seu treino ainda não foi enviado.</li>';
-                    return;
-                }
-
-                snap.forEach(childSnapshot => {
-                    const t = childSnapshot.val();
-                    if (t && t.nome) {
-                        const id = t.nome.replace(/\s/g, '');
-                        const li = document.createElement('li');
-                        li.className = 'exercicio-item';
-                        li.setAttribute('data-exercicio', id);
-                        li.innerHTML = `
-                            <div class="exercicio-info"><strong>${t.nome}</strong><span>${t.series}x | ${t.reps}</span></div>
-                            <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')"></div>
-                        `;
-                        ul.appendChild(li);
-                    }
-                });
-                carregarCheckboxes(dia);
             });
         }
 
