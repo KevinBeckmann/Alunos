@@ -442,42 +442,21 @@
             <h2> Treino de Força</h2>
 
             <label for="seletorTreino">Selecionar Dia:</label>
-            <select id="seletorTreino" onchange="alternarTreino()">
-                <option value="Dia A">Dia A </option>
-                <option value="Dia B">Dia B </option>
-                <option value="Dia C">Dia C </option>
+            <select id="seletorTreino" onchange="carregarTreinoDoProfessor(this.value)">
+                <option value="">Carregando dias de treino...</option>
             </select>
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
-            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff9933">...</span>
-                | <strong>Data:</strong>
-                <span id="data-atual"></span></p>
+            <p style="text-align: center;">
+                <strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff9933">...</span> | 
+                <strong>Data:</strong> <span id="data-atual"></span>
+            </p>
 
-            <div id="treino-Dia A" class="lista-treino-dia">
-                <h3>Dia A: </h3>
-                <ul id="lista-treino-a" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
-                    </li>
-                </ul>
-            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
-            </div>
-
-            <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
-                <h3>Dia B: </h3>
-                <ul id="lista-treino-b" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
-                    </li>
-                </ul>
-            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
-            </div>
-
-            <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
-                <h3>Dia C: </h3>
-                <ul id="lista-treino-c" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
-                    </li>
-                </ul>
-            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
+            <!-- Container dinâmico para o treino -->
+            <div id="treino-dinamico-container">
+                <p style="text-align: center; color: #ccc;">
+                    Selecione um dia de treino para visualizar os exercícios.
+                </p>
             </div>
         </div>
 
@@ -615,34 +594,68 @@
             start();
         }
 
+        // Função para carregar os dias de treino dinamicamente
+        function carregarDiasTreino() {
+            const select = document.getElementById('seletorTreino');
+            
+            // Limpa opções atuais
+            select.innerHTML = '<option value="">Carregando...</option>';
+            
+            // Busca os dias de treino disponíveis no Firebase
+            database.ref(getPath('treinoModel')).once('value', snapshot => {
+                if (!snapshot.exists()) {
+                    select.innerHTML = '<option value="">Nenhum treino disponível</option>';
+                    return;
+                }
+                
+                // Limpa as opções
+                select.innerHTML = '';
+                
+                // Adiciona cada dia encontrado
+                snapshot.forEach(childSnapshot => {
+                    const dia = childSnapshot.key;
+                    const option = document.createElement('option');
+                    option.value = dia;
+                    option.textContent = dia;
+                    select.appendChild(option);
+                });
+                
+                // Carrega o primeiro treino por padrão
+                if (select.options.length > 0) {
+                    select.value = select.options[0].value;
+                    carregarTreinoDoProfessor(select.value);
+                }
+            });
+        }
+
         // função: finalizarTreino (salva treino finalizado com Firebase SDK)
         function finalizarTreino() {
             try {
-                const dia = document.getElementById('seletorTreino') ? document.getElementById('seletorTreino').value : 'Dia A';
+                const select = document.getElementById('seletorTreino');
+                const dia = select ? select.value : null;
+                
+                if (!dia) {
+                    alert('Selecione um treino primeiro!');
+                    return;
+                }
+                
                 const agora = new Date();
                 const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
                 const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-                let idLista = (dia === 'Dia A') ? 'lista-treino-a' : ((dia === 'Dia B') ? 'lista-treino-b' : 'lista-treino-c');
-                const listaEl = document.getElementById(idLista);
+                
+                const listaEl = document.getElementById('lista-treino-dinamico');
                 const concluidos = [];
+                
                 if (listaEl) {
                     listaEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                         if (cb.checked) {
-                            let nome = cb.getAttribute('data-nome') || '';
-                            if (!nome) {
-                                const li = cb.closest('li');
-                                if (li) {
-                                    const s = li.querySelector('.exercicio-info strong');
-                                    if (s) nome = s.textContent.trim();
-                                }
-                            }
-                            if (!nome) nome = 'Exercício marcado';
+                            const li = cb.closest('li');
+                            const nome = li.querySelector('.exercicio-info strong')?.textContent.trim() || 'Exercício';
                             concluidos.push(nome);
                         }
                     });
                 }
-
+                
                 const payload = {
                     dia: dia,
                     data: dataLegivel,
@@ -652,15 +665,16 @@
                     concluidoCount: concluidos.length,
                     exerciciosConcluidos: concluidos
                 };
-
+                
                 const ref = database.ref(getPath('treinosFinalizados')).push();
                 ref.set(payload)
                     .then(() => {
-                        try { carregarUltimoTreino(); } catch(e){console.warn('carregarUltimoTreino erro',e);}
-                        try { contarTreinosDoMes(); } catch(e){console.warn('contarTreinosDoMes erro',e);}
-                        try { marcarTreinoNoCalendario(new Date()); } catch(e){console.warn('marcarTreinoNoCalendario erro',e);}
-                        try { carregarTreinosFinalizados(); } catch(e){console.warn('carregarTreinosFinalizados erro',e);}
-                        alert('Treino registrado com sucesso!');
+                        alert(`Treino ${dia} registrado com sucesso!`);
+                        // Recarrega as estatísticas
+                        carregarUltimoTreino();
+                        contarTreinosDoMes();
+                        marcarTreinoNoCalendario(new Date());
+                        carregarTreinosFinalizados();
                     })
                     .catch(err => {
                         console.error('Erro ao salvar treino finalizado:', err);
@@ -797,8 +811,10 @@
         
             inicializarGrafico();
             carregarUltimasMedidas();
-            alternarTreino();
             gerarCalendario();
+            
+            // Carrega os dias de treino dinamicamente
+            carregarDiasTreino();
         
             carregarUltimoTreino();
             contarTreinosDoMes();
@@ -904,7 +920,7 @@
             carregarUltimasMedidas();
         }
 
-        function carregarUltimasMedidas() {
+      function carregarUltimasMedidas() {
             database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
                 const div = document.getElementById('ultimasMedidas');
                 div.innerHTML = 'Nenhum registro encontrado.';
