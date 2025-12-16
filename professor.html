@@ -212,7 +212,7 @@
         // === 1. CONFIGURAÇÃO FIREBASE ===
         // 🚨 POR FAVOR, TROQUE ISTO PELAS SUAS CHAVES REAIS! 🚨
         const firebaseConfig = {
-            apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0", // CHAVE FICTÍCIA
+            apiKey: "AIzaSyDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
             databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
             projectId: "ptf03-26fdb",
@@ -310,10 +310,10 @@
                 carregarTudo(); 
             };
             
-            // 1. Carrega os dias disponíveis, e só no callback, carrega os alunos.
-            carregarDiasTreino(() => {
-                 carregarListaAlunos();
-            });
+            // Carrega os dias disponíveis para o aluno selecionado
+            carregarDiasTreinoDoAluno();
+            // Carrega a lista de alunos
+            carregarListaAlunos();
         }
         
         function carregarListaAlunos() {
@@ -369,90 +369,110 @@
             });
         }
 
+        // NOVA FUNÇÃO: Carrega os dias de treino de um aluno específico
+        function carregarDiasTreinoDoAluno() {
+            if (!alunoSelecionadoNome) {
+                document.getElementById('selectDia').innerHTML = '<option>Selecione um aluno primeiro</option>';
+                return;
+            }
+
+            const selDia = document.getElementById('selectDia');
+            selDia.innerHTML = '<option>Carregando Dias...</option>';
+
+            database.ref(getPath('treinoModel')).once('value', snap => {
+                const treinoModel = snap.val();
+                selDia.innerHTML = '';
+                
+                if (!treinoModel) {
+                    selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
+                    // Adiciona opção para criar primeiro treino
+                    const option = document.createElement('option');
+                    option.value = "Dia A";
+                    option.textContent = "Criar Dia A";
+                    selDia.appendChild(option);
+                } else {
+                    // Adiciona todos os dias encontrados
+                    Object.keys(treinoModel).forEach(dia => {
+                        const option = document.createElement('option');
+                        option.value = dia;
+                        option.textContent = dia;
+                        selDia.appendChild(option);
+                    });
+                }
+                
+                // Atualiza o treino quando selecionar um dia
+                selDia.onchange = carregarTreinoDia;
+                
+                // Carrega o primeiro treino se houver
+                if (selDia.options.length > 0) {
+                    carregarTreinoDia();
+                }
+            });
+        }
 
         function carregarTudo() {
             if(!alunoSelecionadoNome) return;
             document.getElementById('titulo-acompanhamento').textContent = `Acompanhamento: ${alunoSelecionadoNome}`;
             
-            carregarTreinoDia();
+            // Carrega os dias de treino específicos deste aluno
+            carregarDiasTreinoDoAluno();
             carregarMedidas(); 
             carregarPresenca(); 
             inicializarGraficoAluno(document.getElementById('selectGrafico').value); 
         }
 
         // ------------------------------------
-        // === FUNÇÕES DE GESTÃO DE DIAS DE TREINO (NOVAS) ===
+        // === FUNÇÕES DE GESTÃO DE DIAS DE TREINO (MODIFICADAS) ===
         // ------------------------------------
-        const CHAVE_DIAS = 'config/diasTreino';
-
-        function carregarDiasTreino(callback) {
-            const selDia = document.getElementById('selectDia');
-            selDia.innerHTML = '<option>Carregando Dias...</option>';
-
-            database.ref(CHAVE_DIAS).once('value', snap => {
-                let dias = snap.val();
-                selDia.innerHTML = '';
-                
-                // Se não houver dias, inicializa com A, B, C (o padrão)
-                if (!dias || dias.length === 0) {
-                    dias = ["Dia A", "Dia B", "Dia C"];
-                    // Salva o padrão no Firebase
-                    database.ref(CHAVE_DIAS).set(dias);
-                }
-
-                // Popula o Select
-                dias.forEach(dia => {
-                    const opt = document.createElement('option');
-                    opt.value = dia;
-                    opt.textContent = dia;
-                    selDia.appendChild(opt);
-                });
-
-                // Garante que o carregarTreinoDia só é chamado após o select ser populado
-                selDia.onchange = carregarTreinoDia;
-                
-                if (callback) callback(); // Chama o próximo passo de inicialização
-            });
-        }
 
         function abrirModalDia() {
+            if (!alunoSelecionadoNome) {
+                return alert('Selecione um aluno primeiro!');
+            }
             document.getElementById('modalDia').style.display = 'block';
             document.getElementById('dia-nome').value = '';
         }
 
         function salvarNovoDia() {
+            if (!alunoSelecionadoNome) {
+                return alert('Selecione um aluno primeiro!');
+            }
+
             const nomeDia = document.getElementById('dia-nome').value.trim();
 
             if (!nomeDia) {
                 return alert('Por favor, digite o nome do novo Dia de Treino.');
             }
 
-            // Pega a lista atual de dias
-            database.ref(CHAVE_DIAS).once('value', snap => {
-                let dias = snap.val() || [];
-                
-                if (dias.includes(nomeDia)) {
-                    alert(`Erro: O dia de treino "${nomeDia}" já existe.`);
+            // Verifica se o dia já existe para este aluno
+            database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
+                if (snap.exists()) {
+                    alert(`Erro: O dia de treino "${nomeDia}" já existe para este aluno.`);
                     return;
                 }
 
-                dias.push(nomeDia);
-                
-                // Salva a lista atualizada
-                database.ref(CHAVE_DIAS).set(dias)
+                // Cria um treino vazio para o novo dia
+                database.ref(getPath(`treinoModel/${nomeDia}`)).set([])
                     .then(() => {
-                        alert(`Dia "${nomeDia}" adicionado com sucesso!`);
+                        alert(`Dia "${nomeDia}" criado com sucesso!`);
                         document.getElementById('modalDia').style.display = 'none';
                         
-                        // Recarrega a lista do select e seleciona o novo dia
-                        carregarDiasTreino(); 
+                        // Recarrega a lista de dias para este aluno
+                        carregarDiasTreinoDoAluno();
+                        // Seleciona o novo dia
                         document.getElementById('selectDia').value = nomeDia;
+                        // Carrega o treino vazio
+                        carregarTreinoDia();
                     })
-                    .catch(e => alert('Erro ao adicionar dia: ' + e.message));
+                    .catch(e => alert('Erro ao criar dia: ' + e.message));
             });
         }
 
         function removerDiaTreino() {
+            if (!alunoSelecionadoNome) {
+                return alert('Selecione um aluno primeiro!');
+            }
+
             const select = document.getElementById('selectDia');
             const diaParaRemover = select.value;
 
@@ -465,35 +485,16 @@
                  return alert('Você deve manter pelo menos um Dia de Treino. Adicione outro antes de remover este.');
             }
 
-            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o dia de treino "${diaParaRemover}" e seus dados de treino para TODOS os alunos? Esta ação é IRREVERSÍVEL.`)) {
+            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o dia de treino "${diaParaRemover}" para o aluno "${alunoSelecionadoNome}"?`)) {
                 
-                // 1. Remove da lista de dias da config
-                database.ref(CHAVE_DIAS).once('value', snap => {
-                    let dias = snap.val() || [];
-                    
-                    const novaLista = dias.filter(d => d !== diaParaRemover);
-
-                    database.ref(CHAVE_DIAS).set(novaLista)
+                // Remove o dia apenas para este aluno
+                database.ref(getPath(`treinoModel/${diaParaRemover}`)).remove()
                     .then(() => {
-                        // 2. Remove o treino de TODOS os alunos (chave do Firebase é o Nome do Aluno)
-                        database.ref('alunos/').once('value', alunosSnap => {
-                            const updates = {};
-                            alunosSnap.forEach(alunoSnap => {
-                                const chaveAluno = alunoSnap.key;
-                                updates[`alunos/${chaveAluno}/treinoModel/${diaParaRemover}`] = null; // Deleta o nó do treino
-                            });
-                            
-                            // Aplica a remoção em massa
-                            database.ref().update(updates)
-                            .then(() => {
-                                alert(`Dia "${diaParaRemover}" removido com sucesso de todos os alunos!`);
-                                carregarDiasTreino(); // Recarrega a lista
-                            })
-                            .catch(e => alert('Erro ao remover treinos dos alunos: ' + e.message));
-                        });
+                        alert(`Dia "${diaParaRemover}" removido com sucesso!`);
+                        // Recarrega a lista de dias
+                        carregarDiasTreinoDoAluno();
                     })
-                    .catch(e => alert('Erro ao remover dia da lista de configuração: ' + e.message));
-                });
+                    .catch(e => alert('Erro ao remover dia: ' + e.message));
             }
         }
         
