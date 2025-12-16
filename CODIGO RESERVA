@@ -4,6 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Meta tags PWA adicionadas para instalabilidade -->
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Dashboard do Aluno - Acompanhe seu treino, medidas e progresso">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dashboard Aluno">
+    
+    <!-- Link para o manifest.json -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Ícones para dispositivos Apple -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    
     <title>Dashboard do Aluno - Dark Mode</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
@@ -142,7 +158,6 @@
         }
 
         select {
-            margin-bottom: 15px;
             appearance: none;
             background-image: url('data:image/svg+xml;utf8,<svg fill="%23ff9933" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
             background-repeat: no-repeat;
@@ -351,7 +366,7 @@
         border: 1px solid rgba(255,255,255,0.3);
         border-radius: 6px;
         display: block;
-        box-sizing: border-box; /* 🔥 FAZ FICAR EXATAMENTE IGUAL AO BOTÃO */
+        box-sizing: border-box;
     ">
 
             <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
@@ -434,7 +449,7 @@
             </select>
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
-            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff8c00">...</span>
+            <p style="text-align: center;"><strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff9933">...</span>
                 | <strong>Data:</strong>
                 <span id="data-atual"></span></p>
 
@@ -444,6 +459,7 @@
                     <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
+            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
             </div>
 
             <div id="treino-Dia B" class="lista-treino-dia" style="display: none;">
@@ -452,6 +468,7 @@
                     <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
+            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
             </div>
 
             <div id="treino-Dia C" class="lista-treino-dia" style="display: none;">
@@ -460,6 +477,7 @@
                     <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">Carregando treino...
                     </li>
                 </ul>
+            <div style="margin-top:10px;"><button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button></div>
             </div>
         </div>
 
@@ -494,15 +512,38 @@
                 </thead>
                 <tbody id="calendario-body"></tbody>
             </table>
+    <div id="status-treino" class="card" style="margin-top:15px; text-align:center;">
+        <p id="ultimo-treino" style="color:#ff9933;">Carregando último treino...</p>
+        <p id="contador-treinos" style="color:#ffd700; font-weight:bold;">Treinos no mês: 0</p>
+
+        <div style="max-width:640px; margin:10px auto;">
+            <canvas id="graficoTreinos" height="200"></canvas>
+        </div>
+
+        <div id="lista-historico-treinos" style="max-width:640px; margin:8px auto; color:#ddd; text-align:left;"></div>
+    </div>
+    
             <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
         </div>
 
     </div>
 
     <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado com sucesso:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Falha ao registrar Service Worker:', error);
+                    });
+            });
+        }
+
         // CONFIGURAÇÃO FIREBASE
         const firebaseConfig = {
-            apiKey: "AIzaSyQDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
+            apiKey: "AIzaSyDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
             databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
             projectId: "ptf03-26fdb",
@@ -520,187 +561,24 @@
             return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
         }
 
-        // --- BANCO DE DADOS LOCAL (ATUALIZADO E COMPLETO) ---
-        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-
-        // Dados brutos fornecidos (Musculação, Powerlifting, CrossFit, Pilates, Cardio, Nutrição, Saúde)
         const rawData = [
-            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Peito ==================
             "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco, pés firmes no chão. Segure a barra na largura dos ombros. Desça-a controladamente até o peito. Empurre a barra para cima, estendendo os braços. | Mantenha as escápulas retraídas (ombros para trás e para baixo) para estabilizar e proteger a articulação do ombro.",
-            "Supino Inclinado | Musculação | Peito | Peitoral Maior (Foco na porção superior), Deltóide Anterior | Similar ao reto, mas no banco inclinado (30-45°). A barra/halteres deve descer à porção superior do peito. | Essencial para o desenvolvimento da parte superior do peito. Mantenha os ombros travados (retraídos).",
-            "Supino Declinado | Musculação | Peito | Peitoral Maior (Foco na porção inferior), Tríceps | No banco declinado. Desça a barra/halteres à porção inferior do peito. | É comum usar menos carga aqui. Foque no controle para evitar stress no ombro.",
-            "Crucifixo com Halteres | Musculação | Peito | Peitoral Maior (Foco no alongamento) | Deitado, segure os halteres acima do peito. Desça os braços lateralmente com os cotovelos levemente flexionados (travados). Retorne, simulando um abraço. | O movimento deve ser controlado e o arco amplo. Pare antes que os ombros fiquem em hiperextensão.",
-            "Peck Deck | Musculação | Peito | Peitoral Maior (Isolamento) | Sente-se na máquina, alinhe os cotovelos/antebraços com os apoios. Junte as almofadas na frente do corpo, espremendo o peito. | Mantenha os ombros para trás. O movimento é uma adução do braço, não um empurrão.",
-            "Crossover (Cabo) | Musculação | Peito | Peitoral Maior (Foco no centro/inferior) | Em pé, segure os cabos altos. Traga as mãos em arco para baixo e para frente, cruzando-as na frente do corpo. | Foque na contração máxima do peito ao 'espremer' as mãos na frente. Mantenha os cotovelos levemente flexionados.",
-            "Flexão de Braço (Push-up) | Musculação | Peito/Core | Peitoral, Deltóide Anterior, Tríceps, Core | Deite de bruços, apoie as mãos na largura dos ombros. Mantenha o corpo reto e desça o peito próximo ao chão. | Mantenha o core (abdômen) contraído e as escápulas estáveis para proteger a lombar.",
-
-            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Costas ==================
-            "Puxada Alta (Lat Pulldown) | Musculação | Costas | Latíssimo do Dorso (Grande Dorsal), Bíceps, Romboides | Sentado na máquina, joelhos travados. Puxe a barra em direção ao peito, inclinando levemente o tronco para trás. Concentre-se em conectar o movimento com a retração das escápulas. | Evite o impulso do tronco. Concentre-se em 'puxar com os cotovelos' para isolar as costas.",
-            "Remada Curvada com Barra | Musculação | Costas | Latíssimo do Dorso, Romboides, Trapézio | Incline o tronco para frente a cerca de 45 graus, mantendo a coluna neutra e o peito alto. Puxe a barra em direção à parte inferior do abdômen. | Mantenha a cabeça alinhada com a coluna e evite arredondar as costas para proteger a lombar.",
-            "Remada Unilateral (Serrote) | Musculação | Costas | Latíssimo do Dorso, Romboides | Apoie um joelho e a mão oposta no banco. Puxe o halter em direção ao quadril, mantendo o braço próximo ao corpo e a coluna neutra. | Use o quadril como alvo. Concentre-se em puxar o cotovelo para trás, não apenas levantar o halter.",
-            "Remada Sentada (Cabo) | Musculação | Costas | Latíssimo do Dorso, Romboides, Trapézio | Sentado no aparelho, puxe o cabo em direção ao abdômen inferior. Mantenha o tronco estável, puxando com as escápulas. | Mantenha a coluna reta. Evite ir para frente e para trás. Foque na retração das escápulas.",
-            "Pullover | Musculação | Costas/Peito | Grande Dorsal (Costas), Peitoral (Foco no alongamento), Serrátil | Deitado em um banco, segure um halter ou barra. Baixe o peso para trás da cabeça em um arco e retorne. | Mantenha os braços ligeiramente flexionados. Foco no alongamento do latíssimo e na expansão da caixa torácica.",
-            "Hiperextensão Lombar | Musculação | Costas | Eratores da Espinha, Glúteos, Isquiotibiais | Na máquina, prenda os pés e incline o tronco para baixo. Use a força da lombar e glúteos para levantar o tronco até a linha reta. | Mantenha o movimento controlado e evite a hiperextensão na parte superior. Foco na força da parte inferior das costas.",
-
-            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Ombros ==================
-            "Desenvolvimento Militar | Musculação | Ombros | Deltóide Anterior e Medial, Tríceps | Em pé (ou sentado com apoio), comece com a barra/halteres na altura dos ombros. Empurre o peso verticalmente para cima até a extensão completa. | Mantenha o core (abdômen) contraído e evite arquear a lombar (hiperextensão) durante o empurrão.",
-            "Elevação Lateral | Musculação | Ombros | Deltóide Medial (Lateral) | Em pé, segure halteres ao lado do corpo. Levante os braços lateralmente em arco até a altura dos ombros. Mantenha os cotovelos levemente flexionados. | Não use o impulso do corpo. O movimento deve ser suave e o deltóide deve fazer o trabalho, sem sobrecarregar o trapézio superior.",
-            "Elevação Frontal | Musculação | Ombros | Deltóide Anterior (Isolamento) | Em pé, segure halteres. Levante-os à frente do corpo até a altura dos ombros. | Mantenha o movimento lento e controlado. Evite balançar o corpo para ajudar no levantamento.",
-            "Remada Alta (Upright Row) | Musculação | Ombros/Trapézio | Deltóide Medial, Trapézio Superior | Segure a barra/halteres. Puxe o peso verticalmente em direção ao queixo, mantendo os cotovelos acima das mãos. | Evite levantar os cotovelos excessivamente alto (acima da linha do ombro) para proteger a articulação do ombro.",
-            "Face Pull | Musculação | Ombros/Costas | Deltóide Posterior, Romboides, Rotadores | Segure a corda no cabo alto (na altura do rosto). Puxe a corda em direção ao rosto, abrindo os braços e girando os ombros para trás. | Essencial para a saúde do ombro. Foque em puxar o cotovelo para trás e contrair o deltóide posterior.",
-            "Crucifixo Inverso | Musculação | Ombros/Costas | Deltóide Posterior (Isolamento), Romboides | Incline o tronco para frente (em pé ou sentado). Levante os halteres lateralmente, abrindo os braços para fora. | O movimento é o inverso da elevação lateral. Foco na contração da parte de trás do ombro, não no trapézio.",
-
-            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Braços ==================
-            "Rosca Direta com Barra | Musculação | Bíceps | Bíceps Braquial, Braquial | Em pé, segure a barra com pegada supinada (palmas para cima). Mantenha os cotovelos fixos e próximos ao corpo. Flexione-os, levantando a barra em direção ao peito. | Os cotovelos devem permanecer fixos e ao lado do corpo. Evite balançar o tronco (roubar) para preservar a tensão no bíceps.",
-            "Rosca Alternada | Musculação | Bíceps/Antebraço | Bíceps Braquial, Braquial | Em pé, alterne a flexão dos cotovelos, usando uma pegada supinada. | Concentre-se em girar o pulso (supinação) no topo do movimento para maximizar a contração do bíceps.",
-            "Rosca Martelo | Musculação | Bíceps/Antebraço | Braquial, Braquiorradial (Antebraço), Bíceps | Em pé, segure halteres com as palmas voltadas uma para a outra (pegada neutra). Flexione os cotovelos. | Foco no desenvolvimento do pico do bíceps e na força do antebraço.",
-            "Rosca Concentrada | Musculação | Bíceps | Bíceps Braquial (Pico) | Sentado, apoie o cotovelo na parte interna da coxa. Flexione o cotovelo, levantando o halter. | Movimento extremamente isolado. Foque na contração máxima e na lenta descida (fase excêntrica).",
-            "Rosca Scott | Musculação | Bíceps | Bíceps Braquial (Isolamento) | Apoie os braços na almofada da máquina Scott. Flexione e estenda os cotovelos com controle. | A almofada evita o roubo. Não estenda completamente o braço na parte de baixo para manter a tensão.",
-            "Rosca Inversa | Musculação | Antebraço/Bíceps | Braquiorradial, Extensores do Punho, Bíceps | Segure a barra com pegada pronada (palmas para baixo). Flexione os cotovelos. | Foco primário nos músculos do antebraço e em menor grau no bíceps.",
-            "Tríceps Testa | Musculação | Tríceps | Tríceps Braquial (principalmente a cabeça longa) | Deitado em um banco, segure a barra ou halteres. Flexione os cotovelos, baixando o peso em direção à testa. Estenda os braços para retornar. | Mantenha os cotovelos apontando para a frente (não para os lados) e use um peso que permita total controle do movimento.",
-            "Tríceps Pulley (Corda) | Musculação | Tríceps | Tríceps Braquial (Foco na cabeça lateral) | Segure a corda no cabo alto. Empurre a corda para baixo, abrindo as mãos no final do movimento. | Mantenha os cotovelos fixos ao lado do corpo e o tronco levemente inclinado para frente.",
-            "Tríceps Coice | Musculação | Tríceps | Tríceps Braquial (Isolamento) | Incline o tronco para frente (45°), cotovelo fixo. Estenda o braço para trás, contraindo o tríceps. | Mantenha o cotovelo fixo e não balance o braço. Foco na extensão completa no topo do movimento.",
-            "Paralelas (Dips) | Musculação | Tríceps/Peito | Tríceps Braquial, Peitoral Inferior, Deltóide Anterior | Segure nas barras paralelas. Desça o corpo flexionando os cotovelos e empurre de volta. | Para focar no tríceps, mantenha o tronco mais vertical. Para focar no peito, incline-se para frente.",
-            "Tríceps Francês | Musculação | Tríceps | Tríceps Braquial (Foco na cabeça longa) | Sentado ou em pé, segure um peso acima da cabeça. Flexione os cotovelos, baixando o peso atrás da cabeça e estenda. | Mantenha os cotovelos apontando para a frente e próximos à cabeça. Evite abrir os braços.",
-
-            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Pernas (Quadríceps) ==================
-            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Com a barra nas costas, desça o quadril como se fosse sentar em uma cadeira, mantendo o peito alto e a coluna neutra. Os joelhos devem seguir a direção dos pés. | A profundidade ideal é abaixo de 90 graus (se a mobilidade permitir). Distribua o peso nos calcanhares e evite que os joelhos 'caiam' para dentro.",
-            "Agachamento Frontal | Musculação | Pernas/Quadríceps | Quadríceps (Foco maior), Glúteo Máximo | A barra é apoiada na frente dos ombros (rack frontal). Agache mantendo o tronco vertical e os cotovelos altos. | Exige mais mobilidade de tornozelo e quadril. Mantém o tronco mais reto, enfatizando o quadríceps.",
-            "Leg Press | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo | Sente-se na máquina, posicione os pés na plataforma. Desça a plataforma flexionando os joelhos e empurre-a de volta, sem travar completamente os joelhos no topo. | Mantenha a lombar completamente apoiada no encosto. Reduza a amplitude se sentir que o quadril está saindo do banco.",
-            "Cadeira Extensora | Musculação | Quadríceps | Quadríceps (Isolamento) | Sentado na máquina, estenda as pernas contra a almofada até a total contração do músculo. Volte controladamente, resistindo ao peso. | Conscientemente, contraia o quadríceps no topo do movimento antes de retornar, garantindo o máximo recrutamento.",
-            "Agachamento Hack | Musculação | Pernas/Quadríceps | Quadríceps (Isolamento) | Use a máquina Hack. Apoie as costas e os ombros. Desça flexionando os joelhos. | A máquina auxilia na estabilização. A profundidade é limitada pela flexibilidade do quadril.",
-            "Passada (Lunge) | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Dê um passo grande para frente e abaixe o quadril até que o joelho de trás quase toque o chão. Empurre para retornar. | Mantenha o tronco reto. O joelho da frente não deve ultrapassar a ponta do pé excessivamente.",
-            "Agachamento Búlgaro | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo | Apoie um pé em um banco atrás de você. Agache com a perna da frente, mantendo o tronco ereto. | É um exercício unilateral (para uma perna de cada vez). Excelente para corrigir desequilíbrios.",
-
-            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Pernas (Posterior/Glúteo/Panturrilha) ==================
-            "Levantamento Terra Romeno (Stiff) | Musculação | Posterior/Glúteos | Isquiotibiais (Posterior da coxa), Glúteo Máximo, Eratores da Espinha | Em pé, segure a barra/halteres. Incline o tronco para frente, empurrando o quadril para trás, mantendo as pernas quase esticadas. | O movimento é uma 'dobra' do quadril. Mantenha a coluna neutra e sinta o alongamento concentrado na parte posterior da coxa.",
-            "Flexão de Joelho (Mesa Flexora) | Musculação | Posterior | Isquiotibiais (Isolamento) | Deite na máquina (mesa flexora). Flexione os joelhos, trazendo os calcanhares em direção aos glúteos. | Movimento lento e controlado. Foque na contração máxima da parte de trás da coxa.",
-            "Elevação Pélvica (Hip Thrust) | Musculação | Glúteos | Glúteo Máximo, Isquiotibiais | Apoie as escápulas em um banco. Coloque a barra sobre o quadril. Contraia o glúteo para levantar o quadril até formar uma linha reta com ombros e joelhos. | Mantenha o queixo abaixado e a costela 'para dentro'. A força vem da contração máxima do glúteo no topo.",
-            "Glute Ham Raise (GHR) | Musculação | Posterior/Glúteos | Isquiotibiais, Glúteos, Lombar | Use a máquina GHR. Prenda os pés e o joelho. Desça o tronco esticado para o chão e volte usando a força dos isquiotibiais e glúteos. | É um exercício avançado que trabalha a cadeia posterior de forma completa.",
-            "Abdução de Quadril (Máquina) | Musculação | Glúteos | Glúteo Médio e Mínimo | Sente-se na máquina. Empurre as pernas para fora, contra a resistência. | Foco nos músculos estabilizadores do quadril. Importante para a saúde do joelho e alinhamento pélvico.",
-            "Elevação de Panturrilha em Pé | Musculação | Panturrilha | Gastrocnêmio (Músculo externo e interno) | Em pé, suba nos dedos do pé, elevando os calcanhares o máximo possível. | Use uma plataforma para permitir maior amplitude de movimento (alongamento na parte inferior).",
-            "Elevação de Panturrilha Sentado | Musculação | Panturrilha | Sóleo (Músculo profundo) | Sentado na máquina, suba nos dedos dos pés contra a resistência. | Ao sentar, o joelho está dobrado, o que isola o sóleo. Importante para a resistência da panturrilha.",
-
-            // ================== 1. MUSCULAÇÃO (BODYBUILDING) - Core/Abdômen ==================
-            "Prancha (Plank) | Musculação | Core/Abdômen | Reto Abdominal, Oblíquos, Transverso do Abdômen | Apoie-se nos antebraços e pontas dos pés. Mantenha o corpo em linha reta, desde a cabeça até os calcanhares. | Puxe o umbigo em direção à coluna para ativar o músculo transverso. Evite arquear a lombar ou levantar o quadril.",
-            "Crunch (Abdominal) | Musculação | Core/Abdômen | Reto Abdominal (Parte superior) | Deitado de costas, mãos atrás da cabeça. Levante apenas os ombros do chão, contraindo o abdômen. | Mantenha a lombar no chão. Não puxe a cabeça com as mãos; use a força do abdômen.",
-            "Elevação de Pernas | Musculação | Core/Abdômen | Reto Abdominal (Parte inferior), Flexores do Quadril | Deitado, levante as pernas esticadas em direção ao teto e baixe-as lentamente. | Para evitar dor na lombar, mantenha a parte inferior das costas firmemente pressionada contra o chão.",
-            "Abdominal na Máquina | Musculação | Core/Abdômen | Reto Abdominal, Oblíquos | Sente-se na máquina e flexione o tronco para frente, puxando o peso com a força do abdômen. | Concentre-se em 'enrolar' a coluna. Evite puxar com os braços ou usar impulso.",
-            "Russian Twist | Musculação | Core/Abdômen | Oblíquos Internos e Externos | Sentado no chão, tronco inclinado para trás, pés no ar (ou no chão). Gire o tronco de um lado para o outro. | Mantenha o core engajado. O movimento deve vir da rotação do tronco, não apenas dos braços.",
-
-            // ================== 2. POWERLIFTING ==================
-            "Agachamento Low Bar (Barra Baixa) | Powerlifting | Agachamento | Glúteo Máximo, Isquiotibiais, Quadríceps | A barra é posicionada mais baixa nas costas (na parte posterior do deltóide). Desça priorizando a inclinação do tronco e o impulso do quadril. | Exige maior mobilidade de ombro e tornozelo. A técnica é voltada para maximizar a carga, mantendo o padrão de movimento competitivo.",
-            "Agachamento High Bar | Powerlifting | Agachamento | Quadríceps, Glúteo Máximo | A barra é posicionada mais alta, sobre o trapézio superior. O tronco permanece mais vertical. | Mais amigável para iniciantes e foca mais no quadríceps. Menor inclinação do tronco que o low bar.",
-            "Agachamento Box (Com Caixa) | Powerlifting | Agachamento | Glúteo Máximo, Isquiotibiais | Agache até tocar em uma caixa ou banco atrás. A pausa na caixa ajuda a quebrar o ciclo de alongamento-encurtamento. | Ótimo para consistência de profundidade e para treinar a tensão excêntrica e o início do movimento concêntrico.",
-            "Supino com Pausa | Powerlifting | Supino | Peitoral, Deltóide Anterior, Tríceps | Desça a barra até o peito. Mantenha-a completamente imóvel por 1-2 segundos no peito (pausa). Só então empurre a barra para cima. | Esta pausa é um requisito de competição. Fortalece o músculo sem depender do impulso elástico do 'rebote' no peito.",
-            "Supino com Pegada Fechada (Close-Grip) | Powerlifting | Auxiliar | Tríceps Braquial, Peitoral (porção interna) | Similar ao supino reto, mas as mãos ficam mais próximas (na largura dos ombros). Desça e empurre o peso focado na força do tríceps. | Usado especificamente para aumentar a força de 'lockout' (finalização da extensão) no supino principal.",
-            "Supino Spoto | Powerlifting | Supino | Peitoral, Deltóide Anterior, Tríceps | Desça a barra e pause por 1 segundo *logo acima* do peito, sem tocar. Empurre de volta. | Fortalece o controle e a tensão na parte inferior do movimento, crucial para estabilidade.",
-            "Floor Press (Supino no chão) | Powerlifting | Supino | Tríceps Braquial, Peitoral | Deite no chão. A amplitude é limitada pelo contato dos cotovelos com o chão. | Excelente isolamento do tríceps e reduz o estresse do ombro. Útil para superar o ponto de 'lockout'.",
-            "Levantamento Terra Convencional | Powerlifting | Terra | Cadeia Posterior (Lombar, Glúteos, Isquiotibiais), Trapézio | Fique com os pés na largura do quadril. Segure a barra fora dos joelhos. Puxe o peso do chão, esticando o quadril e os joelhos simultaneamente. | A coluna deve ser neutra (reta) durante todo o movimento. Mantenha o peso o mais próximo possível do corpo.",
-            "Levantamento Terra Sumô | Powerlifting | Terra | Glúteo Máximo, Quadríceps (mais ênfase) | Pegada dentro das pernas e pés bem abertos. O tronco fica mais vertical que no convencional. | Exige menos mobilidade de quadril para profundidade, mas requer forte abdução do quadril.",
-            "Rack Pull | Powerlifting | Terra | Cadeia Posterior, Trapézio | O peso é puxado a partir de pinos elevados, acima do chão (amplitude reduzida). | Fortalece a parte superior do movimento (lockout) e permite usar cargas maiores que o terra completo.",
-            "Deficit Deadlift | Powerlifting | Terra | Isquiotibiais, Lombar, Glúteos | Puxe a barra em pé sobre uma plataforma (déficit), aumentando a amplitude e a força de saída do chão. | Aumenta o tempo sob tensão e melhora a força na porção inicial do levantamento.",
-
-            // ================== 3. CROSSFIT (LPO) ==================
-            "Snatch (Arranco) | CrossFit | LPO | Corpo Inteiro (Quadríceps, Trapézio, Ombros, Core) | Movimento explosivo: a barra é puxada do chão até acima da cabeça em um único movimento, terminando em um agachamento completo (Squat Snatch). | A chave é a 'triple extension' (extensão explosiva de tornozelos, joelhos e quadril) para acelerar a barra antes de se mover para baixo dela.",
-            "Clean & Jerk (Arremesso) | CrossFit | LPO | Corpo Inteiro (Pernas, Ombros, Core) | Clean (Limpo): Levar a barra do chão para os ombros. Jerk (Arremesso): Usar a força das pernas (em split ou push) para levar a barra dos ombros para cima da cabeça. | É crucial receber a barra na posição correta (rack frontal) e usar as pernas para a segunda parte (Jerk).",
-            "Overhead Squat (OHS) | CrossFit | LPO | Corpo Inteiro, Estabilidade de Ombro/Core | Agache com a barra totalmente estendida acima da cabeça (posição final do Snatch). | Requer excelente mobilidade de ombros, coluna torácica e tornozelos. É um teste de estabilidade de corpo inteiro.",
-            "Hang Power Clean | CrossFit | LPO | Quadríceps, Trapézio, Ombros | O levantamento começa com a barra na altura dos quadris/joelhos (hang) e termina no 'rack' dos ombros sem agachar completamente (power). | Foco na aceleração explosiva e na velocidade da transição.",
-            "Thruster | CrossFit | LPO/Ginástica | Quadríceps, Deltóides, Tríceps | Agachamento Frontal seguido imediatamente por um Desenvolvimento Militar (Press) em um movimento fluido e sem pausas. | Use a força de impulsão das pernas ao sair do agachamento para transferir a energia para o empurrão do peso acima da cabeça.",
-
-            // ================== 3. CROSSFIT (GINÁSTICA) ==================
-            "Pull-up (Kipado) | CrossFit | Ginástica | Grande Dorsal, Bíceps, Core | Pendurado na barra, use o balanço rítmico do corpo (Kip) e do quadril para auxiliar a elevação e levar o queixo sobre a barra. | Sempre comece e mantenha a tensão no core (posição 'Hollow' e 'Arch') para controlar o balanço e evitar lesões no ombro.",
-            "Pull-up (Borboleta) | CrossFit | Ginástica | Grande Dorsal, Bíceps | Usa um balanço circular ('kip' de borboleta) para maximizar a velocidade e eficiência, minimizando o esforço vertical. | Movimento avançado de alta repetição. Exige coordenação rítmica e tensão constante no core.",
-            "Chest-to-Bar (CTB) | CrossFit | Ginástica | Grande Dorsal, Bíceps, Core | Variação do Pull-up onde o peito deve tocar a barra. Pode ser estrito ou kipado. | Maior amplitude exige mais força. O alvo é a parte inferior do peito.",
-            "Muscle-up (Argola/Barra) | CrossFit | Ginástica | Grande Dorsal, Peitoral, Tríceps, Core | Transição da Puxada vertical para o Mergulho (Dip) sobre o aparelho. Exige força e coordenação para 'se projetar' sobre o anel/barra. | O timing da transição é o mais difícil. É um movimento completo que exige força de puxada (back) e empurrão (tríceps/peito).",
-            "Toes-to-Bar (T2B) | CrossFit | Ginástica | Core (Reto Abdominal e Flexores do Quadril) | Pendurado na barra, use o balanço do corpo (kip) controlado para levantar os pés até que toquem a barra (entre as mãos). | O movimento deve ser controlado pelo core; evite balançar descontroladamente. Foque em manter a forma 'Hollow' e 'Arch'.",
-            "Handstand Push-up (HSPU) | CrossFit | Ginástica | Deltóides, Tríceps, Core (Invertido) | Em parada de mãos (contra a parede), flexione os cotovelos até a cabeça tocar o chão e empurre de volta. | Mantenha o corpo e o core travados. A cabeça deve tocar o chão à frente das mãos para formar um tripé.",
-            "Ring Dips | CrossFit | Ginástica | Tríceps, Peitoral, Deltóide Anterior | Mergulho nas argolas. Desça até os ombros ficarem abaixo dos cotovelos e estenda. | Exige extrema estabilidade do ombro, pois as argolas são móveis. Mantenha os cotovelos próximos ao corpo.",
-            "Rope Climb (Subida na Corda) | CrossFit | Ginástica | Grande Dorsal, Bíceps, Core, Pernas | Suba uma corda usando o engate dos pés (leg-lock) para auxiliar a subida. | O 'leg-lock' (enrolar a corda nos pés) é a técnica mais comum para longas distâncias, economizando a força dos braços.",
-
-            // ================== 3. CROSSFIT (CONDICIONAMENTO) ==================
-            "Burpee | CrossFit | Condicionamento | Corpo Inteiro | Deite-se no chão (peito e quadris tocam), levante, salte com os pés para perto das mãos e salte para o alto, batendo as mãos acima da cabeça. | É um movimento de corpo inteiro e alta intensidade. O foco é na fluidez e velocidade entre a transição do chão para o salto.",
-            "Wall Ball Shot | CrossFit | Condicionamento | Quadríceps, Glúteos, Ombros | Segurando a bola medicinal no peito, faça um agachamento completo. Use a força explosiva das pernas para levantar e arremessar a bola no alvo na parede. | Certifique-se de que o quadril desça abaixo da paralela no agachamento. Use a inércia do quadril para impulsionar a bola.",
-            "Kettlebell Swing (Americano) | CrossFit | Condicionamento | Glúteos, Isquiotibiais, Core | Balance o Kettlebell entre as pernas e use o impulso do quadril para levantá-lo acima da cabeça. | A força vem da extensão explosiva do quadril. O padrão Americano exige que o peso vá acima da cabeça.",
-            "Box Jump | CrossFit | Condicionamento | Quadríceps, Glúteos | Salte sobre uma caixa alta, aterrissando com ambos os pés no topo. | Concentre-se no amortecimento suave da aterrissagem para proteger as articulações.",
-            "Double Under (Salto Duplo) | CrossFit | Condicionamento | Panturrilhas, Core, Condicionamento | Salto de corda onde a corda passa duas vezes por baixo dos pés a cada salto. | Exige um salto mais alto e um giro de pulso muito mais rápido. Mantenha o corpo reto e o core ativado.",
-
-            // ================== 4. PILATES ==================
-            "The Hundred (O Cem) | Pilates | Mat/Solo | Transverso do Abdômen (Core), Reto Abdominal | Deitado de costas, levante a cabeça e os ombros. Pernas a 45 graus. Bombeie os braços ritmicamente (5 inspirações/5 expirações). | Mantenha a lombar pressionada contra o solo ativamente. A respiração profunda e controlada é o foco do exercício.",
-            "Roll Up | Pilates | Mat/Solo | Reto Abdominal, Músculos da Coluna | Deitado, comece a enrolar o corpo para cima, vértebra por vértebra, formando um 'C' com a coluna para alcançar os pés. Role lentamente de volta. | O controle do movimento é primordial. Use a força abdominal (e não o impulso) para subir e descer de forma suave, articulando a coluna.",
-            "Double Leg Stretch | Pilates | Mat/Solo | Core, Reto Abdominal, Transverso | Puxe os joelhos para o peito. Simultaneamente, estique as pernas e os braços em direções opostas (círculo) e retorne. | Mantenha o core super engajado para garantir que a lombar não saia do chão quando as pernas se esticam.",
-            "Single Leg Stretch | Pilates | Mat/Solo | Core, Estabilizadores da Pelve | Deitado, levante a cabeça. Puxe um joelho em direção ao peito enquanto estica a outra perna. Troque as pernas de forma controlada e fluida. | Mantenha o 'Powerhouse' (Core) engajado para evitar que a pelve balance. O corpo deve permanecer imóvel enquanto as pernas se movem.",
-            "Single Straight Leg Stretch | Pilates | Mat/Solo | Core, Isquiotibiais, Pelve | Deitado, levante uma perna esticada em direção ao teto e puxe-a suavemente. A outra perna fica esticada próxima ao chão. Troque as pernas. | Foco no alongamento dos isquiotibiais da perna levantada e na estabilidade do core.",
-            "The Saw (O Serrote) | Pilates | Mat/Solo | Oblíquos, Extensão/Flexão da Coluna | Sentado com as pernas abertas, gire o tronco e incline-se para frente, alcançando o dedo mínimo com a mão oposta ('serrando' o ar). | A rotação deve vir da cintura. Mantenha os ísquios firmes no chão e os pés flexionados.",
-            "Teaser | Pilates | Mat/Solo | Reto Abdominal, Flexores do Quadril, Estabilizadores | Sentado, eleve o tronco e as pernas esticadas, formando um 'V' equilibrado. Estique os braços paralelamente às pernas. | A estabilidade do core é o foco. Encontre o equilíbrio nos ísquios. Se for difícil, mantenha os joelhos dobrados (variação 'Table Top').",
-            "Swimming (Natação) | Pilates | Mat/Solo | Paravertebrais (Extensores da Coluna), Glúteos | Deitado de bruços, levante a cabeça. Levante e alterne o braço e perna opostos (braço direito/perna esquerda) em um ritmo de 'natação' suave. | Concentre-se no alongamento axial (crescer a coluna) e na ativação dos glúteos. Evite levantar a cabeça ou o tronco demais (hiperextensão lombar).",
-
-            // ================== 5. EXERCÍCIOS AERÓBICOS (CARDIO) ==================
-            "Esteira (Caminhada/Corrida) | Aeróbico | Cardio | Quadríceps, Isquiotibiais, Panturrilhas, Core | Caminhe ou corra em um ritmo constante. A intensidade é controlada ajustando a velocidade (km/h) ou a inclinação (%). | Não se incline para a frente ou se agarre nos apoios, pois isso prejudica a postura natural e reduz o gasto calórico efetivo.",
-            "Bicicleta Ergométrica (Estacionária) | Aeróbico | Cardio | Quadríceps, Isquiotibiais, Panturrilhas, Glúteos | Pedale em um movimento circular constante. A intensidade é ajustada pela Resistência (nível de carga) e pela RPM (rotações por minuto). | Ajuste a altura do selim: o joelho deve estar levemente flexionado no ponto mais baixo do pedal para evitar lesões e maximizar a eficiência.",
-            "Elíptico | Aeróbico | Cardio | Corpo Inteiro (Quadríceps, Glúteos, Peitoral, Dorsal) | Posicione os pés nas plataformas e agarre as alças. Mova braços e pernas em um movimento cíclico e elíptico. A intensidade é ajustada pela Resistência. | Mantenha os calcanhares na plataforma e use os braços ativamente (puxando e empurrando) para recrutar a parte superior do corpo.",
-            "Remo (Rowing) | Aeróbico | Cardio | Corpo Inteiro (Pernas, Costas, Core, Braços) | Sente-se na máquina. Empurre com as pernas, puxe a alça para o tronco e estenda o corpo. O movimento deve ser 60% pernas, 20% tronco e 20% braços. | Mantenha a sequência correta: Perna, Tronco, Braço; e Retorno: Braço, Tronco, Perna. Foque na fluidez e potência do impulso da perna.",
-
-            // ================== 6. ALONGAMENTOS ==================
-            "Alongamento de Quadríceps (Em Pé) | Alongamento | Pernas | Quadríceps (Reto Femoral e Vasto) | Em pé e segurando-se em um apoio, dobre o joelho e puxe o tornozelo em direção ao glúteo. Mantenha os joelhos alinhados. | Mantenha o quadril neutro (não empine) para garantir que o alongamento ocorra na parte da frente da coxa, e não na lombar.",
-            "Alongamento de Isquiotibiais (Sentado) | Alongamento | Pernas | Isquiotibiais (Posterior da coxa) | Sentado, estique uma perna e dobre a outra. Incline o tronco para frente, a partir do quadril (mantendo a coluna reta), em direção ao pé esticado. | O alongamento deve ser sentido na parte posterior da coxa. Evite arredondar as costas, focando na flexão do quadril.",
-            "Torção de Coluna (Deitado) | Alongamento | Core/Lombar/Glúteos | Glúteo Máximo, Oblíquos, Paravertebrais | Deitado de costas, puxe um joelho dobrado sobre o corpo, em direção ao chão, no lado oposto. Mantenha os ombros no chão. | Use a respiração: a cada expiração, tente relaxar e aprofundar um pouco mais a torção. Ajuda a aliviar a tensão na lombar.",
-            "Alongamento de Peitoral na Parede | Alongamento | Peito/Ombros | Peitoral Maior, Deltóide Anterior | Em pé, coloque a palma da mão e o antebraço contra a parede (ou porta) em um ângulo de 90 graus. Gire o tronco para frente, afastando-se da parede. | Mantenha o ombro para baixo (longe da orelha) e sinta o alongamento no peito e na parte da frente do ombro.",
-            "Alongamento de Pescoço (Lateral) | Alongamento | Pescoço/Trapézio Superior | Trapézio Superior, Esternocleidomastóideo | Sentado ou em pé, incline suavemente a cabeça para um lado, como se quisesse tocar a orelha no ombro. Use a mão do lado oposto para dar um leve puxão (se necessário). | Faça o movimento lentamente. Relaxe o ombro que está sendo alongado (oposto) para maximizar o efeito.",
-
-            // ================== 7. INFORMAÇÕES NUTRICIONAIS ==================
-            "Proteína | Nutrição | Macronutriente | Construção e Reparo Muscular | Essencial para a síntese de proteínas musculares (Hipertrofia) e para o reparo das microlesões geradas durante o treino de força. | Ingestão adequada (principalmente em doses pós-treino) é vital para otimizar a recuperação e o crescimento muscular.",
-            "Carboidrato | Nutrição | Macronutriente | Fonte de Energia Primária (Glicogênio) | Principal combustível para exercícios de alta intensidade e longa duração. Armazenado como glicogênio no fígado e nos músculos. | O consumo pré-treino fornece energia e o pós-treino é crucial para repor as reservas de glicogênio esgotadas.",
-            "Gordura (Lipídios) | Nutrição | Macronutriente | Reserva de Energia e Produção Hormonal | Serve como fonte de energia para exercícios de baixa intensidade e duração prolongada. É fundamental para a produção de hormônios (como a testosterona). | Embora seja fonte de energia, é vital para a saúde celular, funções cerebrais e absorção de vitaminas lipossolúveis (A, D, E, K).",
-            "Aminoácidos | Nutrição | Micromolécula | Bloco Construtor e Anticatabolismo | São os 'tijolos' que compõem a proteína. Os BCAAs (ramificados) são particularmente importantes para sinalizar o início da síntese proteica e reduzir a quebra do tecido muscular. | O equilíbrio de aminoácidos essenciais (aqueles que o corpo não produz) é necessário para qualquer processo de reparo e construção muscular.",
-
-            // ================== 8. SEGURANÇA E SAÚDE NA ACADEMIA ==================
-            "Dor no Peito (Angina) | Saúde e Alerta | Sintoma Grave | Dor, aperto, queimação ou peso no centro do peito que pode irradiar para braço, pescoço ou mandíbula. | Pare imediatamente o exercício e procure assistência médica urgente. Pode ser um sinal de isquemia cardíaca. | Nunca ignore dor ou desconforto torácico, especialmente se acompanhado de falta de ar ou sudorese.",
-            "Tontura ou Vertigem | Saúde e Alerta | Sintoma de Alerta | Sensação de cabeça leve, desmaio iminente ou desequilíbrio durante o exercício. | Pare o exercício, sente-se ou deite-se. Beba água e espere a recuperação. Pode ser desidratação, hipoglicemia (baixa de açúcar) ou hipotensão (pressão baixa). | Verifique o nível de glicose se for diabético e hidrate-se bem antes e durante o treino.",
-            "Falta de Ar Anormal | Saúde e Alerta | Sintoma de Alerta | Dificuldade para respirar ou uma sensação de 'fôlego incompleto' que é desproporcional à intensidade do exercício. | Diminua a intensidade drasticamente ou pare. Observe se a respiração normaliza rapidamente. Se persistir, procure ajuda. | Pode ser um sinal de problemas pulmonares ou cardíacos. Atletas com asma devem ter a medicação de resgate por perto.",
-            "Dor Articular Aguda | Saúde e Alerta | Sintoma de Alerta | Dor súbita e intensa em uma articulação (joelho, ombro, cotovelo) que não melhora com a redução de carga. | Interrompa o exercício que causa a dor. Não tente 'aquecer' ou 'ignorar'. Consulte um profissional para avaliar a lesão. | Dor muscular é normal (fadiga); dor articular aguda é um sinal de lesão potencial.",
-            "Náusea e Vômito | Saúde e Alerta | Sintoma de Alerta | Sentimento de enjoo ou necessidade de vomitar durante o treino. | Pare o exercício e vá para um local ventilado. Pode ser superaquecimento, desidratação, ou esforço extremo. | Beba pequenos goles de água. Evite refeições pesadas imediatamente antes do treino.",
-            "Palpitações Irregulares | Saúde e Alerta | Sintoma de Alerta | Sensação de que o coração está 'pulando' batidas, batendo muito rápido ou de forma desorganizada. | Pare e descanse. Monitore a pulsação. Se for constante, intenso ou acompanhado de tontura, procure assistência médica. | Arritmias podem ser perigosas. Pacientes com histórico cardíaco devem monitorar a frequência cardíaca.",
-
-            // ================== 9. CUIDADOS ESPECÍFICOS PARA DOENÇAS CRÔNICAS ==================
-            "Hipertensão (Pressão Alta) | Doença Crônica | Cardiovascular | Manter a pressão arterial sob controle. | Evite exercícios isométricos (que exijam muita força sem movimento, como a prancha máxima) e a Manobra de Valsalva (prender a respiração durante o levantamento de peso). | Mantenha a respiração fluida e evite picos de alta intensidade. Comece com intensidade moderada e mantenha-se hidratado.",
-            "Hipotensão (Pressão Baixa) | Doença Crônica | Cardiovascular | Evitar tonturas e desmaios (síncope). | Realize transições de postura lentas (ex: de deitado para em pé). Aumente a ingestão de líquidos (se permitido pelo médico) e sal. | Cuidado especial ao levantar após exercícios no chão (abdominais, alongamentos). A hidratação é essencial.",
-            "Diabetes Tipo 1 e 2 | Doença Crônica | Metabólica | Controlar a glicemia e prevenir hipo/hiperglicemia. | Monitore os níveis de glicose antes, durante e após o exercício. Tenha sempre uma fonte de carboidrato de rápida absorção (glicose, suco) por perto. | Exercícios de alta intensidade podem, inicialmente, elevar a glicose (hiperglicemia). O treino moderado geralmente a reduz (hipoglicemia).",
-            "Asma | Doença Crônica | Pulmonar | Manter a função respiratória e prevenir broncoespasmos induzidos pelo exercício. | Faça um bom aquecimento para preparar as vias aéreas. Evite treinar em ambientes muito frios ou secos, se forem gatilhos. | Tenha sempre o inalador de resgate (broncodilatador) acessível e use-o preventivamente se necessário, sob orientação médica.",
-            "Problemas Articulares (Osteoartrite) | Doença Crônica | Musculoesquelética | Fortalecer os músculos ao redor da articulação, minimizando o impacto. | Opte por exercícios de baixo impacto (natação, bicicleta, elíptico) e controle de carga. Priorize a técnica perfeita sobre o peso. | Evite cargas excessivas e movimentos explosivos. A dor articular é o limite: se doer, pare e ajuste o movimento."
+            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Com a barra nas costas, desça o quadril como se fosse sentar em uma cadeira, mantendo o peito alto e a coluna neutra. Os joelhos devem seguir a direção dos pés. | A profundidade ideal é abaixo de 90 graus (se a mobilidade permitir). Distribua o peso nos calcanhares e evite que os joelhos 'caiam' para dentro."
         ];
 
         const bancoDeExercicios = {};
 
-        // Processa os dados brutos para criar o objeto de pesquisa otimizado
         rawData.forEach(item => {
             const parts = item.split(' | ');
             if (parts.length === 6) {
                 const [nome, modalidade, categoria, musculos, execucao, dica] = parts;
-
-                // Chave primária (simplificada) para o objeto
                 const key = normalize(nome).replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-
-                // Gera termos de pesquisa, incluindo palavras de cada campo e termos comuns
                 const searchTerms = [
                     ...nome.split(/\s+/).map(normalize),
                     ...musculos.split(/,\s*/).map(normalize).filter(t => t.length > 2),
                     normalize(categoria),
                     normalize(modalidade)
                 ];
-
-                // Termos especiais para alta relevância (Ajustados)
-                if (nome.includes("Supino")) searchTerms.push("supino", "peito");
-                if (nome.includes("Agachamento")) searchTerms.push("agachamento", "agacha", "perna", "gluteo");
-                if (nome.includes("Puxada")) searchTerms.push("puxada", "costas", "dorsal");
-                if (nome.includes("Remada")) searchTerms.push("remada", "costas");
-                if (nome.includes("Rosca")) searchTerms.push("rosca", "biceps");
-                if (nome.includes("Tríceps")) searchTerms.push("triceps", "triceps");
-                if (nome.includes("Terra")) searchTerms.push("terra", "stiff", "posterior", "lombar");
-                if (nome.includes("Lateral")) searchTerms.push("lateral", "ombro", "deltoide");
-                if (nome.includes("Extensora")) searchTerms.push("extensora", "quadriceps");
-                if (nome.includes("Press")) searchTerms.push("legpress", "perna");
-                if (nome.includes("Plank")) searchTerms.push("prancha", "core", "abdomen");
 
                 bancoDeExercicios[key] = {
                     nome: nome,
@@ -709,89 +587,255 @@
                     musculos: musculos,
                     execucao: execucao,
                     dica: dica,
-                    // Remove duplicatas
                     termos: [...new Set(searchTerms.filter(t => t))]
                 };
             }
         });
 
+        function normalize(str) {
+            return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+        }
+
         function obterNomeAluno() {
-            alunoNome = localStorage.getItem('nomeAluno');
-            if (!alunoNome) {
+            const nomeLocal = localStorage.getItem('nomeAluno');
+            if (!nomeLocal) {
                 document.getElementById('modal-nome').style.display = 'flex';
             } else {
+                alunoNome = nomeLocal;
                 start();
             }
         }
 
         function salvarNomeModal() {
-            let n = document.getElementById('nomeModalInput').value.trim();
-            if (n) {
-                // Formata o nome: Primeira letra de cada palavra em maiúscula, resto em minúscula
-                alunoNome = n.split(' ').map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-                localStorage.setItem('nomeAluno', alunoNome);
-                document.getElementById('modal-nome').style.display = 'none';
-                start();
+            const n = document.getElementById('nomeModalInput').value.trim();
+            if (n.length < 2) return alert('Por favor, insira um nome válido!');
+            alunoNome = n;
+            localStorage.setItem('nomeAluno', n);
+            document.getElementById('modal-nome').style.display = 'none';
+            start();
+        }
+
+        // função: finalizarTreino (salva treino finalizado com Firebase SDK)
+        function finalizarTreino() {
+            try {
+                const dia = document.getElementById('seletorTreino') ? document.getElementById('seletorTreino').value : 'Dia A';
+                const agora = new Date();
+                const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+                const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                let idLista = (dia === 'Dia A') ? 'lista-treino-a' : ((dia === 'Dia B') ? 'lista-treino-b' : 'lista-treino-c');
+                const listaEl = document.getElementById(idLista);
+                const concluidos = [];
+                if (listaEl) {
+                    listaEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                        if (cb.checked) {
+                            let nome = cb.getAttribute('data-nome') || '';
+                            if (!nome) {
+                                const li = cb.closest('li');
+                                if (li) {
+                                    const s = li.querySelector('.exercicio-info strong');
+                                    if (s) nome = s.textContent.trim();
+                                }
+                            }
+                            if (!nome) nome = 'Exercício marcado';
+                            concluidos.push(nome);
+                        }
+                    });
+                }
+
+                const payload = {
+                    dia: dia,
+                    data: dataLegivel,
+                    hora: horaLegivel,
+                    timestamp: Date.now(),
+                    concluido: true,
+                    concluidoCount: concluidos.length,
+                    exerciciosConcluidos: concluidos
+                };
+
+                const ref = database.ref(getPath('treinosFinalizados')).push();
+                ref.set(payload)
+                    .then(() => {
+                        try { carregarUltimoTreino(); } catch(e){console.warn('carregarUltimoTreino erro',e);}
+                        try { contarTreinosDoMes(); } catch(e){console.warn('contarTreinosDoMes erro',e);}
+                        try { marcarTreinoNoCalendario(new Date()); } catch(e){console.warn('marcarTreinoNoCalendario erro',e);}
+                        try { carregarTreinosFinalizados(); } catch(e){console.warn('carregarTreinosFinalizados erro',e);}
+                        alert('Treino registrado com sucesso!');
+                    })
+                    .catch(err => {
+                        console.error('Erro ao salvar treino finalizado:', err);
+                        alert('Erro ao registrar treino. Tente novamente.');
+                    });
+            } catch(err) {
+                console.error('Erro em finalizarTreino():', err);
+                alert('Erro ao registrar treino. Tente novamente.');
             }
         }
 
-        function start() {
-            document.getElementById('nome-aluno').textContent = alunoNome;
-            document.getElementById('main-title').textContent = `Bem-vindo, ${alunoNome.split(' ')[0]}!`;
-            document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
+        function carregarUltimoTreino() {
+            try {
+                const ref = database.ref(getPath('treinosFinalizados'));
+                ref.orderByChild('timestamp').limitToLast(1).on('value', snap => {
+                    const p = document.getElementById('ultimo-treino');
+                    if (!p) return;
+                    if (!snap.exists()) {
+                        p.textContent = 'Nenhum treino registrado ainda.';
+                        return;
+                    }
+                    snap.forEach(child => {
+                        const t = child.val();
+                        p.textContent = `Último treino: ${t.dia} — ${t.data} às ${t.hora}`;
+                    });
+                });
+            } catch (err) { console.warn('carregarUltimoTreino erro', err); }
+        }
 
+        function contarTreinosDoMes() {
+            try {
+                const mesAtual = new Date().getMonth() + 1;
+                let total = 0;
+                database.ref(getPath('treinosFinalizados')).once('value').then(snap => {
+                    snap.forEach(c => {
+                        const t = c.val();
+                        if (!t || !t.data) return;
+                        const parts = t.data.split('/');
+                        const mesT = parseInt(parts[1], 10);
+                        if (mesT === mesAtual) total++;
+                    });
+                    const el = document.getElementById('contador-treinos');
+                    if (el) el.textContent = `Treinos no mês: ${total}`;
+                }).catch(err => console.warn('contarTreinosDoMes erro', err));
+            } catch (err) { console.warn('contarTreinosDoMes erro', err); }
+        }
+
+        function carregarTreinosFinalizados() {
+            try {
+                const ref = database.ref(getPath('treinosFinalizados'));
+                ref.orderByChild('timestamp').once('value').then(snap => {
+                    const lista = [];
+                    snap.forEach(c => lista.push(c.val()));
+                    
+                    const divList = document.getElementById('lista-historico-treinos');
+                    if (divList) {
+                        if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
+                        else {
+                            let html = '<ul style="padding-left:16px;">';
+                            lista.slice().reverse().forEach(t => {
+                                html += `<li style="margin:6px 0;">${t.data} — ${t.dia} — ${t.concluidoCount || 0} exercícios</li>`;
+                            });
+                            html += '</ul>';
+                            divList.innerHTML = html;
+                        }
+                    }
+
+                    const agrupado = {};
+                    lista.forEach(t => {
+                        const key = t.data || 'Sem data';
+                        agrupado[key] = (agrupado[key] || 0) + 1;
+                    });
+                    renderTreinosBarChart(agrupado);
+                }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
+            } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
+        }
+
+        let chartTreinos = null;
+        function renderTreinosBarChart(dataObj) {
+            try {
+                const canvas = document.getElementById('graficoTreinos');
+                if (!canvas) return;
+                
+                const labels = Object.keys(dataObj || {});
+                const data = labels.map(l => dataObj[l] || 0);
+                
+                if (typeof Chart === 'undefined') { 
+                    setTimeout(() => renderTreinosBarChart(dataObj), 2000);
+                    return;
+                }
+                
+                const ctx = canvas.getContext('2d');
+                if (chartTreinos) chartTreinos.destroy();
+                
+                chartTreinos = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Treinos (por data)',
+                            data: data,
+                            backgroundColor: 'rgba(255,193,7,0.9)',
+                            borderColor: 'rgba(255,193,7,1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { ticks: { color: '#f0f0f0' } },
+                            y: { beginAtZero: true, ticks: { color: '#f0f0f0', stepSize: 1 } }
+                        },
+                        plugins: { legend: { labels: { color: '#f0f0f0' } } }
+                    }
+                });
+            } catch(err) { console.warn('renderTreinosBarChart erro', err); }
+        }
+
+        function marcarTreinoNoCalendario(dataObj) {
+            try {
+                const dia = String(dataObj.getDate()).padStart(2,'0');
+                const mes = String(dataObj.getMonth()+1).padStart(2,'0');
+                const ano = dataObj.getFullYear();
+                const chave = `${dia}-${mes}-${ano}`;
+                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
+            } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
+        }
+
+        function start() {
+            document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
+            document.getElementById('nome-aluno').textContent = alunoNome;
+            document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
+        
             inicializarGrafico();
             carregarUltimasMedidas();
             alternarTreino();
             gerarCalendario();
+        
+            carregarUltimoTreino();
+            contarTreinosDoMes();
+            
+            if (typeof Chart !== 'undefined') {
+                carregarTreinosFinalizados();
+            } else {
+                setTimeout(() => {
+                    carregarTreinosFinalizados();
+                }, 1000);
+            }
         }
 
-        // 🎯 FUNÇÃO DE GRÁFICO
         function inicializarGrafico() {
             const ex = document.getElementById('seletorExercicio').value;
-            const nomeExercicioDisplay = document.querySelector(`#seletorExercicio option[value="${ex}"]`).textContent;
-
-            if (pesoChart) {
-                pesoChart.destroy();
-                pesoChart = null;
-            }
-
-            const ctx = document.getElementById('pesoChart').getContext('2d');
             database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
-                const dados = [];
-                snap.forEach(d => {
-                    const val = d.val();
-                    if (val && val.peso !== undefined && val.timestamp) {
-                        dados.push(val);
-                    }
+                const datas = [];
+                const pesos = [];
+                snap.forEach(c => {
+                    const v = c.val();
+                    datas.push(v.data);
+                    pesos.push(v.peso);
                 });
 
-                dados.sort((a, b) => a.timestamp - b.timestamp);
-
-                const labels = dados.length ? dados.map(d => d.data) : ['Início'];
-                const pesos = dados.length ? dados.map(d => d.peso) : [0];
-
-                if (pesoChart) {
-                    pesoChart.data.labels = labels;
-                    pesoChart.data.datasets[0].data = pesos;
-                    pesoChart.data.datasets[0].label = `Carga ${nomeExercicioDisplay} (kg)`;
-                    pesoChart.update();
-                    return;
-                }
-
+                const ctx = document.getElementById('pesoChart').getContext('2d');
+                if (pesoChart) pesoChart.destroy();
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: labels,
+                        labels: datas,
                         datasets: [{
-                            label: `Carga ${nomeExercicioDisplay} (kg)`,
+                            label: `Carga (kg)`,
                             data: pesos,
                             borderColor: '#ff8c00',
                             backgroundColor: 'rgba(255,140,0,0.2)',
-                            fill: true,
-                            tension: 0.3,
-                            pointRadius: 5,
-                            pointBackgroundColor: '#ff8c00'
+                            tension: 0.2,
+                            fill: true
                         }]
                     },
                     options: {
@@ -801,8 +845,7 @@
                             y: {
                                 beginAtZero: true,
                                 grid: { color: '#333' },
-                                ticks: { color: '#f0f0f0' },
-                                title: { display: true, text: 'Peso (kg)', color: '#ff8c00' }
+                                ticks: { color: '#f0f0f0' }
                             },
                             x: {
                                 grid: { color: '#333' },
@@ -817,7 +860,6 @@
             });
         }
 
-        // 🎯 FUNÇÃO DE REGISTRO
         function adicionarPeso() {
             const p = document.getElementById('pesoInput').value;
             if (!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
@@ -840,7 +882,6 @@
             });
         }
 
-        // --- MEDIDAS ---
         function registrarMedidas() {
             const peso = document.getElementById('pesoCorporalInput').value;
             if (!peso) return alert('O peso é obrigatório!');
@@ -875,7 +916,6 @@
             });
         }
 
-        // --- TREINO ---
         function alternarTreino() {
             const dia = document.getElementById('seletorTreino').value;
             document.querySelectorAll('.lista-treino-dia').forEach(e => e.style.display = 'none');
@@ -932,8 +972,7 @@
                         li.className = 'exercicio-item';
                         li.setAttribute('data-exercicio', id);
                         li.innerHTML = `
-                            <div class="exercicio-info"><strong>${t.nome}</strong><span>${t.series}x |
-${t.reps}</span></div>
+                            <div class="exercicio-info"><strong>${t.nome}</strong><span>${t.series}x | ${t.reps}</span></div>
                             <div class="checkbox-container"><input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')"></div>
                         `;
                         ul.appendChild(li);
@@ -943,7 +982,6 @@ ${t.reps}</span></div>
             });
         }
 
-        // --- PRESENÇA ---
         function gerarCalendario() {
             const hoje = new Date();
             const mesAtual = hoje.getMonth();
@@ -996,31 +1034,26 @@ ${t.reps}</span></div>
             });
         }
 
-        // --- INTERAÇÃO COM IA (LÓGICA CORRIGIDA E MELHORADA) ---
         async function simularPesquisaIA() {
             const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
             const perguntaNormalizada = normalize(pergunta);
             const respostaDiv = document.getElementById('ai-resposta');
             const botao = document.querySelector('#ai-search-card .btn-primary');
             
-            // 1. Validação
             if (pergunta.length < 3) {
                 respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
                 return;
             }
 
-            // 2. Interface de carregamento
             botao.disabled = true;
-            botao.textContent = 'Pesquisando no Banco de Dados... 📚';
+            botao.textContent = 'Pesquisando no Banco de Dados...';
             respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
             
-            await new Promise(resolve => setTimeout(resolve, 800)); // Pequeno delay para UX
+            await new Promise(resolve => setTimeout(resolve, 800));
             
             let respostaTexto = '';
             let exercicioEncontrado = null;
 
-            // 3. Busca Inteligente por PONTUAÇÃO (RANKING)
-            // Isso resolve o problema de "Supino Reto" aparecer quando se busca "Supino Inclinado"
             const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
             let maxPontos = 0;
 
@@ -1028,19 +1061,16 @@ ${t.reps}</span></div>
                 const ex = bancoDeExercicios[key];
                 let pontos = 0;
 
-                // A. Verifica correspondência exata do nome (Prioridade Máxima)
                 if (perguntaNormalizada.includes(normalize(ex.nome))) {
                     pontos += 100;
                 }
 
-                // B. Pontua por palavra-chave coincidente
                 palavrasDaPergunta.forEach(palavra => {
                     if (ex.termos.includes(palavra)) {
                         pontos += 1;
                     }
                 });
 
-                // Se encontrou algo relevante e é a maior pontuação até agora
                 if (pontos > 0 && pontos > maxPontos) {
                     maxPontos = pontos;
                     exercicioEncontrado = ex;
@@ -1049,7 +1079,6 @@ ${t.reps}</span></div>
 
             if (exercicioEncontrado) {
                 const nomeEx = exercicioEncontrado.nome;
-                // 4. Determina a informação específica
                 if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
                     respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
                 } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
@@ -1058,30 +1087,25 @@ ${t.reps}</span></div>
                     respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
                 }
                 else {
-                    // Resposta padrão se o tópico não for específico
                     respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
                 }
 
             } else {
-                // Se nenhum exercício foi encontrado
                 respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").
 Nosso banco de dados cobre exercícios de **Musculação, Powerlifting, CrossFit, Pilates, Cardio e Saúde**.
 Tente pesquisar pelo nome exato do exercício ou sintoma.`;
             }
 
-            // 5. Formata a Resposta (mantém o negrito do markdown)
             let respostaFormatada = respostaTexto
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\n/g, '<br>');
 
             respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
             
-            // 6. Restaura o botão
             botao.disabled = false;
             botao.textContent = 'Perguntar à IA';
         }
 
-        // --- RESET GERAL ---
         function resetarDados(tipo) {
             let path;
             let msg;
