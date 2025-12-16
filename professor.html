@@ -922,53 +922,35 @@
                 return;
             }
 
-            // Primeiro, carrega os dias existentes
+            // Carrega o objeto treinoModel atual
             database.ref(getPath('treinoModel')).once('value', snap => {
                 const treinoModel = snap.val();
+                let novoTreinoModel = {};
                 
-                // Se não existir treinoModel, cria um novo objeto
-                if (!treinoModel) {
-                    const novoDia = {};
-                    novoDia[nomeDia] = [];
-                    
-                    database.ref(getPath('treinoModel')).set(novoDia)
-                        .then(() => {
-                            alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
-                            document.getElementById('modalDia').style.display = 'none';
-                            
-                            carregarDiasTreinoDoAluno();
-                            
-                            setTimeout(() => {
-                                const selectDia = document.getElementById('selectDia');
-                                selectDia.value = nomeDia;
-                                carregarTreinoDia();
-                            }, 500);
-                        })
-                        .catch(e => {
-                            console.error("Erro ao criar dia:", e);
-                            mostrarMensagem('Erro ao criar dia: ' + e.message, 'erro');
-                        });
-                    return;
+                // Se já existir treinoModel, copia o objeto atual
+                if (treinoModel) {
+                    novoTreinoModel = { ...treinoModel };
                 }
                 
                 // Verifica se o dia já existe
-                if (treinoModel[nomeDia]) {
+                if (novoTreinoModel[nomeDia]) {
                     mostrarMensagem(`O dia "${nomeDia}" já existe!`, 'erro');
                     return;
                 }
                 
-                // Adiciona o novo dia ao objeto existente
-                const novoDia = { ...treinoModel };
-                novoDia[nomeDia] = [];
+                // Adiciona o novo dia com array vazio de exercícios
+                novoTreinoModel[nomeDia] = [];
                 
-                // Atualiza o treinoModel com o novo dia
-                database.ref(getPath('treinoModel')).set(novoDia)
+                // Salva o objeto completo atualizado
+                database.ref(getPath('treinoModel')).set(novoTreinoModel)
                     .then(() => {
                         alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
                         document.getElementById('modalDia').style.display = 'none';
                         
+                        // Recarrega a lista de dias
                         carregarDiasTreinoDoAluno();
                         
+                        // Seleciona o novo dia automaticamente
                         setTimeout(() => {
                             const selectDia = document.getElementById('selectDia');
                             selectDia.value = nomeDia;
@@ -979,6 +961,9 @@
                         console.error("Erro ao criar dia:", e);
                         mostrarMensagem('Erro ao criar dia: ' + e.message, 'erro');
                     });
+            }).catch(e => {
+                console.error("Erro ao carregar treinoModel:", e);
+                mostrarMensagem('Erro ao carregar dados: ' + e.message, 'erro');
             });
         }
 
@@ -1002,20 +987,21 @@
             }
 
             if (confirm(`Tem certeza que deseja EXCLUIR o dia "${diaParaRemover}" e todos os seus exercícios?`)) {
-                // Primeiro, carrega os dias existentes
+                // Carrega o objeto treinoModel atual
                 database.ref(getPath('treinoModel')).once('value', snap => {
                     const treinoModel = snap.val();
+                    
                     if (!treinoModel || !treinoModel[diaParaRemover]) {
                         mostrarMensagem('Dia não encontrado!', 'erro');
                         return;
                     }
                     
-                    // Remove o dia do objeto
-                    const novoDia = { ...treinoModel };
-                    delete novoDia[diaParaRemover];
+                    // Cria uma cópia do objeto sem o dia removido
+                    const novoTreinoModel = { ...treinoModel };
+                    delete novoTreinoModel[diaParaRemover];
                     
-                    // Atualiza o treinoModel sem o dia removido
-                    database.ref(getPath('treinoModel')).set(novoDia)
+                    // Salva o objeto atualizado
+                    database.ref(getPath('treinoModel')).set(novoTreinoModel)
                         .then(() => {
                             alert(`✅ Dia "${diaParaRemover}" removido com sucesso!`);
                             carregarDiasTreinoDoAluno();
