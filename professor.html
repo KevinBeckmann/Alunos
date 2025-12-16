@@ -284,6 +284,25 @@
         .btn-novo-dia:hover {
             background-color: #2fa360;
         }
+        
+        /* Status do sistema */
+        .system-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #1e1e1e;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            border: 1px solid #333;
+            z-index: 1000;
+        }
+        .status-connected {
+            color: #38c172;
+        }
+        .status-disconnected {
+            color: #dc3545;
+        }
     </style>
 </head>
 
@@ -295,12 +314,18 @@
         <input type="password" id="login-senha" placeholder="Senha" required>
         <button onclick="fazerLogin()">Entrar</button>
         <p id="login-erro" style="color: #dc3545; margin-top: 10px; font-size: 0.9em;"></p>
+        <div class="system-status" id="firebase-status" style="display: none;">
+            <span id="status-text">Conectando...</span>
+        </div>
     </div>
 
     <div id="main-content" style="display:none;">
         <div class="main-header">
             <h1>Painel do Professor</h1>
-            <button class="logout-btn" onclick="fazerLogout()">Sair</button>
+            <div style="display: flex; gap: 10px;">
+                <span style="align-self: center; color: #38c172; font-size: 0.9em;" id="user-email"></span>
+                <button class="logout-btn" onclick="fazerLogout()">Sair</button>
+            </div>
         </div>
 
         <div class="container">
@@ -417,40 +442,80 @@
         let presencaRef = null; 
         let auth = null;
         let database = null;
+        let currentUser = null;
 
-        // === 1. CONFIGURAÇÃO FIREBASE CORRIGIDA ===
+        // === 1. CONFIGURAÇÃO FIREBASE IDÊNTICA AO INDEX DO ALUNO ===
         const firebaseConfig = {
             apiKey: "AIzaSyDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
             databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
             projectId: "ptf03-26fdb",
-            storageBucket: "ptf03-26fdb.appspot.com", // CORRIGIDO: estava com .firebaseapp.com
+            storageBucket: "ptf03-26fdb.appspot.com",  // ← CORRETO (igual deve estar no index)
             messagingSenderId: "1020981883676",
             appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
         };
         
         // === 2. INICIALIZAÇÃO DO FIREBASE ===
         document.addEventListener('DOMContentLoaded', function() {
+            initializeFirebase();
+        });
+
+        function initializeFirebase() {
             try {
+                console.log("Inicializando Firebase...");
+                
                 // Verifica se o Firebase já foi inicializado
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
+                    console.log("Firebase inicializado com sucesso!");
+                } else {
+                    firebase.app(); // Usa a instância existente
+                    console.log("Firebase já estava inicializado");
                 }
                 
                 auth = firebase.auth();
                 database = firebase.database();
                 
-                console.log("Firebase inicializado com sucesso!");
+                // Atualiza status
+                updateFirebaseStatus("Conectando ao Firebase...", "status-disconnected");
+                
+                // Testa a conexão
+                testFirebaseConnection();
                 
                 // Inicia o observador de autenticação
                 iniciarObservadorAuth();
                 
             } catch (error) {
                 console.error("ERRO CRÍTICO NO FIREBASE:", error);
+                updateFirebaseStatus("Erro no Firebase: " + error.message, "status-disconnected");
                 mostrarErroLogin("Erro ao conectar com o Firebase. Verifique sua conexão e as configurações.");
             }
-        });
-        
+        }
+
+        function testFirebaseConnection() {
+            // Tenta ler um dado simples para testar a conexão
+            database.ref('.info/connected').on('value', function(snap) {
+                if (snap.val() === true) {
+                    console.log("Firebase conectado com sucesso!");
+                    updateFirebaseStatus("Conectado ✓", "status-connected");
+                } else {
+                    console.log("Firebase desconectado");
+                    updateFirebaseStatus("Desconectado ✗", "status-disconnected");
+                }
+            });
+        }
+
+        function updateFirebaseStatus(message, statusClass) {
+            const statusEl = document.getElementById('firebase-status');
+            const statusText = document.getElementById('status-text');
+            
+            if (statusEl && statusText) {
+                statusEl.style.display = 'block';
+                statusText.textContent = message;
+                statusEl.className = 'system-status ' + statusClass;
+            }
+        }
+
         function iniciarObservadorAuth() {
             if (!auth) {
                 console.error("Firebase Auth não inicializado!");
@@ -460,16 +525,28 @@
             auth.onAuthStateChanged((user) => {
                 const loginScreen = document.getElementById('login-screen');
                 const mainContent = document.getElementById('main-content');
+                const userEmailEl = document.getElementById('user-email');
+                
+                currentUser = user;
                 
                 if (user) {
                     console.log("Usuário autenticado:", user.email);
                     loginScreen.style.display = 'none';
                     mainContent.style.display = 'block';
+                    
+                    if (userEmailEl) {
+                        userEmailEl.textContent = user.email;
+                    }
+                    
                     inicializarPainel();
                 } else {
                     console.log("Nenhum usuário autenticado");
                     loginScreen.style.display = 'block';
                     mainContent.style.display = 'none';
+                    
+                    if (userEmailEl) {
+                        userEmailEl.textContent = '';
+                    }
                 }
             }, (error) => {
                 console.error("Erro no observador de autenticação:", error);
@@ -506,13 +583,14 @@
                 .then((userCredential) => {
                     // Sucesso - o observador de autenticação irá redirecionar
                     console.log("Login bem-sucedido!");
+                    mostrarErroLogin('');
                 })
                 .catch((error) => {
                     let mensagemErro = '';
                     
                     switch(error.code) {
                         case 'auth/user-not-found':
-                            mensagemErro = 'E-mail não encontrado.';
+                            mensagemErro = 'E-mail não encontrado. Verifique se criou uma conta de professor no Firebase Console.';
                             break;
                         case 'auth/wrong-password':
                             mensagemErro = 'Senha incorreta.';
@@ -526,12 +604,15 @@
                         case 'auth/network-request-failed':
                             mensagemErro = 'Erro de conexão. Verifique sua internet.';
                             break;
+                        case 'auth/too-many-requests':
+                            mensagemErro = 'Muitas tentativas de login. Tente novamente mais tarde.';
+                            break;
                         default:
                             mensagemErro = 'Erro ao fazer login: ' + error.message;
                     }
                     
                     mostrarErroLogin(mensagemErro);
-                    console.error("Erro de login:", error);
+                    console.error("Erro de login:", error.code, error.message);
                 })
                 .finally(() => {
                     btn.textContent = originalText;
@@ -545,6 +626,12 @@
             auth.signOut()
                 .then(() => {
                     console.log("Logout realizado com sucesso");
+                    // Limpa dados do painel
+                    alunoSelecionadoNome = '';
+                    if (pesoChart) {
+                        pesoChart.destroy();
+                        pesoChart = null;
+                    }
                 })
                 .catch((error) => {
                     console.error("Erro ao fazer logout:", error);
@@ -1339,6 +1426,19 @@
                 }
             });
         }
+        
+        // === 12. VERIFICAÇÃO FINAL DO FIREBASE ===
+        function checkFirebaseSetup() {
+            console.log("=== VERIFICAÇÃO DE CONFIGURAÇÃO FIREBASE ===");
+            console.log("API Key:", firebaseConfig.apiKey.substring(0, 10) + "...");
+            console.log("Project ID:", firebaseConfig.projectId);
+            console.log("Database URL:", firebaseConfig.databaseURL);
+            console.log("Storage Bucket:", firebaseConfig.storageBucket);
+            console.log("==============================");
+        }
+        
+        // Chama a verificação
+        checkFirebaseSetup();
     </script>
 </body>
 </html>
