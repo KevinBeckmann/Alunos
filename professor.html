@@ -15,82 +15,292 @@
 
     <style>
         /* --- ESTILOS DARK MODE --- */
-        body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background-color: #121212; color: #e0e0e0; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #121212; 
+            color: #e0e0e0; 
+        }
         
         /* Estilos da Tela de Login */
         #login-screen {
-            max-width: 400px; margin: 100px auto; padding: 30px; background-color: #1e1e1e;
-            border-radius: 10px; border: 1px solid #333; text-align: center;
+            max-width: 400px; 
+            margin: 100px auto; 
+            padding: 30px; 
+            background-color: #1e1e1e;
+            border-radius: 10px; 
+            border: 1px solid #333; 
+            text-align: center;
         }
-        #login-screen h2 { color: #00d4ff; margin-bottom: 20px; }
-        #login-screen input { margin-bottom: 15px; }
-        #login-screen button { padding: 10px; }
+        #login-screen h2 { 
+            color: #00d4ff; 
+            margin-bottom: 20px; 
+        }
+        #login-screen input { 
+            margin-bottom: 15px; 
+            width: 100%;
+            padding: 12px;
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: white;
+            box-sizing: border-box;
+        }
+        #login-screen button { 
+            padding: 12px 24px; 
+            background-color: #00d4ff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+        #login-screen button:hover {
+            background-color: #00a3cc;
+        }
 
         /* Estilos do Painel (Mantidos) */
-        .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .main-header h1 { color: #00d4ff; margin: 0; font-size: 2em; }
-        .container { max-width: 1200px; margin: 0 auto; display: grid; gap: 20px; grid-template-columns: 1fr; }
-        @media (min-width: 1024px) { .container { grid-template-columns: 1fr 2fr; } }
-        .card { background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333; }
+        .main-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 20px; 
+        }
+        .main-header h1 { 
+            color: #00d4ff; 
+            margin: 0; 
+            font-size: 2em; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: grid; 
+            gap: 20px; 
+            grid-template-columns: 1fr; 
+        }
+        @media (min-width: 1024px) { 
+            .container { 
+                grid-template-columns: 1fr 2fr; 
+            } 
+        }
+        .card { 
+            background-color: #1e1e1e; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #333; 
+        }
         
-        input, select { width: 100%; padding: 10px; margin-top: 5px; background-color: #2c2c2c; border: 1px solid #444; border-radius: 5px; color: white; box-sizing: border-box; }
+        input, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 5px; 
+            background-color: #2c2c2c; 
+            border: 1px solid #444; 
+            border-radius: 5px; 
+            color: white; 
+            box-sizing: border-box; 
+        }
         
-        button.btn-save { width: 100%; padding: 12px; margin-top: 20px; background-color: #00d4ff; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button.btn-save:hover { background-color: #00a3cc; }
+        button.btn-save { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 20px; 
+            background-color: #00d4ff; 
+            color: #000; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+        button.btn-save:hover { 
+            background-color: #00a3cc; 
+        }
 
         /* Estilos do Editor de Treino */
         .treino-row { 
-            display: grid; grid-template-columns: 2fr 1fr 1fr auto auto; gap: 10px; margin-bottom: 10px; 
-            padding-bottom: 10px; border-bottom: 1px dashed #333; align-items: end;
+            display: grid; 
+            grid-template-columns: 2fr 1fr 1fr auto auto; 
+            gap: 10px; 
+            margin-bottom: 10px; 
+            padding-bottom: 10px; 
+            border-bottom: 1px dashed #333; 
+            align-items: end;
         }
-        .treino-row:last-of-type { border-bottom: none; }
+        .treino-row:last-of-type { 
+            border-bottom: none; 
+        }
 
         /* Estilo para a área de arrastar */
-        .handle-drag { cursor: move; }
+        .handle-drag { 
+            cursor: move; 
+        }
 
         /* Classe adicionada pelo SortableJS */
-        .sortable-ghost { opacity: 0.4; background-color: #333; }
+        .sortable-ghost { 
+            opacity: 0.4; 
+            background-color: #333; 
+        }
 
-        .btn-remover, .btn-acao-aluno { padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; height: 40px; }
-        .btn-acao-aluno { background-color: #ffc107; color: #1e1e1e; font-weight: bold; }
+        .btn-remover, .btn-acao-aluno { 
+            padding: 10px; 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            height: 40px; 
+        }
+        .btn-acao-aluno { 
+            background-color: #ffc107; 
+            color: #1e1e1e; 
+            font-weight: bold; 
+        }
 
         /* Botão de Renomear Aluno */
-        .btn-renomear-aluno { background-color: #00d4ff; color: #1e1e1e; font-weight: bold; }
+        .btn-renomear-aluno { 
+            background-color: #00d4ff; 
+            color: #1e1e1e; 
+            font-weight: bold; 
+        }
 
-        table { width: 100%; text-align: left; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 8px; border-bottom: 1px solid #333; }
-        th { color: #aaa; font-size: 0.9em; }
-        .sem-dados { color: #777; font-style: italic; padding: 10px; text-align: center; }
+        table { 
+            width: 100%; 
+            text-align: left; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+        }
+        th, td { 
+            padding: 8px; 
+            border-bottom: 1px solid #333; 
+        }
+        th { 
+            color: #aaa; 
+            font-size: 0.9em; 
+        }
+        .sem-dados { 
+            color: #777; 
+            font-style: italic; 
+            padding: 10px; 
+            text-align: center; 
+        }
 
         /* Estilos do Modal */
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
-        .modal-content { background-color: #1e1e1e; margin: 15% auto; padding: 30px; border: 1px solid #333; width: 90%; max-width: 450px; border-radius: 10px; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
-        .close:hover, .close:focus { color: #e0e0e0; text-decoration: none; cursor: pointer; }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.7); 
+        }
+        .modal-content { 
+            background-color: #1e1e1e; 
+            margin: 15% auto; 
+            padding: 30px; 
+            border: 1px solid #333; 
+            width: 90%; 
+            max-width: 450px; 
+            border-radius: 10px; 
+            position: relative;
+        }
+        .close { 
+            color: #aaa; 
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 28px; 
+            font-weight: bold; 
+            cursor: pointer;
+        }
+        .close:hover, .close:focus { 
+            color: #e0e0e0; 
+            text-decoration: none; 
+        }
         
         /* Novo estilo para mensagem no gráfico */
-        #chart-container-wrapper { position: relative; height: 300px; }
-        #chart-empty-message { position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
-            display: flex; justify-content: center; align-items: center; 
-            color: #777; font-style: italic; background: #2c2c2c; border-radius: 5px; z-index: 10;
+        #chart-container-wrapper { 
+            position: relative; 
+            height: 300px; 
+        }
+        #chart-empty-message { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            color: #777; 
+            font-style: italic; 
+            background: #2c2c2c; 
+            border-radius: 5px; 
+            z-index: 10;
+        }
+        
+        /* Estilo para mensagem de erro */
+        .error-message {
+            color: #ff6b6b;
+            background-color: rgba(255, 107, 107, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            text-align: center;
+            border: 1px solid #ff6b6b;
+        }
+        
+        /* Botão de logout */
+        .logout-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        
+        /* Botão de criar novo dia */
+        .btn-novo-dia {
+            background-color: #38c172;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            font-weight: bold;
+        }
+        .btn-novo-dia:hover {
+            background-color: #2fa360;
         }
     </style>
 </head>
 
 <body>
 
-    <div id="login-screen" style="display:none;">
+    <div id="login-screen">
         <h2>Acesso Restrito - Painel do Professor</h2>
         <input type="email" id="login-email" placeholder="E-mail" required>
         <input type="password" id="login-senha" placeholder="Senha" required>
-        <button class="btn-save" onclick="fazerLogin()">Entrar</button>
-        <p id="login-erro" style="color: #dc3545; margin-top: 10px;"></p>
+        <button onclick="fazerLogin()">Entrar</button>
+        <p id="login-erro" style="color: #dc3545; margin-top: 10px; font-size: 0.9em;"></p>
     </div>
 
     <div id="main-content" style="display:none;">
         <div class="main-header">
             <h1>Painel do Professor</h1>
-            <button class="btn-save" onclick="fazerLogout()" style="width: auto; margin: 0; background-color: #dc3545;">Sair</button>
+            <button class="logout-btn" onclick="fazerLogout()">Sair</button>
         </div>
 
         <div class="container">
@@ -117,7 +327,7 @@
                         <select id="selectDia" style="flex-grow: 1;">
                             <option>Carregando Dias...</option> 
                         </select>
-                        <button class="btn-acao-aluno" onclick="abrirModalDia()" title="Adicionar Novo Dia" style="background-color: #38c172; width: 40px; height: 40px; font-weight: normal;">+</button>
+                        <button class="btn-novo-dia" onclick="abrirModalDia()" title="Adicionar Novo Dia">+</button>
                         <button class="btn-remover" onclick="removerDiaTreino()" title="Remover Dia Selecionado" style="width: 40px; height: 40px;">-</button>
                     </div>
                     <hr style="border-color: #333; margin: 20px 0;">
@@ -198,61 +408,156 @@
             <button class="btn-save" onclick="salvarNovoDia()">Criar Dia</button>
         </div>
     </div>
+    
     <script>
-        
         // --- VARIÁVEIS GLOBAIS ---
         let alunoSelecionadoNome = ''; 
         let pesoChart = null; 
         let medidasRef = null;
         let presencaRef = null; 
-        let auth, database;
+        let auth = null;
+        let database = null;
 
-        // === 1. CONFIGURAÇÃO FIREBASE ===
+        // === 1. CONFIGURAÇÃO FIREBASE CORRIGIDA ===
         const firebaseConfig = {
             apiKey: "AIzaSyDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
             databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
             projectId: "ptf03-26fdb",
-            storageBucket: "ptf03-26fdb.firebaseapp.com",
+            storageBucket: "ptf03-26fdb.appspot.com", // CORRIGIDO: estava com .firebaseapp.com
             messagingSenderId: "1020981883676",
             appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
         };
         
-        try {
-            const app = firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth(); 
-            database = firebase.database();
-            
-            // Inicia o observador de autenticação
-            iniciarObservadorAuth();
-
-        } catch (error) {
-            // Se houver um erro de configuração, mostra um alerta
-            alert("ERRO CRÍTICO NO FIREBASE: " + error.message + ". Verifique se suas chaves em 'firebaseConfig' estão corretas e se as bibliotecas Firebase foram carregadas corretamente no <head>.");
-        }
+        // === 2. INICIALIZAÇÃO DO FIREBASE ===
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Verifica se o Firebase já foi inicializado
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                
+                auth = firebase.auth();
+                database = firebase.database();
+                
+                console.log("Firebase inicializado com sucesso!");
+                
+                // Inicia o observador de autenticação
+                iniciarObservadorAuth();
+                
+            } catch (error) {
+                console.error("ERRO CRÍTICO NO FIREBASE:", error);
+                mostrarErroLogin("Erro ao conectar com o Firebase. Verifique sua conexão e as configurações.");
+            }
+        });
         
         function iniciarObservadorAuth() {
+            if (!auth) {
+                console.error("Firebase Auth não inicializado!");
+                return;
+            }
+            
             auth.onAuthStateChanged((user) => {
                 const loginScreen = document.getElementById('login-screen');
                 const mainContent = document.getElementById('main-content');
                 
                 if (user) {
+                    console.log("Usuário autenticado:", user.email);
                     loginScreen.style.display = 'none';
                     mainContent.style.display = 'block';
                     inicializarPainel();
                 } else {
+                    console.log("Nenhum usuário autenticado");
                     loginScreen.style.display = 'block';
                     mainContent.style.display = 'none';
                 }
+            }, (error) => {
+                console.error("Erro no observador de autenticação:", error);
             });
         }
 
-        // ------------------------------------
-        // === FUNÇÕES GERAIS ===
-        // ------------------------------------
+        // === 3. FUNÇÕES DE AUTENTICAÇÃO ===
+        function fazerLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const senha = document.getElementById('login-senha').value;
+            const erroEl = document.getElementById('login-erro');
+            
+            if (!email || !senha) {
+                mostrarErroLogin('Preencha e-mail e senha.');
+                return;
+            }
+            
+            mostrarErroLogin(''); // Limpa erros anteriores
+            
+            // Mostra carregando
+            const btn = document.querySelector('#login-screen button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Entrando...';
+            btn.disabled = true;
+            
+            if (!auth) {
+                mostrarErroLogin('Sistema de autenticação não inicializado.');
+                btn.textContent = originalText;
+                btn.disabled = false;
+                return;
+            }
+            
+            auth.signInWithEmailAndPassword(email, senha)
+                .then((userCredential) => {
+                    // Sucesso - o observador de autenticação irá redirecionar
+                    console.log("Login bem-sucedido!");
+                })
+                .catch((error) => {
+                    let mensagemErro = '';
+                    
+                    switch(error.code) {
+                        case 'auth/user-not-found':
+                            mensagemErro = 'E-mail não encontrado.';
+                            break;
+                        case 'auth/wrong-password':
+                            mensagemErro = 'Senha incorreta.';
+                            break;
+                        case 'auth/invalid-email':
+                            mensagemErro = 'Formato de e-mail inválido.';
+                            break;
+                        case 'auth/user-disabled':
+                            mensagemErro = 'Esta conta foi desativada.';
+                            break;
+                        case 'auth/network-request-failed':
+                            mensagemErro = 'Erro de conexão. Verifique sua internet.';
+                            break;
+                        default:
+                            mensagemErro = 'Erro ao fazer login: ' + error.message;
+                    }
+                    
+                    mostrarErroLogin(mensagemErro);
+                    console.error("Erro de login:", error);
+                })
+                .finally(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                });
+        }
+        
+        function fazerLogout() {
+            if (!auth) return;
+            
+            auth.signOut()
+                .then(() => {
+                    console.log("Logout realizado com sucesso");
+                })
+                .catch((error) => {
+                    console.error("Erro ao fazer logout:", error);
+                    alert('Erro ao sair: ' + error.message);
+                });
+        }
+        
+        function mostrarErroLogin(mensagem) {
+            document.getElementById('login-erro').textContent = mensagem;
+        }
 
+        // === 4. FUNÇÕES GERAIS ===
         function formatarNomeParaChave(nome) {
-            // Remove acentos/caracteres especiais e substitui espaços por '_'
             return nome.trim()
                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                        .replace(/[^a-zA-Z0-9\s]/g, '')
@@ -264,44 +569,11 @@
             return `alunos/${formatarNomeParaChave(alunoSelecionadoNome)}/${sub}`;
         }
 
-        function mostrarErro(mensagem) {
-            document.getElementById('login-erro').textContent = `Erro: ${mensagem}`;
-        }
-
-        // ------------------------------------
-        // === FUNÇÕES DE AUTENTICAÇÃO ===
-        // ------------------------------------
-
-        function fazerLogin() {
-            const email = document.getElementById('login-email').value;
-            const senha = document.getElementById('login-senha').value;
-            mostrarErro(''); 
-            if (!email || !senha) {
-                return mostrarErro('Preencha e-mail e senha.');
-            }
-            auth.signInWithEmailAndPassword(email, senha)
-                .catch((error) => {
-                    const msg = (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') ? 
-                        'E-mail ou senha incorretos.' : 
-                        (error.code === 'auth/invalid-email' ? 'Formato de e-mail inválido.' : error.message);
-                    mostrarErro(msg);
-                });
-        }
-        
-        function fazerLogout() {
-             auth.signOut().catch((error) => {
-                 console.error('Erro ao fazer logout:', error);
-                 alert('Erro ao sair: ' + error.message);
-             });
-        }
-
-        // ------------------------------------
-        // === INICIALIZAÇÃO E CARREGAMENTO GERAL ===
-        // ------------------------------------
-
+        // === 5. INICIALIZAÇÃO DO PAINEL ===
         function inicializarPainel() {
-            const sel = document.getElementById('selectAluno');
-            sel.onchange = (e) => {
+            // Configura o evento de mudança no select de alunos
+            const selectAluno = document.getElementById('selectAluno');
+            selectAluno.onchange = function(e) {
                 alunoSelecionadoNome = e.target.value;
                 carregarTudo(); 
             };
@@ -311,77 +583,126 @@
         }
         
         function carregarListaAlunos() {
-            const sel = document.getElementById('selectAluno');
-            sel.innerHTML = '<option>Carregando...</option>';
+            const selectAluno = document.getElementById('selectAluno');
+            selectAluno.innerHTML = '<option>Carregando alunos...</option>';
+            
+            if (!database) {
+                selectAluno.innerHTML = '<option>Erro: Banco de dados não disponível</option>';
+                return;
+            }
+            
             database.ref('alunos/').once('value', snap => {
                 const alunos = snap.val();
-                sel.innerHTML = '';
-                if(!alunos) { sel.innerHTML = '<option>Sem alunos</option>'; return; }
+                selectAluno.innerHTML = '';
                 
-                let primeiro = null;
-                const nomesParaSelect = [];
-
+                if(!alunos || Object.keys(alunos).length === 0) { 
+                    selectAluno.innerHTML = '<option>Nenhum aluno cadastrado</option>'; 
+                    return; 
+                }
+                
+                // Ordena os alunos alfabeticamente
+                const nomesOrdenados = [];
                 for(const chave in alunos) {
-                    // Tenta obter o nome formatado guardado em 'info', senão usa a chave
-                    const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' '); 
-                    
-                    nomesParaSelect.push({ chave, nomeLegivel });
-                    if(!primeiro) primeiro = nomeLegivel;
+                    const nomeLegivel = alunos[chave].info && alunos[chave].info.nome 
+                        ? alunos[chave].info.nome 
+                        : chave.replace(/_/g, ' ');
+                    nomesOrdenados.push(nomeLegivel);
                 }
-              
-                nomesParaSelect.sort((a, b) => a.nomeLegivel.localeCompare(b.nomeLegivel));
-
-                nomesParaSelect.forEach(aluno => {
-                    const opt = document.createElement('option');
-                    opt.value = aluno.nomeLegivel;
-                    opt.textContent = aluno.nomeLegivel;
-                    sel.appendChild(opt);
+                nomesOrdenados.sort((a, b) => a.localeCompare(b));
+                
+                // Adiciona os alunos ao select
+                nomesOrdenados.forEach(nome => {
+                    const option = document.createElement('option');
+                    option.value = nome;
+                    option.textContent = nome;
+                    selectAluno.appendChild(option);
                 });
-
-                // Tenta manter o aluno selecionado
-                if(alunoSelecionadoNome && sel.querySelector(`option[value="${alunoSelecionadoNome}"]`)) {
-                    sel.value = alunoSelecionadoNome;
-                } else if(primeiro) {
-                    sel.value = primeiro;
-                    alunoSelecionadoNome = primeiro;
-                } else {
-                    alunoSelecionadoNome = '';
+                
+                // Seleciona o primeiro aluno por padrão
+                if (nomesOrdenados.length > 0) {
+                    selectAluno.value = nomesOrdenados[0];
+                    alunoSelecionadoNome = nomesOrdenados[0];
+                    carregarTudo();
                 }
-
-                if(alunoSelecionadoNome) {
-                     carregarTudo();
-                } else {
-                    document.getElementById('titulo-acompanhamento').textContent = 'Acompanhamento: Nenhum Aluno';
-                    document.getElementById('tabela-medidas-admin').innerHTML = '<tr><td colspan="4" class="sem-dados">Selecione ou Adicione um aluno</td></tr>';
-                    document.getElementById('lista-presenca').innerHTML = '';
-                    if(pesoChart) pesoChart.destroy();
-                    // Garante que a mensagem de "sem dados" do gráfico apareça
-                    document.getElementById('chart-empty-message').style.display = 'flex';
-                    document.getElementById('selectGrafico').innerHTML = '<option>Selecione um aluno</option>';
-                }
-
+            }).catch(error => {
+                console.error("Erro ao carregar alunos:", error);
+                selectAluno.innerHTML = '<option>Erro ao carregar alunos</option>';
             });
         }
 
-        // === NOVA FUNÇÃO: Carrega todos os exercícios do aluno para o gráfico ===
+        // === 6. CARREGAMENTO DE DADOS DO ALUNO ===
+        function carregarTudo() {
+            if(!alunoSelecionadoNome) return;
+            
+            document.getElementById('titulo-acompanhamento').textContent = `Acompanhamento: ${alunoSelecionadoNome}`;
+            
+            // Carrega os dias de treino do aluno
+            carregarDiasTreinoDoAluno();
+            carregarMedidas(); 
+            carregarPresenca(); 
+            carregarExerciciosDoAluno();
+        }
+
+        function carregarDiasTreinoDoAluno() {
+            if (!alunoSelecionadoNome) {
+                document.getElementById('selectDia').innerHTML = '<option>Selecione um aluno primeiro</option>';
+                return;
+            }
+
+            const selectDia = document.getElementById('selectDia');
+            selectDia.innerHTML = '<option>Carregando dias de treino...</option>';
+
+            database.ref(getPath('treinoModel')).once('value', snap => {
+                const treinoModel = snap.val();
+                selectDia.innerHTML = '';
+                
+                if (!treinoModel || Object.keys(treinoModel).length === 0) {
+                    selectDia.innerHTML = '<option value="">Nenhum treino criado</option>';
+                    
+                    // Opção para criar primeiro treino
+                    const option = document.createElement('option');
+                    option.value = "Dia A";
+                    option.textContent = "Criar Dia A";
+                    selectDia.appendChild(option);
+                } else {
+                    // Adiciona todos os dias encontrados
+                    Object.keys(treinoModel).forEach(dia => {
+                        const option = document.createElement('option');
+                        option.value = dia;
+                        option.textContent = dia;
+                        selectDia.appendChild(option);
+                    });
+                }
+                
+                // Atualiza o treino quando selecionar um dia
+                selectDia.onchange = carregarTreinoDia;
+                
+                // Carrega o primeiro treino se houver
+                if (selectDia.options.length > 0 && selectDia.value) {
+                    carregarTreinoDia();
+                }
+            }).catch(error => {
+                console.error("Erro ao carregar dias de treino:", error);
+                selectDia.innerHTML = '<option>Erro ao carregar treinos</option>';
+            });
+        }
+
         function carregarExerciciosDoAluno() {
             if (!alunoSelecionadoNome) return;
             
             const selectGrafico = document.getElementById('selectGrafico');
             selectGrafico.innerHTML = '<option>Carregando exercícios...</option>';
             
-            // Busca todos os exercícios que o aluno tem no nó 'cargas'
             database.ref(getPath('cargas')).once('value', snap => {
                 let exercicios = [];
                 
                 if (snap.exists()) {
                     snap.forEach(childSnapshot => {
-                        const exercicio = childSnapshot.key;
-                        exercicios.push(exercicio);
+                        exercicios.push(childSnapshot.key);
                     });
                 }
                 
-                // Se não houver exercícios, adiciona os padrões do aluno
+                // Se não houver exercícios, usa os padrões
                 if (exercicios.length === 0) {
                     exercicios = [
                         "AgachamentoLivre",
@@ -395,16 +716,15 @@
                     ];
                 }
                 
-                // Ordena os exercícios alfabeticamente
+                // Ordena os exercícios
                 exercicios.sort();
                 
                 // Popula o select
                 selectGrafico.innerHTML = '';
                 exercicios.forEach(ex => {
-                    // Converte o nome formatado para um nome legível
                     const nomeLegivel = ex
-                        .replace(/([A-Z])/g, ' $1') // Adiciona espaço antes de letras maiúsculas
-                        .replace(/^./, str => str.toUpperCase()) // Primeira letra maiúscula
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase())
                         .trim();
                     
                     const option = document.createElement('option');
@@ -417,299 +737,63 @@
                 if (exercicios.length > 0) {
                     inicializarGraficoAluno(exercicios[0]);
                 }
+            }).catch(error => {
+                console.error("Erro ao carregar exercícios:", error);
+                selectGrafico.innerHTML = '<option>Erro ao carregar exercícios</option>';
             });
         }
 
-        // NOVA FUNÇÃO: Carrega os dias de treino de um aluno específico
-        function carregarDiasTreinoDoAluno() {
-            if (!alunoSelecionadoNome) {
-                document.getElementById('selectDia').innerHTML = '<option>Selecione um aluno primeiro</option>';
-                return;
-            }
-
-            const selDia = document.getElementById('selectDia');
-            selDia.innerHTML = '<option>Carregando Dias...</option>';
-
-            database.ref(getPath('treinoModel')).once('value', snap => {
-                const treinoModel = snap.val();
-                selDia.innerHTML = '';
-                
-                if (!treinoModel) {
-                    selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
-                    // Adiciona opção para criar primeiro treino
-                    const option = document.createElement('option');
-                    option.value = "Dia A";
-                    option.textContent = "Criar Dia A";
-                    selDia.appendChild(option);
-                } else {
-                    // Adiciona todos os dias encontrados
-                    Object.keys(treinoModel).forEach(dia => {
-                        const option = document.createElement('option');
-                        option.value = dia;
-                        option.textContent = dia;
-                        selDia.appendChild(option);
-                    });
-                }
-                
-                // Atualiza o treino quando selecionar um dia
-                selDia.onchange = carregarTreinoDia;
-                
-                // Carrega o primeiro treino se houver
-                if (selDia.options.length > 0 && selDia.value) {
-                    carregarTreinoDia();
-                }
-            });
-        }
-
-        function carregarTudo() {
-            if(!alunoSelecionadoNome) return;
-            document.getElementById('titulo-acompanhamento').textContent = `Acompanhamento: ${alunoSelecionadoNome}`;
-            
-            // Carrega os dias de treino específicos deste aluno
-            carregarDiasTreinoDoAluno();
-            carregarMedidas(); 
-            carregarPresenca(); 
-            
-            // Carrega todos os exercícios do aluno para o gráfico
-            carregarExerciciosDoAluno();
-        }
-
-        // ------------------------------------
-        // === FUNÇÕES DE GESTÃO DE DIAS DE TREINO (MODIFICADAS) ===
-        // ------------------------------------
-
-        function abrirModalDia() {
-            if (!alunoSelecionadoNome) {
-                return alert('Selecione um aluno primeiro!');
-            }
-            document.getElementById('modalDia').style.display = 'block';
-            document.getElementById('dia-nome').value = '';
-        }
-
-        function salvarNovoDia() {
-            if (!alunoSelecionadoNome) {
-                return alert('Selecione um aluno primeiro!');
-            }
-
-            const nomeDia = document.getElementById('dia-nome').value.trim();
-
-            if (!nomeDia) {
-                return alert('Por favor, digite o nome do novo Dia de Treino.');
-            }
-
-            // Verifica se o dia já existe para este aluno
-            database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
-                if (snap.exists()) {
-                    alert(`Erro: O dia de treino "${nomeDia}" já existe para este aluno.`);
-                    return;
-                }
-
-                // Cria um treino vazio para o novo dia
-                database.ref(getPath(`treinoModel/${nomeDia}`)).set([])
-                    .then(() => {
-                        alert(`Dia "${nomeDia}" criado com sucesso!`);
-                        document.getElementById('modalDia').style.display = 'none';
-                        
-                        // Recarrega a lista de dias para este aluno
-                        carregarDiasTreinoDoAluno();
-                        // Seleciona o novo dia
-                        document.getElementById('selectDia').value = nomeDia;
-                        // Carrega o treino vazio
-                        carregarTreinoDia();
-                    })
-                    .catch(e => alert('Erro ao criar dia: ' + e.message));
-            });
-        }
-
-        function removerDiaTreino() {
-            if (!alunoSelecionadoNome) {
-                return alert('Selecione um aluno primeiro!');
-            }
-
-            const select = document.getElementById('selectDia');
-            const diaParaRemover = select.value;
-
-            if (!diaParaRemover || select.options.length === 0) {
-                return alert('Selecione um Dia de Treino para remover.');
-            }
-            
-            // Impede a remoção se só restar um dia
-            if (select.options.length <= 1) { 
-                 return alert('Você deve manter pelo menos um Dia de Treino. Adicione outro antes de remover este.');
-            }
-
-            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o dia de treino "${diaParaRemover}" para o aluno "${alunoSelecionadoNome}"?`)) {
-                
-                // Remove o dia apenas para este aluno
-                database.ref(getPath(`treinoModel/${diaParaRemover}`)).remove()
-                    .then(() => {
-                        alert(`Dia "${diaParaRemover}" removido com sucesso!`);
-                        // Recarrega a lista de dias
-                        carregarDiasTreinoDoAluno();
-                    })
-                    .catch(e => alert('Erro ao remover dia: ' + e.message));
-            }
-        }
-        
-        // ------------------------------------
-        // === FUNÇÕES DE GESTÃO DE ALUNOS (ADICIONAR/EXCLUIR/RENOMEAR) ===
-        // ------------------------------------
-
-        function abrirModalAluno() {
-            const modal = document.getElementById('modalAluno');
-            document.getElementById('modal-titulo').textContent = 'Adicionar Novo Aluno';
-            document.getElementById('btn-salvar-aluno').textContent = 'Criar Aluno';
-            document.getElementById('aluno-nome').value = '';
-            document.getElementById('aluno-email').value = '';
-            modal.style.display = 'block';
-        }
-
-        function salvarAluno() {
-            const nome = document.getElementById('aluno-nome').value.trim();
-            const email = document.getElementById('aluno-email').value.trim(); 
-            const chave = formatarNomeParaChave(nome);
-
-            if (!nome || !email) {
-                return alert('Por favor, preencha o Nome e o E-mail.');
-            }
-
-            database.ref(`alunos/${chave}`).once('value')
-                .then(snap => {
-                    if (snap.exists()) {
-                        alert(`Erro: Já existe um aluno com a chave: ${chave} (Nome: ${nome}).`);
-                    } else {
-                        database.ref(`alunos/${chave}/info`).set({
-                            nome: nome,
-                            email: email,
-                            criacao: firebase.database.ServerValue.TIMESTAMP
-                        })
-                        .then(() => {
-                            alert(`Aluno "${nome}" adicionado com sucesso!`);
-                            document.getElementById('modalAluno').style.display = 'none';
-                            alunoSelecionadoNome = nome; 
-                            carregarListaAlunos();
-                        })
-                        .catch(e => alert('Erro ao adicionar aluno: ' + e.message));
-                    }
-                });
-        }
-        
-        function excluirAluno() {
-            if (!alunoSelecionadoNome) {
-                return alert('Selecione um aluno para excluir.');
-            }
-
-            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o aluno "${alunoSelecionadoNome}" e todos os seus dados? Esta ação é IRREVERSÍVEL.`)) {
-                const chave = formatarNomeParaChave(alunoSelecionadoNome);
-                database.ref(`alunos/${chave}`).remove()
-                .then(() => {
-                    alert(`Aluno "${alunoSelecionadoNome}" excluído com sucesso!`);
-                    alunoSelecionadoNome = ''; 
-                    carregarListaAlunos();
-                })
-                .catch(e => alert('Erro ao excluir aluno: ' + e.message));
-            }
-        }
-        
-        function abrirModalRenomearAluno() {
-            if (!alunoSelecionadoNome) {
-                return alert('Selecione um aluno para renomear.');
-            }
-            document.getElementById('nome-aluno-antigo').textContent = alunoSelecionadoNome;
-            document.getElementById('novo-nome-aluno').value = alunoSelecionadoNome;
-            document.getElementById('modalEditarNome').style.display = 'block';
-        }
-
-        function renomearAluno() {
-            const novoNome = document.getElementById('novo-nome-aluno').value.trim();
-            const nomeAntigo = alunoSelecionadoNome;
-
-            if (!novoNome || novoNome === nomeAntigo) {
-                return alert('O novo nome deve ser diferente e não pode ser vazio.');
-            }
-
-            const chaveAntiga = formatarNomeParaChave(nomeAntigo);
-            const chaveNova = formatarNomeParaChave(novoNome);
-            if (confirm(`Confirma a renomeação de "${nomeAntigo}" para "${novoNome}"? TODOS os dados serão movidos.`)) {
-                
-                database.ref(`alunos/${chaveNova}`).once('value')
-                .then(snapNova => {
-                    if (snapNova.exists()) {
-                        return Promise.reject(new Error(`Já existe um aluno com a chave: ${chaveNova} (Nome: ${novoNome}).`));
-                    }
-
-                    return database.ref(`alunos/${chaveAntiga}`).once('value');
-                })
-                .then(snapAntiga => {
-                    if (!snapAntiga.exists()) {
-                        return Promise.reject(new Error(`Erro: Aluno antigo "${nomeAntigo}" não encontrado.`));
-                    }
-                    const dadosAluno = snapAntiga.val();
-
-                    if (dadosAluno.info) {
-                        dadosAluno.info.nome = novoNome;
-                    } else {
-                         dadosAluno.info = { nome: novoNome, email: 'N/A', criacao: firebase.database.ServerValue.TIMESTAMP };
-                    }
-
-                    return database.ref(`alunos/${chaveNova}`).set(dadosAluno)
-                    .then(() => {
-                        return database.ref(`alunos/${chaveAntiga}`).remove();
-                    });
-                })
-                .then(() => {
-                    alert(`Aluno renomeado com sucesso de "${nomeAntigo}" para "${novoNome}".`);
-                    document.getElementById('modalEditarNome').style.display = 'none';
-                    alunoSelecionadoNome = novoNome; 
-                    carregarListaAlunos();
-                })
-                .catch(e => {
-                    alert('Erro ao renomear aluno: ' + e.message);
-                    console.error(e);
-                });
-            }
-        }
-
-        // ------------------------------------
-        // === FUNÇÕES DE ACOMPANHAMENTO (GRÁFICO E MEDIDAS) ===
-        // ------------------------------------
-
+        // === 7. FUNÇÕES DE MEDIDAS E GRÁFICOS ===
         function carregarMedidas() {
             if (!alunoSelecionadoNome) return;
-            const tb = document.getElementById('tabela-medidas-admin');
-            document.getElementById('chart-empty-message').style.display = 'none'; // Esconde a mensagem
-
-            if (medidasRef) database.ref(medidasRef).off('value');
             
-            tb.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
+            const tabelaMedidas = document.getElementById('tabela-medidas-admin');
+            document.getElementById('chart-empty-message').style.display = 'none';
+
+            // Remove listener anterior se existir
+            if (medidasRef) {
+                database.ref(medidasRef).off('value');
+            }
+            
+            tabelaMedidas.innerHTML = '<tr><td colspan="4">Carregando medidas...</td></tr>';
             medidasRef = getPath('medidas');
+            
             database.ref(medidasRef).limitToLast(5).on('value', snap => {
-                tb.innerHTML = '';
-                if(!snap.exists()) { tb.innerHTML = '<tr><td colspan="4" class="sem-dados">Sem registros de medidas</td></tr>'; return; }
+                tabelaMedidas.innerHTML = '';
                 
-                const arr = [];
+                if(!snap.exists()) { 
+                    tabelaMedidas.innerHTML = '<tr><td colspan="4" class="sem-dados">Sem registros de medidas</td></tr>'; 
+                    return; 
+                }
+                
+                const medidasArray = [];
                 snap.forEach(c => {
-                    const val = c.val();
-                    arr.push(val);
+                    const medida = c.val();
+                    medidasArray.push(medida);
                 });
                 
-                arr.sort((a,b) => b.timestamp - a.timestamp); 
+                // Ordena por timestamp (mais recente primeiro)
+                medidasArray.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
               
-                arr.forEach(m => {
-                    const peso = m.peso || m.carga || m.weight || '-';
-                    const cintura = m.cintura || m.waist || '-';
-                    const braco = m.braco || m.arm || '-';
-                    const data = m.data || m.date || new Date(m.timestamp).toLocaleDateString();
-
-                    const tr = tb.insertRow();
+                medidasArray.forEach(medida => {
+                    const peso = medida.peso || '-';
+                    const cintura = medida.cintura || '-';
+                    const braco = medida.braco || '-';
+                    const data = medida.data || new Date(medida.timestamp).toLocaleDateString('pt-BR') || '-';
+                    
+                    const tr = tabelaMedidas.insertRow();
                     tr.innerHTML = `<td>${data}</td><td>${peso}kg</td><td>${cintura}cm</td><td>${braco}cm</td>`;
                 });
+            }, error => {
+                console.error("Erro ao carregar medidas:", error);
+                tabelaMedidas.innerHTML = '<tr><td colspan="4" class="sem-dados">Erro ao carregar medidas</td></tr>';
             });
         }
 
         function inicializarGraficoAluno(exKey) {
             if (!alunoSelecionadoNome) return;
             
+            // Destrói gráfico anterior se existir
             if(pesoChart) {
                 pesoChart.destroy();
                 pesoChart = null;
@@ -718,15 +802,14 @@
             // Esconde a mensagem de "sem dados" inicialmente
             document.getElementById('chart-empty-message').style.display = 'none';
             
-            const pathPrincipal = getPath(`cargas/${exKey}`);
-            database.ref(pathPrincipal).once('value', snap => {
+            const path = getPath(`cargas/${exKey}`);
+            database.ref(path).once('value', snap => {
                 let dados = [];
                 
                 if(snap.exists()){
                     snap.forEach(c => {
                         const val = c.val();
-                        // Garante que o valor é um número
-                        if (val && (val.peso || val.carga || val.weight)) {
+                        if (val && (val.peso !== undefined || val.carga !== undefined)) {
                             dados.push(val);
                         }
                     });
@@ -746,6 +829,10 @@
                 }
                 
                 renderizarGrafico(dados, exKey);
+            }).catch(error => {
+                console.error("Erro ao carregar gráfico:", error);
+                document.getElementById('chart-empty-message').textContent = "Erro ao carregar dados do gráfico";
+                document.getElementById('chart-empty-message').style.display = 'flex';
             });
         }
 
@@ -755,24 +842,24 @@
             const selectedOption = select.options[select.selectedIndex];
             const titulo = selectedOption ? selectedOption.textContent : exKey;
 
-            // Se há dados, esconde a mensagem e desenha o gráfico
+            // Esconde a mensagem de "sem dados"
             document.getElementById('chart-empty-message').style.display = 'none';
 
             // Determina qual chave usar para o peso
             let chavePeso = 'peso';
             if (dados.length > 0) {
                 const primeiro = dados[0];
-                if (primeiro.carga !== undefined && primeiro.carga !== null) chavePeso = 'carga';
-                else if (primeiro.weight !== undefined && primeiro.weight !== null) chavePeso = 'weight';
+                if (primeiro.carga !== undefined && primeiro.carga !== null) {
+                    chavePeso = 'carga';
+                }
             }
 
-            // Ordena por timestamp
+            // Ordena por timestamp (mais antigo primeiro)
             dados.sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0));
             
-            // Prepara os dados
+            // Prepara labels e dados
             const labels = dados.map(d => {
                 if (d.data) return d.data;
-                if (d.date) return d.date;
                 if (d.timestamp) return new Date(d.timestamp).toLocaleDateString('pt-BR');
                 return '';
             });
@@ -782,6 +869,7 @@
                 return parseFloat(valor) || 0;
             });
 
+            // Cria o gráfico
             pesoChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -827,129 +915,428 @@
             });
         }
 
-        // ------------------------------------
-        // === FUNÇÕES DE EDIÇÃO DE TREINO (ATUALIZADAS PARA DRAG AND DROP) ===
-        // ------------------------------------
-        
-        function initSortable() {
-            const container = document.getElementById('editor-container');
-            // GARANTE: Desliga qualquer instância anterior (IMPORTANTE!)
-            if (container.sortable) {
-                container.sortable.destroy();
-            }
-
-            // Inicializa o SortableJS no container.
-            const sortableInstance = Sortable.create(container, {
-                animation: 150, 
-                // CORRIGIDO: Usa a classe 'handle-drag' para indicar a área de arrastar (o ícone ☰)
-                handle: '.handle-drag', 
-                ghostClass: 'sortable-ghost', 
-                forceFallback: true, 
-                // Impede que o drag inicie ao clicar em inputs/botões
-                filter: 'input, button', 
-            });
-            // Armazena a instância para poder destruí-la na próxima chamada
-            container.sortable = sortableInstance;
-        }
-
-        function carregarTreinoDia() {
-            const dia = document.getElementById('selectDia').value;
-            if(!alunoSelecionadoNome || !dia || dia === 'Carregando Dias...') return; // Proteção adicional
-            const container = document.getElementById('editor-container');
-            container.innerHTML = 'Carregando...';
-
-            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
-                const treino = snap.val();
-                container.innerHTML = ''; // Limpa o conteúdo
-                
-                if(Array.isArray(treino) && treino.length > 0) {
-                    treino.forEach(t => addLinha(t.nome, t.series, t.reps, true)); // Passa true para não adicionar botão
-                } else {
-                    addLinha('Ex: Supino Reto com Halteres', '4', '10', true);
-                }
-
-                // Cria e insere o botão de adicionar exercício (FICA SEMPRE POR ÚLTIMO)
-                const btn = document.createElement('button');
-                btn.textContent = '+ Add Exercício';
-                btn.id = 'btnAddExercicio';
-                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:10px; width:100%; margin-top:10px; cursor:pointer; border-radius: 5px;';
-                btn.onclick = () => addLinha('', '', '', false); // Adiciona e reposiciona o botão
-                container.appendChild(btn);
-                // Inicializa/Reinicializa o SortableJS APÓS carregar os elementos
-                initSortable();
-            });
-        }
-
-        // Função addLinha com parâmetro opcional para saber se deve reposicionar o botão
-        function addLinha(n, s, r, isInitialLoad) {
-            const container = document.getElementById('editor-container');
-            const div = document.createElement('div');
-            div.className = 'treino-row';
-            div.innerHTML = `
-                <div><label>Ex</label><input type="text" class="i-nome" value="${n}"></div>
-                <div><label>Sér</label><input type="text" class="i-series" value="${s}"></div>
-                <div><label>Rep</label><input type="text" class="i-reps" value="${r}"></div>
-                <div class="handle-drag" style="width: 30px; text-align: center; color: #aaa; align-self: center;">☰</div> 
-                <div><button class="btn-remover">X</button></div>`;
-            
-            div.querySelector('.btn-remover').onclick = () => div.remove();
-            
-            const addButton = document.getElementById('btnAddExercicio');
-            // Lógica para garantir que o botão "Add Exercício" fique sempre no final:
-            if (!isInitialLoad && addButton) {
-                // Se for uma adição dinâmica, insere a nova linha antes do botão
-                container.insertBefore(div, addButton);
-            } else {
-                // Se for a carga inicial, apenas adiciona no final
-                container.appendChild(div);
-            }
-        }
-
-        function salvarTreino() {
-            if(!alunoSelecionadoNome) return alert('Selecione um aluno');
-            const dia = document.getElementById('selectDia').value;
-            
-            // Pega as linhas na ordem ATUAL (após o drag and drop)
-            const rows = document.querySelectorAll('#editor-container .treino-row');
-            const dados = [];
-            
-            rows.forEach(r => {
-                const n = r.querySelector('.i-nome').value;
-                if(n) dados.push({ 
-                    nome: n, 
-                    series: r.querySelector('.i-series').value, 
-                    reps: r.querySelector('.i-reps').value 
-                });
-            });
-            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
-                .then(() => alert('Treino salvo! A nova ordem foi registrada.'))
-                .catch(e => alert('Erro: ' + e.message));
-        }
-        
-        // --- 6. PRESENÇA ---
         function carregarPresenca() {
             if (!alunoSelecionadoNome) return;
-            const ul = document.getElementById('lista-presenca');
-            const st = document.getElementById('status-frequencia');
+            
+            const listaPresenca = document.getElementById('lista-presenca');
+            const statusFrequencia = document.getElementById('status-frequencia');
 
-            if (presencaRef) database.ref(presencaRef).off('value');
-            ul.innerHTML = 'Carregando...';
-            st.textContent = '...';
+            // Remove listener anterior se existir
+            if (presencaRef) {
+                database.ref(presencaRef).off('value');
+            }
+            
+            listaPresenca.innerHTML = 'Carregando presenças...';
+            statusFrequencia.textContent = '...';
             presencaRef = getPath('presenca');
+            
             database.ref(presencaRef).on('value', snap => {
-                ul.innerHTML = '';
-                if(!snap.exists()) { st.textContent = '0 Presenças'; return; }
+                listaPresenca.innerHTML = '';
                 
-                const dias = Object.keys(snap.val()).reverse(); 
-                st.textContent = `${dias.length} Presenças totais`;
+                if(!snap.exists()) { 
+                    statusFrequencia.textContent = '0 Presenças registradas'; 
+                    return; 
+                }
                 
+                const dias = Object.keys(snap.val());
+                statusFrequencia.textContent = `${dias.length} Presenças totais`;
+                
+                // Ordena por data (mais recente primeiro)
+                dias.sort((a, b) => {
+                    const [diaA, mesA, anoA] = a.split('-').map(Number);
+                    const [diaB, mesB, anoB] = b.split('-').map(Number);
+                    const dateA = new Date(anoA, mesA-1, diaA);
+                    const dateB = new Date(anoB, mesB-1, diaB);
+                    return dateB - dateA;
+                });
+                
+                // Mostra as 10 presenças mais recentes
                 dias.slice(0, 10).forEach(d => {
                     const li = document.createElement('li');
                     li.textContent = `✅ ${d.replace(/-/g, '/')}`;
                     li.style.borderBottom = '1px dotted #333';
                     li.style.padding = '5px 0';
-                    ul.appendChild(li);
+                    listaPresenca.appendChild(li);
                 });
+            }, error => {
+                console.error("Erro ao carregar presenças:", error);
+                listaPresenca.innerHTML = '<li>Erro ao carregar presenças</li>';
+            });
+        }
+
+        // === 8. FUNÇÕES DE GESTÃO DE ALUNOS ===
+        function abrirModalAluno() {
+            const modal = document.getElementById('modalAluno');
+            document.getElementById('modal-titulo').textContent = 'Adicionar Novo Aluno';
+            document.getElementById('btn-salvar-aluno').textContent = 'Criar Aluno';
+            document.getElementById('aluno-nome').value = '';
+            document.getElementById('aluno-email').value = '';
+            modal.style.display = 'block';
+        }
+
+        function salvarAluno() {
+            const nome = document.getElementById('aluno-nome').value.trim();
+            const email = document.getElementById('aluno-email').value.trim();
+            const chave = formatarNomeParaChave(nome);
+
+            if (!nome || !email) {
+                alert('Por favor, preencha o Nome e o E-mail.');
+                return;
+            }
+
+            // Valida formato do email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Por favor, insira um e-mail válido.');
+                return;
+            }
+
+            database.ref(`alunos/${chave}`).once('value')
+                .then(snap => {
+                    if (snap.exists()) {
+                        alert(`Erro: Já existe um aluno com o nome: ${nome}.`);
+                    } else {
+                        database.ref(`alunos/${chave}/info`).set({
+                            nome: nome,
+                            email: email,
+                            criacao: firebase.database.ServerValue.TIMESTAMP
+                        })
+                        .then(() => {
+                            alert(`Aluno "${nome}" adicionado com sucesso!`);
+                            document.getElementById('modalAluno').style.display = 'none';
+                            alunoSelecionadoNome = nome;
+                            carregarListaAlunos();
+                        })
+                        .catch(e => {
+                            console.error("Erro ao adicionar aluno:", e);
+                            alert('Erro ao adicionar aluno: ' + e.message);
+                        });
+                    }
+                })
+                .catch(e => {
+                    console.error("Erro ao verificar aluno:", e);
+                    alert('Erro ao verificar aluno: ' + e.message);
+                });
+        }
+        
+        function excluirAluno() {
+            if (!alunoSelecionadoNome) {
+                alert('Selecione um aluno para excluir.');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o aluno "${alunoSelecionadoNome}" e todos os seus dados? Esta ação é IRREVERSÍVEL.`)) {
+                const chave = formatarNomeParaChave(alunoSelecionadoNome);
+                database.ref(`alunos/${chave}`).remove()
+                .then(() => {
+                    alert(`Aluno "${alunoSelecionadoNome}" excluído com sucesso!`);
+                    alunoSelecionadoNome = '';
+                    carregarListaAlunos();
+                })
+                .catch(e => {
+                    console.error("Erro ao excluir aluno:", e);
+                    alert('Erro ao excluir aluno: ' + e.message);
+                });
+            }
+        }
+        
+        function abrirModalRenomearAluno() {
+            if (!alunoSelecionadoNome) {
+                alert('Selecione um aluno para renomear.');
+                return;
+            }
+            document.getElementById('nome-aluno-antigo').textContent = alunoSelecionadoNome;
+            document.getElementById('novo-nome-aluno').value = alunoSelecionadoNome;
+            document.getElementById('modalEditarNome').style.display = 'block';
+        }
+
+        function renomearAluno() {
+            const novoNome = document.getElementById('novo-nome-aluno').value.trim();
+            const nomeAntigo = alunoSelecionadoNome;
+
+            if (!novoNome || novoNome === nomeAntigo) {
+                alert('O novo nome deve ser diferente e não pode ser vazio.');
+                return;
+            }
+
+            const chaveAntiga = formatarNomeParaChave(nomeAntigo);
+            const chaveNova = formatarNomeParaChave(novoNome);
+            
+            if (confirm(`Confirma a renomeação de "${nomeAntigo}" para "${novoNome}"? TODOS os dados serão movidos.`)) {
+                
+                database.ref(`alunos/${chaveNova}`).once('value')
+                .then(snapNova => {
+                    if (snapNova.exists()) {
+                        throw new Error(`Já existe um aluno com o nome: ${novoNome}.`);
+                    }
+
+                    return database.ref(`alunos/${chaveAntiga}`).once('value');
+                })
+                .then(snapAntiga => {
+                    if (!snapAntiga.exists()) {
+                        throw new Error(`Erro: Aluno antigo "${nomeAntigo}" não encontrado.`);
+                    }
+                    const dadosAluno = snapAntiga.val();
+
+                    if (dadosAluno.info) {
+                        dadosAluno.info.nome = novoNome;
+                    } else {
+                         dadosAluno.info = { 
+                             nome: novoNome, 
+                             email: 'N/A', 
+                             criacao: firebase.database.ServerValue.TIMESTAMP 
+                         };
+                    }
+
+                    return database.ref(`alunos/${chaveNova}`).set(dadosAluno)
+                    .then(() => {
+                        return database.ref(`alunos/${chaveAntiga}`).remove();
+                    });
+                })
+                .then(() => {
+                    alert(`Aluno renomeado com sucesso de "${nomeAntigo}" para "${novoNome}".`);
+                    document.getElementById('modalEditarNome').style.display = 'none';
+                    alunoSelecionadoNome = novoNome;
+                    carregarListaAlunos();
+                })
+                .catch(e => {
+                    console.error("Erro ao renomear aluno:", e);
+                    alert('Erro ao renomear aluno: ' + e.message);
+                });
+            }
+        }
+
+        // === 9. FUNÇÕES DE DIAS DE TREINO ===
+        function abrirModalDia() {
+            if (!alunoSelecionadoNome) {
+                alert('Selecione um aluno primeiro!');
+                return;
+            }
+            document.getElementById('modalDia').style.display = 'block';
+            document.getElementById('dia-nome').value = '';
+        }
+
+        function salvarNovoDia() {
+            if (!alunoSelecionadoNome) {
+                alert('Selecione um aluno primeiro!');
+                return;
+            }
+
+            const nomeDia = document.getElementById('dia-nome').value.trim();
+
+            if (!nomeDia) {
+                alert('Por favor, digite o nome do novo Dia de Treino.');
+                return;
+            }
+
+            // Verifica se o dia já existe para este aluno
+            database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
+                if (snap.exists()) {
+                    alert(`Erro: O dia de treino "${nomeDia}" já existe para este aluno.`);
+                    return;
+                }
+
+                // Cria um treino vazio para o novo dia
+                database.ref(getPath(`treinoModel/${nomeDia}`)).set([])
+                    .then(() => {
+                        alert(`Dia "${nomeDia}" criado com sucesso!`);
+                        document.getElementById('modalDia').style.display = 'none';
+                        
+                        // Recarrega a lista de dias
+                        carregarDiasTreinoDoAluno();
+                        // Seleciona o novo dia
+                        document.getElementById('selectDia').value = nomeDia;
+                        // Carrega o treino vazio
+                        carregarTreinoDia();
+                    })
+                    .catch(e => {
+                        console.error("Erro ao criar dia:", e);
+                        alert('Erro ao criar dia: ' + e.message);
+                    });
+            });
+        }
+
+        function removerDiaTreino() {
+            if (!alunoSelecionadoNome) {
+                alert('Selecione um aluno primeiro!');
+                return;
+            }
+
+            const select = document.getElementById('selectDia');
+            const diaParaRemover = select.value;
+
+            if (!diaParaRemover || select.options.length === 0) {
+                alert('Selecione um Dia de Treino para remover.');
+                return;
+            }
+            
+            // Impede a remoção se só restar um dia
+            if (select.options.length <= 1) { 
+                 alert('Você deve manter pelo menos um Dia de Treino. Adicione outro antes de remover este.');
+                 return;
+            }
+
+            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o dia de treino "${diaParaRemover}" para o aluno "${alunoSelecionadoNome}"?`)) {
+                
+                database.ref(getPath(`treinoModel/${diaParaRemover}`)).remove()
+                    .then(() => {
+                        alert(`Dia "${diaParaRemover}" removido com sucesso!`);
+                        // Recarrega a lista de dias
+                        carregarDiasTreinoDoAluno();
+                    })
+                    .catch(e => {
+                        console.error("Erro ao remover dia:", e);
+                        alert('Erro ao remover dia: ' + e.message);
+                    });
+            }
+        }
+
+        // === 10. FUNÇÕES DE EDIÇÃO DE TREINO ===
+        function initSortable() {
+            const container = document.getElementById('editor-container');
+            
+            // Remove instância anterior se existir
+            if (container.sortable) {
+                container.sortable.destroy();
+            }
+
+            // Inicializa SortableJS
+            container.sortable = Sortable.create(container, {
+                animation: 150,
+                handle: '.handle-drag',
+                ghostClass: 'sortable-ghost',
+                filter: 'input, button, #btnAddExercicio',
+                onEnd: function() {
+                    // Garante que o botão de adicionar fique no final
+                    const addButton = document.getElementById('btnAddExercicio');
+                    if (addButton && container.lastElementChild !== addButton) {
+                        container.appendChild(addButton);
+                    }
+                }
+            });
+        }
+
+        function carregarTreinoDia() {
+            const dia = document.getElementById('selectDia').value;
+            if(!alunoSelecionadoNome || !dia || dia === 'Carregando Dias...') return;
+            
+            const container = document.getElementById('editor-container');
+            container.innerHTML = 'Carregando treino...';
+
+            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
+                const treino = snap.val();
+                container.innerHTML = '';
+                
+                if(Array.isArray(treino) && treino.length > 0) {
+                    treino.forEach(exercicio => {
+                        addLinha(exercicio.nome || '', exercicio.series || '', exercicio.reps || '', true);
+                    });
+                } else {
+                    addLinha('Supino Reto com Barra', '3', '12', true);
+                }
+
+                // Adiciona botão de adicionar exercício (sempre no final)
+                const addButton = document.createElement('button');
+                addButton.id = 'btnAddExercicio';
+                addButton.textContent = '+ Adicionar Exercício';
+                addButton.style.cssText = 'background:#38c172; border:none; color:white; padding:10px; width:100%; margin-top:10px; cursor:pointer; border-radius: 5px;';
+                addButton.onclick = () => addLinha('', '', '', false);
+                container.appendChild(addButton);
+                
+                // Inicializa o arrastar e soltar
+                initSortable();
+            }).catch(error => {
+                console.error("Erro ao carregar treino:", error);
+                container.innerHTML = '<div class="error-message">Erro ao carregar treino</div>';
+            });
+        }
+
+        function addLinha(nome, series, reps, isInitialLoad) {
+            const container = document.getElementById('editor-container');
+            const div = document.createElement('div');
+            div.className = 'treino-row';
+            div.innerHTML = `
+                <div>
+                    <label>Exercício</label>
+                    <input type="text" class="i-nome" value="${nome}" placeholder="Nome do exercício">
+                </div>
+                <div>
+                    <label>Séries</label>
+                    <input type="text" class="i-series" value="${series}" placeholder="Ex: 3">
+                </div>
+                <div>
+                    <label>Repetições</label>
+                    <input type="text" class="i-reps" value="${reps}" placeholder="Ex: 12">
+                </div>
+                <div class="handle-drag" style="width: 30px; text-align: center; color: #aaa; align-self: center; cursor: move;">☰</div>
+                <div>
+                    <button class="btn-remover" onclick="this.closest('.treino-row').remove()">X</button>
+                </div>`;
+            
+            const addButton = document.getElementById('btnAddExercicio');
+            
+            if (addButton && !isInitialLoad) {
+                // Insere antes do botão de adicionar
+                container.insertBefore(div, addButton);
+            } else {
+                // Adiciona no final (antes do botão)
+                if (addButton) {
+                    container.insertBefore(div, addButton);
+                } else {
+                    container.appendChild(div);
+                }
+            }
+        }
+
+        function salvarTreino() {
+            if(!alunoSelecionadoNome) {
+                alert('Selecione um aluno primeiro!');
+                return;
+            }
+            
+            const dia = document.getElementById('selectDia').value;
+            if (!dia) {
+                alert('Selecione um dia de treino!');
+                return;
+            }
+            
+            // Pega todas as linhas de exercício (excluindo o botão de adicionar)
+            const rows = document.querySelectorAll('#editor-container .treino-row');
+            const dados = [];
+            
+            rows.forEach(row => {
+                const nome = row.querySelector('.i-nome').value.trim();
+                if(nome) {
+                    dados.push({ 
+                        nome: nome, 
+                        series: row.querySelector('.i-series').value.trim() || '3', 
+                        reps: row.querySelector('.i-reps').value.trim() || '12' 
+                    });
+                }
+            });
+            
+            if (dados.length === 0) {
+                alert('Adicione pelo menos um exercício!');
+                return;
+            }
+            
+            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
+                .then(() => {
+                    alert('Treino salvo com sucesso! O aluno já pode visualizá-lo.');
+                })
+                .catch(e => {
+                    console.error("Erro ao salvar treino:", e);
+                    alert('Erro ao salvar treino: ' + e.message);
+                });
+        }
+
+        // === 11. FUNÇÃO PARA FECHAR MODAIS AO CLICAR FORA ===
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
             });
         }
     </script>
