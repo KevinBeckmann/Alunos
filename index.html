@@ -341,6 +341,19 @@
         #ai-resposta strong {
             color: #ff9933;
         }
+        
+        /* Status de treino */
+        #status-treino {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .grafico-treinos-container {
+            max-width: 100%;
+            margin: 10px auto;
+            height: 250px;
+            position: relative;
+        }
     </style>
 </head>
 
@@ -473,9 +486,9 @@
                 
             </div>
         </div>
+        
         <div id="presenca-card" class="card">
             <h2> Presença Mensal</h2>
-
             <p style="text-align: center;">Clique nas datas para marcar.</p>
             <table class="presenca-table">
                 <thead>
@@ -491,16 +504,19 @@
                 </thead>
                 <tbody id="calendario-body"></tbody>
             </table>
-    <div id="status-treino" class="card" style="margin-top:15px; text-align:center;">
-        <p id="ultimo-treino" style="color:#ff9933;">Carregando último treino...</p>
-        <p id="contador-treinos" style="color:#ffd700; font-weight:bold;">Treinos no mês: 0</p>
+            
+            <!-- STATUS DE TREINO E GRÁFICO CORRIGIDO -->
+            <div id="status-treino" class="card" style="margin-top:15px; text-align:center; border: 1px solid rgba(255,255,255,0.1); padding: 15px;">
+                <h3 style="color:#ff9933; margin-top: 0;">Histórico de Treinos</h3>
+                <p id="ultimo-treino" style="color:#ccc; font-size: 0.9em;">Carregando último treino...</p>
+                <p id="contador-treinos" style="color:#ffd700; font-weight:bold; font-size: 1.1em;">Treinos no mês: 0</p>
 
-        <div style="max-width:640px; margin:10px auto;">
-            <canvas id="graficoTreinos" height="200"></canvas>
-        </div>
+                <div class="grafico-treinos-container">
+                    <canvas id="graficoTreinos" height="250"></canvas>
+                </div>
 
-        <div id="lista-historico-treinos" style="max-width:640px; margin:8px auto; color:#ddd; text-align:left;"></div>
-    </div>
+                <div id="lista-historico-treinos" style="max-width:640px; margin:10px auto; color:#ddd; text-align:left; font-size: 0.9em;"></div>
+            </div>
     
             <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
         </div>
@@ -535,6 +551,7 @@
 
         let alunoNome = '';
         let pesoChart;
+        let chartTreinos = null;
 
         function getPath(sub) {
             return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
@@ -707,14 +724,18 @@
         function contarTreinosDoMes() {
             try {
                 const mesAtual = new Date().getMonth() + 1;
+                const anoAtual = new Date().getFullYear();
                 let total = 0;
                 database.ref(getPath('treinosFinalizados')).once('value').then(snap => {
                     snap.forEach(c => {
                         const t = c.val();
                         if (!t || !t.data) return;
                         const parts = t.data.split('/');
-                        const mesT = parseInt(parts[1], 10);
-                        if (mesT === mesAtual) total++;
+                        if (parts.length >= 2) {
+                            const mesT = parseInt(parts[1], 10);
+                            const anoT = parseInt(parts[2] || anoAtual, 10);
+                            if (mesT === mesAtual && anoT === anoAtual) total++;
+                        }
                     });
                     const el = document.getElementById('contador-treinos');
                     if (el) el.textContent = `Treinos no mês: ${total}`;
@@ -727,71 +748,166 @@
                 const ref = database.ref(getPath('treinosFinalizados'));
                 ref.orderByChild('timestamp').once('value').then(snap => {
                     const lista = [];
-                    snap.forEach(c => lista.push(c.val()));
+                    snap.forEach(c => {
+                        const treino = c.val();
+                        treino.id = c.key; // Adiciona ID único do Firebase
+                        lista.push(treino);
+                    });
                     
+                    // Renderiza a lista no HTML
                     const divList = document.getElementById('lista-historico-treinos');
                     if (divList) {
-                        if (!lista.length) divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
-                        else {
-                            let html = '<ul style="padding-left:16px;">';
-                            lista.slice().reverse().forEach(t => {
-                                html += `<li style="margin:6px 0;">${t.data} — ${t.dia} — ${t.concluidoCount || 0} exercícios</li>`;
+                        if (!lista.length) {
+                            divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
+                        } else {
+                            let html = '<ul style="padding-left:16px; margin:0;">';
+                            lista.slice().reverse().forEach((t, index) => {
+                                const dataCompleta = t.data && t.hora ? `${t.data} ${t.hora}` : t.data || 'Data não informada';
+                                html += `<li style="margin:6px 0; padding:5px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                                    <strong>${lista.length - index}.</strong> ${t.dia || 'Treino'} — ${dataCompleta} 
+                                    <span style="color:#ff9933; font-size:0.85em;">(${t.concluidoCount || 0} exercícios)</span>
+                                </li>`;
                             });
                             html += '</ul>';
                             divList.innerHTML = html;
                         }
                     }
 
-                    const agrupado = {};
-                    lista.forEach(t => {
-                        const key = t.data || 'Sem data';
-                        agrupado[key] = (agrupado[key] || 0) + 1;
-                    });
-                    renderTreinosBarChart(agrupado);
+                    // Renderiza o gráfico com TODOS os treinos (uma barra por treino)
+                    renderTreinosBarChart(lista);
                 }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
-        let chartTreinos = null;
-        function renderTreinosBarChart(dataObj) {
+        // FUNÇÃO CORRIGIDA: mostra uma barra para CADA treino
+        function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
                 if (!canvas) return;
                 
-                const labels = Object.keys(dataObj || {});
-                const data = labels.map(l => dataObj[l] || 0);
-                
-                if (typeof Chart === 'undefined') { 
-                    setTimeout(() => renderTreinosBarChart(dataObj), 2000);
+                // Se não houver treinos, limpa o gráfico
+                if (!treinosLista || treinosLista.length === 0) {
+                    if (chartTreinos) chartTreinos.destroy();
+                    chartTreinos = null;
+                    canvas.style.display = 'none';
                     return;
                 }
                 
+                canvas.style.display = 'block';
+                
+                // Ordena por timestamp (mais antigo primeiro)
+                const treinosOrdenados = treinosLista.slice().sort((a, b) => {
+                    return (a.timestamp || 0) - (b.timestamp || 0);
+                });
+
+                // Cria labels únicos para cada treino (uma barra por treino)
+                const labels = treinosOrdenados.map((t, index) => {
+                    // Cria um label curto para cada treino
+                    if (t.dia && t.data) {
+                        const dataCurta = t.data.split('/').slice(0, 2).join('/'); // DD/MM
+                        return `Treino ${index + 1}: ${t.dia.substring(0, 10)} (${dataCurta})`;
+                    } else if (t.dia) {
+                        return `Treino ${index + 1}: ${t.dia.substring(0, 10)}`;
+                    } else {
+                        return `Treino ${index + 1}`;
+                    }
+                });
+
+                // Dados: exercícios concluídos em cada treino
+                const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
+
+                // Cores dinâmicas baseadas na data do treino
+                const cores = treinosOrdenados.map(t => {
+                    if (!t.timestamp) return 'rgba(70, 130, 180, 0.8)'; // Azul padrão
+                    
+                    const idade = Date.now() - t.timestamp;
+                    const dias = idade / (1000 * 60 * 60 * 24);
+                    
+                    if (dias < 2) return 'rgba(255, 193, 7, 0.9)'; // Amarelo - últimos 2 dias
+                    else if (dias < 7) return 'rgba(50, 205, 50, 0.8)'; // Verde - última semana
+                    else if (dias < 30) return 'rgba(65, 105, 225, 0.8)'; // Azul royal - último mês
+                    else return 'rgba(119, 136, 153, 0.7)'; // Cinza - mais antigos
+                });
+
+                if (typeof Chart === 'undefined') { 
+                    console.warn('Chart.js não carregado, tentando novamente...');
+                    setTimeout(() => renderTreinosBarChart(treinosLista), 1000);
+                    return;
+                }
+
                 const ctx = canvas.getContext('2d');
                 if (chartTreinos) chartTreinos.destroy();
-                
+
                 chartTreinos = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: 'Treinos (por data)',
-                            data: data,
-                            backgroundColor: 'rgba(255,193,7,0.9)',
-                            borderColor: 'rgba(255,193,7,1)',
-                            borderWidth: 1
+                            label: 'Exercícios Concluídos',
+                            data: dados,
+                            backgroundColor: cores,
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            borderWidth: 1,
+                            borderRadius: 4 // Barras com bordas arredondadas
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            x: { ticks: { color: '#f0f0f0' } },
-                            y: { beginAtZero: true, ticks: { color: '#f0f0f0', stepSize: 1 } }
+                            x: { 
+                                ticks: { 
+                                    color: '#f0f0f0',
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    font: { size: 10 }
+                                },
+                                grid: { color: 'rgba(255,255,255,0.1)' }
+                            },
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { 
+                                    color: '#f0f0f0',
+                                    stepSize: 1,
+                                    precision: 0
+                                },
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                title: {
+                                    display: true,
+                                    text: 'Exercícios Concluídos',
+                                    color: '#f0f0f0'
+                                }
+                            }
                         },
-                        plugins: { legend: { labels: { color: '#f0f0f0' } } }
+                        plugins: {
+                            legend: { 
+                                labels: { 
+                                    color: '#f0f0f0',
+                                    font: { size: 12 }
+                                } 
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const treino = treinosOrdenados[context.dataIndex];
+                                        let label = `Exercícios: ${context.raw}`;
+                                        if (treino.dia) label += ` | ${treino.dia}`;
+                                        if (treino.data) label += ` | ${treino.data}`;
+                                        if (treino.hora) label += ` ${treino.hora}`;
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
                     }
                 });
-            } catch(err) { console.warn('renderTreinosBarChart erro', err); }
+            } catch(err) { 
+                console.warn('renderTreinosBarChart erro:', err);
+                // Tenta novamente em 2 segundos
+                setTimeout(() => {
+                    if (treinosLista) renderTreinosBarChart(treinosLista);
+                }, 2000);
+            }
         }
 
         function marcarTreinoNoCalendario(dataObj) {
@@ -819,6 +935,7 @@
             carregarUltimoTreino();
             contarTreinosDoMes();
             
+            // Aguarda Chart.js carregar e então renderiza os treinos
             if (typeof Chart !== 'undefined') {
                 carregarTreinosFinalizados();
             } else {
@@ -920,7 +1037,7 @@
             carregarUltimasMedidas();
         }
 
-               function carregarUltimasMedidas() {
+        function carregarUltimasMedidas() {
             database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
                 const div = document.getElementById('ultimasMedidas');
                 div.innerHTML = 'Nenhum registro encontrado.';
@@ -937,7 +1054,7 @@
             
             // Atualiza o conteúdo do container
             treinoContainer.innerHTML = `
-                <h3>${dia}</h3>
+                <h3 style="color:#ff9933;">${dia}</h3>
                 <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
                     <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
                         Carregando treino...
@@ -1177,5 +1294,4 @@ Tente pesquisar pelo nome exato do exercício ou sintoma.`;
         }
     </script>
 </body>
-
 </html>
