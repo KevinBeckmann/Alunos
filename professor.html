@@ -208,7 +208,6 @@
     <div id="main-content" style="display:none;">
         <div class="main-header">
             <h1>Painel do Professor</h1>
-            <button class="btn-save" onclick="debugFirebaseStructure()" style="width: auto; margin: 0 10px; background-color: #ffc107; color: #000;">Debug</button>
             <button class="btn-save" onclick="fazerLogout()" style="width: auto; margin: 0; background-color: #dc3545;">Sair</button>
         </div>
 
@@ -481,42 +480,6 @@
             });
         }
 
-        // --- FUNÇÃO DE DEBUG ---
-        function debugFirebaseStructure() {
-            if (!alunoSelecionadoNome) {
-                console.log("Nenhum aluno selecionado");
-                alert("Selecione um aluno primeiro!");
-                return;
-            }
-            
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            console.log("=== DEBUG FIREBASE ===");
-            console.log("Aluno selecionado:", alunoSelecionadoNome);
-            console.log("Chave do aluno:", chaveAluno);
-            
-            // Verifique a estrutura real
-            database.ref(`alunos/${chaveAluno}`).once('value')
-                .then(snap => {
-                    const dados = snap.val();
-                    console.log("Estrutura real no Firebase:", dados);
-                    
-                    // Verificar treinoModel especificamente
-                    if (dados && dados.treinoModel) {
-                        console.log("treinoModel encontrado:", dados.treinoModel);
-                        const dias = Object.keys(dados.treinoModel);
-                        console.log("Dias disponíveis:", dias);
-                    } else {
-                        console.log("treinoModel NÃO encontrado!");
-                    }
-                    
-                    alert(`Debug no console (F12).\nAluno: ${alunoSelecionadoNome}\nChave: ${chaveAluno}\nDados: ${dados ? 'Encontrado' : 'Não encontrado'}`);
-                })
-                .catch(error => {
-                    console.error("Erro ao acessar:", error);
-                    alert(`Erro: ${error.message}`);
-                });
-        }
-
         // --- FUNÇÕES DE MENSAGEM ---
         function mostrarMensagem(texto, tipo = 'sucesso') {
             const msgDiv = document.getElementById('mensagem-treino');
@@ -703,38 +666,16 @@
 
             database.ref(getPath('treinoModel')).once('value', snap => {
                 const treinoModel = snap.val();
-                console.log("DEBUG - treinoModel recebido:", treinoModel);
-                
                 selDia.innerHTML = '';
                 
-                if (!treinoModel) {
-                    // Se não existir treinoModel, criar estrutura básica
-                    const diasPadrao = ['Dia A', 'Dia B', 'Dia C', 'Dia D'];
-                    
-                    diasPadrao.forEach(dia => {
-                        const option = document.createElement('option');
-                        option.value = dia;
-                        option.textContent = dia;
-                        selDia.appendChild(option);
-                    });
-                    
-                    // Salvar a estrutura padrão no Firebase
-                    const estruturaPadrao = {};
-                    diasPadrao.forEach(dia => {
-                        estruturaPadrao[dia] = [];
-                    });
-                    
-                    database.ref(getPath('treinoModel')).set(estruturaPadrao)
-                        .then(() => {
-                            console.log("Estrutura padrão criada para o aluno");
-                        })
-                        .catch(error => {
-                            console.error("Erro ao criar estrutura padrão:", error);
-                        });
-                    
+                if (!treinoModel || Object.keys(treinoModel).length === 0) {
+                    selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
+                    const option = document.createElement('option');
+                    option.value = "Dia A";
+                    option.textContent = "Criar Dia A";
+                    selDia.appendChild(option);
                     selDia.value = "Dia A";
                 } else {
-                    // Se existir, carregar os dias
                     Object.keys(treinoModel).forEach(dia => {
                         const option = document.createElement('option');
                         option.value = dia;
@@ -758,7 +699,6 @@
             }).catch(error => {
                 console.error("Erro ao carregar dias:", error);
                 selDia.innerHTML = '<option value="">Erro ao carregar</option>';
-                mostrarMensagem(`Erro: ${error.message}`, 'erro');
             });
         }
 
@@ -774,7 +714,6 @@
 
             database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
                 const treino = snap.val();
-                console.log("DEBUG - Treino recebido para", dia, ":", treino);
                 container.innerHTML = '';
                 
                 if (editorSortable) {
@@ -800,7 +739,7 @@
                 console.log(`Treino do dia "${dia}" carregado com sucesso`);
             }).catch(error => {
                 console.error("Erro ao carregar treino:", error);
-                container.innerHTML = '<p style="color: #dc3545; text-align: center;">Erro ao carregar treino: ' + error.message + '</p>';
+                container.innerHTML = '<p style="color: #dc3545; text-align: center;">Erro ao carregar treino</p>';
             });
         }
 
@@ -896,28 +835,14 @@
             
             mostrarMensagem('Salvando treino...', 'sucesso');
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            const caminho = `alunos/${chaveAluno}/treinoModel/${dia}`;
-            
-            console.log("DEBUG - Tentando salvar em:", caminho);
-            console.log("DEBUG - Dados a salvar:", dados);
-            
-            database.ref(caminho).set(dados)
+            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
                 .then(() => {
                     mostrarMensagem('✅ Treino salvo com sucesso!', 'sucesso');
                     console.log(`Treino "${dia}" salvo com ${dados.length} exercícios`);
-                    
-                    // Atualizar timestamp de modificação
-                    database.ref(`alunos/${chaveAluno}/info/ultimaModificacao`).set(Date.now());
                 })
                 .catch(e => {
-                    console.error("Erro detalhado ao salvar treino:", e);
+                    console.error("Erro ao salvar treino:", e);
                     mostrarMensagem('❌ Erro ao salvar treino: ' + e.message, 'erro');
-                    
-                    // Tentar criar a estrutura se não existir
-                    if (e.code === 'PERMISSION_DENIED') {
-                        mostrarMensagem('Problema de permissão. Verifique as regras do Firebase.', 'erro');
-                    }
                 });
         }
 
@@ -933,10 +858,7 @@
                 return;
             }
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            const caminhoTreino = `alunos/${chaveAluno}/treinoModel/${dia}`;
-            
-            database.ref(caminhoTreino).once('value', snapshot => {
+            database.ref(getPath(`treinoModel/${dia}`)).once('value', snapshot => {
                 const treinoAtual = snapshot.val();
                 
                 if (!treinoAtual || !Array.isArray(treinoAtual) || treinoAtual.length === 0) {
@@ -966,16 +888,16 @@
                     timestamp: Date.now()
                 };
                 
-                database.ref(`alunos/${chaveAluno}/treinoDiaAtual`).set(dadosCompletos)
+                database.ref(getPath(`treinoDiaAtual`)).set(dadosCompletos)
                 .then(() => {
-                    const historicoRef = database.ref(`alunos/${chaveAluno}/historicoEnvios`).push();
+                    const historicoRef = database.ref(getPath('historicoEnvios')).push();
                     return historicoRef.set({
                         ...dadosCompletos,
                         exerciciosCount: treinoFormatadoParaAluno.length
                     });
                 })
                 .then(() => {
-                    return database.ref(`alunos/${chaveAluno}/info/ultimaAtualizacao`).set(Date.now());
+                    return database.ref(getPath('info/ultimaAtualizacao')).set(Date.now());
                 })
                 .then(() => {
                     mostrarMensagem('✅ Treino enviado com sucesso para o aluno!', 'sucesso');
@@ -995,9 +917,7 @@
             const preview = document.getElementById('preview-aluno');
             preview.innerHTML = '<p style="color: #777; text-align: center;">Carregando treino atual do aluno...</p>';
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/treinoDiaAtual`).once('value', snap => {
+            database.ref(getPath('treinoDiaAtual')).once('value', snap => {
                 const treinoAtual = snap.val();
                 
                 if (!treinoAtual) {
@@ -1049,9 +969,7 @@
             const historico = document.getElementById('historico-envios');
             historico.innerHTML = '<li style="padding: 10px; border-bottom: 1px solid #333;">Carregando...</li>';
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/historicoEnvios`).limitToLast(5).once('value', snap => {
+            database.ref(getPath('historicoEnvios')).limitToLast(5).once('value', snap => {
                 historico.innerHTML = '';
                 
                 if (!snap.exists()) {
@@ -1104,15 +1022,13 @@
                 return;
             }
 
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/treinoModel/${nomeDia}`).once('value', snap => {
+            database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
                 if (snap.exists()) {
                     mostrarMensagem(`O dia "${nomeDia}" já existe!', 'erro`);
                     return;
                 }
 
-                database.ref(`alunos/${chaveAluno}/treinoModel/${nomeDia}`).set([])
+                database.ref(getPath(`treinoModel/${nomeDia}`)).set([])
                     .then(() => {
                         alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
                         document.getElementById('modalDia').style.display = 'none';
@@ -1150,10 +1066,8 @@
                 return;
             }
 
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
             if (confirm(`Tem certeza que deseja EXCLUIR o dia "${diaParaRemover}"?`)) {
-                database.ref(`alunos/${chaveAluno}/treinoModel/${diaParaRemover}`).remove()
+                database.ref(getPath(`treinoModel/${diaParaRemover}`)).remove()
                     .then(() => {
                         alert(`✅ Dia "${diaParaRemover}" removido com sucesso!`);
                         carregarDiasTreinoDoAluno();
@@ -1180,12 +1094,10 @@
             });
             graficos = {};
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
             Promise.all([
-                database.ref(`alunos/${chaveAluno}/medidas`).once('value'),
-                database.ref(`alunos/${chaveAluno}/cargas`).once('value'),
-                database.ref(`alunos/${chaveAluno}/presenca`).once('value')
+                database.ref(getPath('medidas')).once('value'),
+                database.ref(getPath('cargas')).once('value'),
+                database.ref(getPath('presenca')).once('value')
             ]).then(([snapMedidas, snapCargas, snapPresenca]) => {
                 container.innerHTML = '';
                 
@@ -1436,9 +1348,7 @@
             const container = document.getElementById('lista-sessoes');
             container.innerHTML = '<p style="color: #777; text-align: center;">Carregando sessões...</p>';
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/sessoes`).once('value', snap => {
+            database.ref(getPath('sessoes')).once('value', snap => {
                 container.innerHTML = '';
                 
                 if (!snap.exists()) {
@@ -1508,9 +1418,7 @@
                 criadoPor: auth.currentUser.email
             };
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/sessoes`).push(sessaoData)
+            database.ref(getPath('sessoes')).push(sessaoData)
                 .then(() => {
                     alert('✅ Sessão salva com sucesso!');
                     document.getElementById('modalSessao').style.display = 'none';
@@ -1524,9 +1432,7 @@
         function excluirSessao(sessaoId) {
             if (!confirm('Tem certeza que deseja excluir esta sessão?')) return;
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/sessoes/${sessaoId}`).remove()
+            database.ref(getPath(`sessoes/${sessaoId}`)).remove()
                 .then(() => {
                     alert('✅ Sessão excluída!');
                     carregarSessoesAluno();
@@ -1551,9 +1457,7 @@
             const tbody = document.getElementById('tabela-medidas-completa');
             tbody.innerHTML = '<tr><td colspan="5" class="sem-dados">Carregando...</td></tr>';
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/medidas`).once('value', snap => {
+            database.ref(getPath('medidas')).once('value', snap => {
                 tbody.innerHTML = '';
                 
                 if (!snap.exists()) {
@@ -1622,9 +1526,7 @@
                 registradoPor: auth.currentUser.email
             };
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/medidas`).push(medidaData)
+            database.ref(getPath('medidas')).push(medidaData)
                 .then(() => {
                     alert('✅ Medida salva com sucesso!');
                     document.getElementById('modalMedida').style.display = 'none';
@@ -1641,9 +1543,7 @@
         function excluirMedida(medidaId) {
             if (!confirm('Tem certeza que deseja excluir esta medida?')) return;
             
-            const chaveAluno = formatarNomeParaChave(alunoSelecionadoNome);
-            
-            database.ref(`alunos/${chaveAluno}/medidas/${medidaId}`).remove()
+            database.ref(getPath(`medidas/${medidaId}`)).remove()
                 .then(() => {
                     alert('✅ Medida excluída!');
                     carregarMedidasCompletas();
