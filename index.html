@@ -505,7 +505,7 @@
                 <tbody id="calendario-body"></tbody>
             </table>
             
-            <!-- STATUS DE TREINO E GRÁFICO CORRIGIDO -->
+            <!-- STATUS DE TREINO E GRÁFICO COM LEGENDA DE CORES -->
             <div id="status-treino" class="card" style="margin-top:15px; text-align:center; border: 1px solid rgba(255,255,255,0.1); padding: 15px;">
                 <h3 style="color:#ff9933; margin-top: 0;">Histórico de Treinos</h3>
                 <p id="ultimo-treino" style="color:#ccc; font-size: 0.9em;">Carregando último treino...</p>
@@ -514,8 +514,26 @@
                 <div class="grafico-treinos-container">
                     <canvas id="graficoTreinos" height="250"></canvas>
                 </div>
-
-                <div id="lista-historico-treinos" style="max-width:640px; margin:10px auto; color:#ddd; text-align:left; font-size: 0.9em;"></div>
+                
+                <!-- LEGENDA DAS CORES -->
+                <div id="legenda-cores" style="margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 0.8em;">
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 12px; height: 12px; background-color: rgba(255, 193, 7, 0.9); margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Últimos 2 dias</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 12px; height: 12px; background-color: rgba(50, 205, 50, 0.8); margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Última semana</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 12px; height: 12px; background-color: rgba(65, 105, 225, 0.8); margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Último mês</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 12px; height: 12px; background-color: rgba(119, 136, 153, 0.7); margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Mais antigos</span>
+                    </div>
+                </div>
             </div>
     
             <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
@@ -754,26 +772,7 @@
                         lista.push(treino);
                     });
                     
-                    // Renderiza a lista no HTML
-                    const divList = document.getElementById('lista-historico-treinos');
-                    if (divList) {
-                        if (!lista.length) {
-                            divList.innerHTML = '<p style="text-align:center;color:#999">Nenhum treino registrado.</p>';
-                        } else {
-                            let html = '<ul style="padding-left:16px; margin:0;">';
-                            lista.slice().reverse().forEach((t, index) => {
-                                const dataCompleta = t.data && t.hora ? `${t.data} ${t.hora}` : t.data || 'Data não informada';
-                                html += `<li style="margin:6px 0; padding:5px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                                    <strong>${lista.length - index}.</strong> ${t.dia || 'Treino'} — ${dataCompleta} 
-                                    <span style="color:#ff9933; font-size:0.85em;">(${t.concluidoCount || 0} exercícios)</span>
-                                </li>`;
-                            });
-                            html += '</ul>';
-                            divList.innerHTML = html;
-                        }
-                    }
-
-                    // Renderiza o gráfico com TODOS os treinos (uma barra por treino)
+                    // Renderiza apenas o gráfico (lista de texto removida)
                     renderTreinosBarChart(lista);
                 }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
@@ -1242,9 +1241,7 @@
                 }
 
             } else {
-                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").
-Nosso banco de dados cobre exercícios de **Musculação, Powerlifting, CrossFit, Pilates, Cardio e Saúde**.
-Tente pesquisar pelo nome exato do exercício ou sintoma.`;
+                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").`;
             }
 
             let respostaFormatada = respostaTexto
