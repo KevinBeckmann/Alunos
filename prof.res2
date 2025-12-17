@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Treinador - Admin</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth-compat.js"></script>
+
+    <style>
+        /* --- ESTILOS RESPONSIVOS DARK MODE --- */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 15px; 
+            background-color: #121212; 
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        
+        /* Responsividade para telas pequenas */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Estilos da Tela de Login */
+        #login-screen {
+            max-width: 400px; 
+            margin: 50px auto; 
+            padding: 25px; 
+            background-color: #1e1e1e;
+            border-radius: 10px; 
+            border: 1px solid #333; 
+            text-align: center;
+        }
+        
+        @media (max-width: 480px) {
+            #login-screen {
+                margin: 20px auto;
+                padding: 20px;
+            }
+        }
+        
+        #login-screen h2 { 
+            color: #00d4ff; 
+            margin-bottom: 20px; 
+            font-size: 1.5em;
+        }
+        
+        @media (max-width: 480px) {
+            #login-screen h2 {
+                font-size: 1.3em;
+            }
+        }
+        
+        #login-screen input { 
+            width: 100%;
+            margin-bottom: 15px; 
+            padding: 12px;
+            font-size: 16px;
+        }
+        
+        #login-screen button { 
+            padding: 12px; 
+            width: 100%;
+        }
+
+        /* Estilos do Painel */
+        .main-header { 
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; 
+            margin-bottom: 20px; 
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        @media (min-width: 768px) {
+            .main-header {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        .main-header h1 { 
+            color: #00d4ff; 
+            margin: 0; 
+            font-size: 1.8em; 
+            text-align: center;
+        }
+        
+        @media (max-width: 480px) {
+            .main-header h1 {
+                font-size: 1.5em;
+            }
+        }
+        
+        .card { 
+            background-color: #1e1e1e; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #333; 
+            margin-bottom: 20px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 480px) {
+            .card {
+                padding: 15px;
+            }
+        }
+        
+        input, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 5px; 
+            background-color: #2c2c2c; 
+            border: 1px solid #444; 
+            border-radius: 5px; 
+            color: white; 
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        
+        select {
+            min-height: 40px;
+        }
+        
+        @media (max-width: 480px) {
+            input, select {
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
+        
+        button.btn-save { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 20px; 
+            background-color: #00d4ff; 
+            color: #000; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button.btn-save:hover { 
+            background-color: #00a3cc; 
+        }
+        
+        @media (max-width: 480px) {
+            button.btn-save {
+                padding: 14px;
+            }
+        }
+
+        /* Estilos do Editor de Treino */
+        .treino-row { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+            padding-bottom: 15px; 
+            border-bottom: 1px dashed #333; 
+            align-items: end;
+        }
+        
+        @media (min-width: 768px) {
+            .treino-row {
+                grid-template-columns: 2fr 1fr 1fr auto auto;
+            }
+        }
+        
+        .treino-row:last-of-type { 
+            border-bottom: none; 
+        }
+
+        .handle-drag { 
+            cursor: move; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+        }
+        
+        @media (max-width: 767px) {
+            .handle-drag {
+                display: none;
+            }
+        }
+
+        .sortable-ghost { 
+            opacity: 0.4; 
+            background-color: #333; 
+        }
+
+        .btn-remover, .btn-acao-aluno { 
+            padding: 10px; 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-remover:hover, .btn-acao-aluno:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-acao-aluno { 
+            background-color: #ffc107; 
+            color: #1e1e1e; 
+            font-weight: bold; 
+        }
+
+        /* Botão de Renomear Aluno */
+        .btn-renomear-aluno { 
+            background-color: #00d4ff; 
+            color: #1e1e1e; 
+            font-weight: bold; 
+        }
+
+        /* TABELAS RESPONSIVAS */
+        table { 
+            width: 100%; 
+            text-align: left; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        th, td { 
+            padding: 10px 8px; 
+            border-bottom: 1px solid #333; 
+            white-space: nowrap;
+            min-width: 100px;
+        }
+        
+        @media (max-width: 768px) {
+            th, td {
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+        }
+        
+        th { 
+            color: #aaa; 
+            font-size: 0.9em; 
+            background-color: #2a2a2a;
+        }
+        
+        .sem-dados { 
+            color: #777; 
+            font-style: italic; 
+            padding: 20px; 
+            text-align: center; 
+        }
+
+        /* MODAIS RESPONSIVAS */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.9); 
+            padding: 15px;
+        }
+        
+        .modal-content { 
+            background-color: #1e1e1e; 
+            margin: 5% auto; 
+            padding: 20px; 
+            border: 1px solid #333; 
+            width: 100%; 
+            max-width: 450px; 
+            border-radius: 10px; 
+            position: relative;
+        }
+        
+        @media (max-width: 480px) {
+            .modal-content {
+                margin: 10% auto;
+                padding: 15px;
+            }
+        }
+        
+        .close { 
+            color: #aaa; 
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px; 
+            font-weight: bold; 
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .close:hover, .close:focus { 
+            color: #e0e0e0; 
+            text-decoration: none; 
+        }
+        
+        /* Mensagem de erro/sucesso */
+        .mensagem {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .mensagem.sucesso {
+            background-color: rgba(56, 193, 114, 0.2);
+            color: #38c172;
+            border: 1px solid #38c172;
+        }
+        
+        .mensagem.erro {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+        
+        /* Grid de gráficos responsivo */
+        .graficos-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .graficos-container {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+        
+        .chart-card {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            height: 300px;
+            min-height: 300px;
+            position: relative;
+        }
+        
+        @media (max-width: 480px) {
+            .chart-card {
+                height: 280px;
+                min-height: 280px;
+                padding: 12px;
+            }
+        }
+        
+        .chart-card canvas {
+            width: 100% !important;
+            height: 230px !important;
+        }
+        
+        @media (max-width: 480px) {
+            .chart-card canvas {
+                height: 210px !important;
+            }
+        }
+        
+        /* Layout principal responsivo */
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .left-col {
+            width: 100%;
+        }
+        
+        .graficos-section {
+            width: 100%;
+        }
+        
+        .medidas-section {
+            width: 100%;
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                grid-template-areas: 
+                    "left graficos"
+                    "medidas medidas";
+                gap: 20px;
+            }
+            
+            .left-col {
+                grid-area: left;
+            }
+            
+            .graficos-section {
+                grid-area: graficos;
+            }
+            
+            .medidas-section {
+                grid-area: medidas;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+                grid-template-areas: 
+                    "left graficos"
+                    "medidas medidas";
+            }
+        }
+        
+        /* Gestão de Alunos */
+        .gestao-alunos-card {
+            margin-bottom: 20px;
+        }
+        
+        /* Botões compactos */
+        .btn-compact {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            min-width: 40px;
+            min-height: 40px;
+        }
+        
+        @media (max-width: 480px) {
+            .btn-compact {
+                padding: 6px 10px;
+                min-width: 36px;
+                min-height: 36px;
+            }
+        }
+        
+        /* Select alunos nos gráficos */
+        #selectAlunoGraficos {
+            margin-bottom: 15px;
+        }
+        
+        /* Controles flexíveis */
+        .flex-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        @media (min-width: 768px) {
+            .flex-controls {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+            
+            .flex-controls > div {
+                flex: 1;
+            }
+            
+            .flex-controls .btn-compact {
+                flex: 0 0 auto;
+            }
+        }
+        
+        /* Melhorias na visualização móvel */
+        .mobile-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-stack {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+        }
+        
+        /* Ajuste para inputs em telas pequenas */
+        input[type="date"] {
+            min-height: 40px;
+        }
+        
+        /* Scroll suave para tabelas */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        /* Labels */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #aaa;
+            font-weight: 500;
+        }
+        
+        h2, h3, h4 {
+            margin-top: 0;
+            color: #00d4ff;
+        }
+        
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        h4 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #333;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-screen" style="display:none;">
+        <h2>Acesso Restrito - Painel do Professor</h2>
+        <input type="email" id="login-email" placeholder="E-mail" required>
+        <input type="password" id="login-senha" placeholder="Senha" required>
+        <button class="btn-save" onclick="fazerLogin()">Entrar</button>
+        <p id="login-erro" style="color: #dc3545; margin-top: 10px;"></p>
+    </div>
+
+    <div id="main-content" style="display:none;">
+        <div class="main-header">
+            <h1>Painel do Professor</h1>
+            <button class="btn-save" onclick="fazerLogout()" style="width: auto; margin: 0; background-color: #dc3545; min-width: 100px;">Sair</button>
+        </div>
+
+        <div class="container">
+            <!-- Coluna Esquerda - Gestão de Alunos e Treino -->
+            <div class="left-col">
+                <div class="card gestao-alunos-card">
+                    <h2> Gestão de Alunos</h2>
+                    <button class="btn-save" onclick="abrirModalAluno()" style="background-color: #38c172; margin-top: 0;">+ Adicionar Novo Aluno</button>
+                </div>
+                
+                <div class="card">
+                    <h2> Editar Treino</h2>
+                    
+                    <div class="flex-controls">
+                        <div>
+                            <label>Selecione o Aluno:</label>
+                            <select id="selectAluno"><option>Carregando...</option></select>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-acao-aluno btn-renomear-aluno btn-compact" onclick="abrirModalRenomearAluno()" title="Renomear Aluno">✏️</button>
+                            <button class="btn-remover btn-compact" onclick="excluirAluno()" title="Excluir Aluno">🗑️</button>
+                        </div>
+                    </div>
+
+                    <label>Dia do Treino:</label>
+                    <div class="mobile-stack">
+                        <select id="selectDia" style="flex-grow: 1;">
+                            <option value="">Selecione um dia</option>
+                        </select>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-acao-aluno btn-compact" onclick="abrirModalDia()" title="Adicionar Novo Dia" style="background-color: #38c172; font-weight: normal;">+</button>
+                            <button class="btn-remover btn-compact" onclick="removerDiaTreino()" title="Remover Dia Selecionado">-</button>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <p style="font-size: 0.9em; color: #aaa; margin-bottom: 15px;">
+                        <span style="color: #00d4ff;">💡 Dica:</span> Arraste o ícone ☰ para reordenar os exercícios.
+                    </p>
+                    
+                    <div id="mensagem-treino" class="mensagem" style="display:none;"></div>
+                    
+                    <div id="editor-container">
+                        <p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>
+                    </div>
+                    
+                    <button class="btn-save" onclick="salvarTreino()">💾 Salvar Treino</button>
+                    <button class="btn-save" onclick="enviarTreinoParaAluno()" style="background-color: #38c172; margin-top: 10px;">🚀 Enviar para Aluno</button>
+                </div>
+            </div>
+
+            <!-- Coluna Direita - Gráficos -->
+            <div class="graficos-section">
+                <div class="card">
+                    <h2>📊 Gráficos do Aluno</h2>
+                    <div style="margin-bottom: 15px;">
+                        <label>Selecione o Aluno:</label>
+                        <select id="selectAlunoGraficos" onchange="carregarGraficosAluno()">
+                            <option>Carregando...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="graficos-container" id="graficos-container">
+                        <div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px;">
+                            Selecione um aluno para carregar os gráficos
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Medidas (Toda a largura) -->
+            <div class="medidas-section">
+                <div class="card">
+                    <h2>📏 Gerenciar Medidas</h2>
+                    <div style="margin-bottom: 15px;">
+                        <label>Selecione o Aluno:</label>
+                        <select id="selectAlunoMedidas" onchange="carregarMedidasCompletas()">
+                            <option>Carregando...</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn-save" onclick="abrirModalMedida()" style="background-color: #38c172; margin-bottom: 20px;">+ Adicionar Medida</button>
+                    
+                    <h3>Histórico Completo</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Peso (kg)</th>
+                                    <th>Cintura (cm)</th>
+                                    <th>Braço (cm)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-medidas-completa">
+                                <tr><td colspan="5" class="sem-dados">Selecione um aluno</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modais -->
+    <div id="modalAluno" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modalAluno').style.display='none'">&times;</span>
+            <h2 id="modal-titulo">Adicionar Novo Aluno</h2>
+            <label>Nome Completo do Aluno (Exato):</label>
+            <input type="text" id="aluno-nome" placeholder="Nome do Aluno" required>
+            
+            <label>E-mail (Será usado como Chave):</label>
+            <input type="email" id="aluno-email" placeholder="email@aluno.com" required>
+
+            <button class="btn-save" id="btn-salvar-aluno" onclick="salvarAluno()">Criar Aluno</button>
+        </div>
+    </div>
+
+    <div id="modalEditarNome" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modalEditarNome').style.display='none'">&times;</span>
+            <h2>✏️ Renomear Aluno</h2>
+            <p>Seu aluno atual é: <strong id="nome-aluno-antigo"></strong></p>
+            <p style="color:#ffc107; font-size: 0.9em;">Atenção: Renomear o aluno moverá *todos* os seus dados (medidas, treinos, presenças) para o novo nome.</p>
+            
+            <label>Novo Nome Completo do Aluno:</label>
+            <input type="text" id="novo-nome-aluno" placeholder="Novo Nome do Aluno" required>
+
+            <button class="btn-save" id="btn-renomear" onclick="renomearAluno()">Confirmar Renomeação</button>
+        </div>
+    </div>
+
+    <div id="modalDia" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modalDia').style.display='none'">&times;</span>
+            <h2>Adicionar Novo Dia de Treino</h2>
+            <label>Nome do Dia (Ex: Dia D, Foco Peito):</label>
+            <input type="text" id="dia-nome" placeholder="Dia de Treino (Ex: Dia D)" required>
+            <button class="btn-save" onclick="salvarNovoDia()">Criar Dia</button>
+        </div>
+    </div>
+
+    <div id="modalMedida" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modalMedida').style.display='none'">&times;</span>
+            <h2>📏 Nova Medida</h2>
+            <label>Data:</label>
+            <input type="date" id="medida-data" required>
+            
+            <label>Peso (kg):</label>
+            <input type="number" step="0.1" id="medida-peso" placeholder="Ex: 75.5">
+            
+            <label>Cintura (cm):</label>
+            <input type="number" step="0.1" id="medida-cintura" placeholder="Ex: 85.0">
+            
+            <label>Braço (cm):</label>
+            <input type="number" step="0.1" id="medida-braco" placeholder="Ex: 35.0">
+
+            <button class="btn-save" onclick="salvarMedida()">Salvar Medida</button>
+        </div>
+    </div>
+
+    <script>
+        // --- VARIÁVEIS GLOBAIS ---
+        let alunoSelecionadoNome = ''; 
+        let alunoSelecionadoChave = '';
+        let auth, database;
+        let editorSortable = null;
+        let graficos = {};
+
+        // === 1. CONFIGURAÇÃO FIREBASE ===
+       const firebaseConfig = {
+  apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
+  authDomain: "ptf03-26fdb.firebaseapp.com",
+  databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+  projectId: "ptf03-26fdb",
+  storageBucket: "ptf03-26fdb.firebasestorage.app",
+  messagingSenderId: "1020981883676",
+  appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+};
+        
+        try {
+            const app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth(); 
+            database = firebase.database();
+            
+            // Inicia o observador de autenticação
+            iniciarObservadorAuth();
+
+        } catch (error) {
+            alert("ERRO CRÍTICO NO FIREBASE: " + error.message);
+        }
+        
+        function iniciarObservadorAuth() {
+            auth.onAuthStateChanged((user) => {
+                const loginScreen = document.getElementById('login-screen');
+                const mainContent = document.getElementById('main-content');
+                
+                if (user) {
+                    loginScreen.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    inicializarPainel();
+                } else {
+                    loginScreen.style.display = 'block';
+                    mainContent.style.display = 'none';
+                }
+            });
+        }
+
+        // --- FUNÇÕES DE MENSAGEM ---
+        function mostrarMensagem(texto, tipo = 'sucesso') {
+            const msgDiv = document.getElementById('mensagem-treino');
+            msgDiv.textContent = texto;
+            msgDiv.className = `mensagem ${tipo}`;
+            msgDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // --- FUNÇÕES GERAIS ---
+        function formatarNomeParaChave(nome) {
+            return nome.trim()
+                       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                       .replace(/[^a-zA-Z0-9\s]/g, '')
+                       .replace(/\s+/g, '_')
+                       .replace(/ /g, '_');
+        }
+
+        function getPath(sub) {
+            return `alunos/${alunoSelecionadoChave}/${sub}`;
+        }
+
+        function mostrarErro(mensagem) {
+            document.getElementById('login-erro').textContent = `Erro: ${mensagem}`;
+        }
+
+        // --- FUNÇÕES DE AUTENTICAÇÃO ---
+        function fazerLogin() {
+            const email = document.getElementById('login-email').value;
+            const senha = document.getElementById('login-senha').value;
+            mostrarErro(''); 
+            if (!email || !senha) {
+                return mostrarErro('Preencha e-mail e senha.');
+            }
+            auth.signInWithEmailAndPassword(email, senha)
+                .catch((error) => {
+                    const msg = (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') ? 
+                        'E-mail ou senha incorretos.' : 
+                        (error.code === 'auth/invalid-email' ? 'Formato de e-mail inválido.' : error.message);
+                    mostrarErro(msg);
+                });
+        }
+        
+        function fazerLogout() {
+             auth.signOut().catch((error) => {
+                 console.error('Erro ao fazer logout:', error);
+                 alert('Erro ao sair: ' + error.message);
+             });
+        }
+
+        // --- INICIALIZAÇÃO E CARREGAMENTO GERAL ---
+        function inicializarPainel() {
+            const selTreino = document.getElementById('selectAluno');
+            const selGraficos = document.getElementById('selectAlunoGraficos');
+            const selMedidas = document.getElementById('selectAlunoMedidas');
+            
+            const atualizarAlunoGlobal = (nome, chave) => {
+                alunoSelecionadoNome = nome;
+                alunoSelecionadoChave = chave;
+                selTreino.value = nome;
+                selGraficos.value = nome;
+                selMedidas.value = nome;
+                carregarTudo();
+            };
+            
+            selTreino.onchange = (e) => {
+                const nomeSelecionado = e.target.value;
+                // Encontrar a chave correspondente ao nome selecionado
+                database.ref('alunos/').once('value', snap => {
+                    const alunos = snap.val();
+                    for(const chave in alunos) {
+                        const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' ');
+                        if(nomeLegivel === nomeSelecionado) {
+                            atualizarAlunoGlobal(nomeLegivel, chave);
+                            break;
+                        }
+                    }
+                });
+            };
+            
+            selGraficos.onchange = selTreino.onchange;
+            selMedidas.onchange = selTreino.onchange;
+            
+            carregarListaAlunos();
+        }
+        
+        function carregarListaAlunos() {
+            const selects = [
+                document.getElementById('selectAluno'),
+                document.getElementById('selectAlunoGraficos'),
+                document.getElementById('selectAlunoMedidas')
+            ];
+            
+            selects.forEach(sel => sel.innerHTML = '<option>Carregando...</option>');
+            
+            database.ref('alunos/').once('value', snap => {
+                const alunos = snap.val();
+                
+                selects.forEach(sel => {
+                    sel.innerHTML = '';
+                    if(!alunos) { 
+                        sel.innerHTML = '<option>Sem alunos</option>'; 
+                        return; 
+                    }
+                    
+                    let primeiro = null;
+                    let primeiroChave = null;
+                    const nomesParaSelect = [];
+
+                    for(const chave in alunos) {
+                        const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' '); 
+                        nomesParaSelect.push({ chave, nomeLegivel });
+                        if(!primeiro) {
+                            primeiro = nomeLegivel;
+                            primeiroChave = chave;
+                        }
+                    }
+                  
+                    nomesParaSelect.sort((a, b) => a.nomeLegivel.localeCompare(b.nomeLegivel));
+
+                    nomesParaSelect.forEach(aluno => {
+                        const opt = document.createElement('option');
+                        opt.value = aluno.nomeLegivel;
+                        opt.textContent = aluno.nomeLegivel;
+                        sel.appendChild(opt);
+                    });
+
+                    if(alunoSelecionadoNome && sel.querySelector(`option[value="${alunoSelecionadoNome}"]`)) {
+                        sel.value = alunoSelecionadoNome;
+                    } else if(primeiro) {
+                        sel.value = primeiro;
+                        alunoSelecionadoNome = primeiro;
+                        alunoSelecionadoChave = primeiroChave;
+                    }
+                });
+
+                if(alunoSelecionadoNome) {
+                    carregarTudo();
+                }
+            });
+        }
+
+        function carregarTudo() {
+            if(!alunoSelecionadoNome) return;
+            
+            carregarDiasTreinoDoAluno();
+            carregarGraficosAluno();
+            carregarMedidasCompletas();
+        }
+
+        // ============================================
+        // === FUNÇÕES DA TAB TREINO (CORRIGIDAS) ====
+        // ============================================
+
+        function carregarDiasTreinoDoAluno() {
+            if (!alunoSelecionadoChave) {
+                document.getElementById('selectDia').innerHTML = '<option value="">Selecione um aluno primeiro</option>';
+                return;
+            }
+
+            const selDia = document.getElementById('selectDia');
+            selDia.innerHTML = '<option>Carregando Dias...</option>';
+
+            database.ref(getPath('treinoModel')).once('value', snap => {
+                const treinoModel = snap.val();
+                selDia.innerHTML = '<option value="">Selecione um dia</option>';
+                
+                if (!treinoModel || Object.keys(treinoModel).length === 0) {
+                    selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
+                    document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Nenhum treino criado. Adicione um novo dia.</p>';
+                } else {
+                    Object.keys(treinoModel).forEach(dia => {
+                        const option = document.createElement('option');
+                        option.value = dia;
+                        option.textContent = dia;
+                        selDia.appendChild(option);
+                    });
+                    
+                    // Se houver apenas um dia, selecione-o automaticamente
+                    if (selDia.options.length === 2) { // 1 opção + "Selecione um dia"
+                        selDia.value = selDia.options[1].value;
+                        setTimeout(() => {
+                            carregarTreinoDia();
+                        }, 100);
+                    }
+                }
+                
+                selDia.onchange = null;
+                selDia.onchange = function() {
+                    if (this.value) {
+                        carregarTreinoDia();
+                    } else {
+                        document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>';
+                    }
+                };
+            }).catch(error => {
+                console.error("Erro ao carregar dias:", error);
+                selDia.innerHTML = '<option value="">Erro ao carregar</option>';
+            });
+        }
+
+        function carregarTreinoDia() {
+            const dia = document.getElementById('selectDia').value;
+            if(!alunoSelecionadoChave || !dia || dia === '') {
+                console.log("Condições não atendidas para carregar treino");
+                document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>';
+                return;
+            }
+            
+            const container = document.getElementById('editor-container');
+            container.innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Carregando treino...</p>';
+
+            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
+                const treino = snap.val();
+                container.innerHTML = '';
+                
+                if (editorSortable) {
+                    editorSortable.destroy();
+                    editorSortable = null;
+                }
+                
+                if(Array.isArray(treino) && treino.length > 0) {
+                    treino.forEach(t => addLinha(t.nome, t.series, t.reps, true));
+                } else {
+                    // Se não houver exercícios, adiciona uma linha vazia
+                    addLinha('', '', '', true);
+                }
+
+                const btn = document.createElement('button');
+                btn.textContent = '+ Add Exercício';
+                btn.id = 'btnAddExercicio';
+                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:12px; width:100%; margin-top:15px; cursor:pointer; border-radius: 5px; font-size: 16px;';
+                btn.onclick = () => addLinha('', '', '', false);
+                container.appendChild(btn);
+                
+                initSortable();
+                
+                console.log(`Treino do dia "${dia}" carregado com sucesso`);
+            }).catch(error => {
+                console.error("Erro ao carregar treino:", error);
+                container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 20px;">Erro ao carregar treino</p>';
+            });
+        }
+
+        function initSortable() {
+            const container = document.getElementById('editor-container');
+            
+            if (editorSortable) {
+                editorSortable.destroy();
+            }
+            
+            // Encontrar todas as linhas de treino (exceto o botão)
+            const treinoRows = container.querySelectorAll('.treino-row');
+            const sortableContainer = document.createElement('div');
+            sortableContainer.className = 'sortable-container';
+            
+            // Mover as linhas para o container sortable
+            treinoRows.forEach(row => {
+                sortableContainer.appendChild(row);
+            });
+            
+            // Substituir as linhas pelo container sortable
+            const addButton = document.getElementById('btnAddExercicio');
+            container.innerHTML = '';
+            container.appendChild(sortableContainer);
+            if (addButton) {
+                container.appendChild(addButton);
+            }
+            
+            editorSortable = Sortable.create(sortableContainer, {
+                animation: 150, 
+                handle: '.handle-drag', 
+                ghostClass: 'sortable-ghost',
+                onEnd: function() {
+                    console.log("Ordem alterada");
+                }
+            });
+            
+            console.log("Sortable inicializado");
+        }
+
+        function addLinha(nome = '', series = '', reps = '', isInitialLoad = false) {
+            const container = document.getElementById('editor-container');
+            
+            const div = document.createElement('div');
+            div.className = 'treino-row';
+            div.innerHTML = `
+                <div>
+                    <label>Exercício</label>
+                    <input type="text" class="i-nome" value="${nome}" placeholder="Ex: Supino Reto">
+                </div>
+                <div>
+                    <label>Séries</label>
+                    <input type="text" class="i-series" value="${series}" placeholder="Ex: 4">
+                </div>
+                <div>
+                    <label>Repetições</label>
+                    <input type="text" class="i-reps" value="${reps}" placeholder="Ex: 10-12">
+                </div>
+                <div class="handle-drag" style="width: 30px; text-align: center; color: #aaa; align-self: center; cursor: move;">☰</div> 
+                <div><button class="btn-remover" onclick="removerLinha(this)">X</button></div>`;
+            
+            const addButton = document.getElementById('btnAddExercicio');
+            const sortableContainer = container.querySelector('.sortable-container');
+            
+            if (sortableContainer) {
+                if (addButton) {
+                    sortableContainer.insertBefore(div, addButton);
+                } else {
+                    sortableContainer.appendChild(div);
+                }
+            } else {
+                if (addButton) {
+                    container.insertBefore(div, addButton);
+                } else {
+                    container.appendChild(div);
+                }
+            }
+            
+            // Re-inicializar o Sortable se necessário
+            if (!editorSortable) {
+                initSortable();
+            }
+        }
+
+        function removerLinha(botao) {
+            const linha = botao.closest('.treino-row');
+            if (linha) {
+                linha.remove();
+            }
+        }
+
+        function salvarTreino() {
+            if(!alunoSelecionadoChave) {
+                mostrarMensagem('Selecione um aluno primeiro!', 'erro');
+                return;
+            }
+            
+            const dia = document.getElementById('selectDia').value;
+            if(!dia || dia === '') {
+                mostrarMensagem('Selecione um dia de treino!', 'erro');
+                return;
+            }
+            
+            const container = document.getElementById('editor-container');
+            const rows = container.querySelectorAll('.treino-row');
+            const dados = [];
+            
+            rows.forEach(r => {
+                const nome = r.querySelector('.i-nome')?.value.trim() || '';
+                const series = r.querySelector('.i-series')?.value.trim() || '';
+                const reps = r.querySelector('.i-reps')?.value.trim() || '';
+                
+                if(nome) {
+                    dados.push({ 
+                        nome: nome, 
+                        series: series, 
+                        reps: reps 
+                    });
+                }
+            });
+            
+            if(dados.length === 0) {
+                mostrarMensagem('Adicione pelo menos um exercício!', 'erro');
+                return;
+            }
+            
+            mostrarMensagem('Salvando treino...', 'sucesso');
+            
+            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
+                .then(() => {
+                    mostrarMensagem('✅ Treino salvo com sucesso!', 'sucesso');
+                    console.log(`Treino "${dia}" salvo com ${dados.length} exercícios`);
+                })
+                .catch(e => {
+                    console.error("Erro ao salvar treino:", e);
+                    mostrarMensagem('❌ Erro ao salvar treino: ' + e.message, 'erro');
+                });
+        }
+
+        function enviarTreinoParaAluno() {
+            if(!alunoSelecionadoChave) {
+                mostrarMensagem('Selecione um aluno primeiro!', 'erro');
+                return;
+            }
+            
+            const dia = document.getElementById('selectDia').value;
+            if(!dia || dia === '') {
+                mostrarMensagem('Selecione um dia de treino!', 'erro');
+                return;
+            }
+            
+            database.ref(getPath(`treinoModel/${dia}`)).once('value', snapshot => {
+                const treinoAtual = snapshot.val();
+                
+                if (!treinoAtual || !Array.isArray(treinoAtual) || treinoAtual.length === 0) {
+                    mostrarMensagem('Primeiro salve o treino antes de enviar!', 'erro');
+                    return;
+                }
+                
+                mostrarMensagem('Enviando treino para o aluno...', 'sucesso');
+                
+                const treinoFormatadoParaAluno = treinoAtual.map(exercicio => ({
+                    nome: exercicio.nome || '',
+                    series: exercicio.series || '',
+                    reps: exercicio.reps || '',
+                    concluido: false,
+                    carga: '',
+                    observacoes: ''
+                }));
+                
+                const hoje = new Date();
+                const dataFormatada = hoje.toISOString().split('T')[0];
+                
+                const dadosCompletos = {
+                    data: dataFormatada,
+                    dia: dia,
+                    exercicios: treinoFormatadoParaAluno,
+                    enviadoPor: auth.currentUser.email,
+                    timestamp: Date.now()
+                };
+                
+                database.ref(getPath(`treinoDiaAtual`)).set(dadosCompletos)
+                .then(() => {
+                    const historicoRef = database.ref(getPath('historicoEnvios')).push();
+                    return historicoRef.set({
+                        ...dadosCompletos,
+                        exerciciosCount: treinoFormatadoParaAluno.length
+                    });
+                })
+                .then(() => {
+                    return database.ref(getPath('info/ultimaAtualizacao')).set(Date.now());
+                })
+                .then(() => {
+                    mostrarMensagem('✅ Treino enviado com sucesso para o aluno!', 'sucesso');
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar treino:', error);
+                    mostrarMensagem('❌ Erro ao enviar treino: ' + error.message, 'erro');
+                });
+            });
+        }
+
+        // ============================================
+        // === FUNÇÕES DE DIAS DE TREINO (CORRIGIDAS) =
+        // ============================================
+
+        function abrirModalDia() {
+            if (!alunoSelecionadoChave) {
+                mostrarMensagem('Selecione um aluno primeiro!', 'erro');
+                return;
+            }
+            document.getElementById('dia-nome').value = '';
+            document.getElementById('modalDia').style.display = 'block';
+        }
+
+        function salvarNovoDia() {
+            if (!alunoSelecionadoChave) {
+                alert('Selecione um aluno primeiro!');
+                return;
+            }
+
+            const nomeDia = document.getElementById('dia-nome').value.trim();
+            if (!nomeDia) {
+                alert('Digite o nome do novo dia de treino!');
+                return;
+            }
+
+            // Verifica se o dia já existe
+            database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
+                if (snap.exists()) {
+                    alert(`O dia "${nomeDia}" já existe!`);
+                    return;
+                }
+
+                // Cria o novo dia com array vazio
+                database.ref(getPath(`treinoModel/${nomeDia}`)).set([])
+                    .then(() => {
+                        alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
+                        document.getElementById('modalDia').style.display = 'none';
+                        
+                        // Atualiza a lista de dias
+                        carregarDiasTreinoDoAluno();
+                        
+                        // Seleciona o novo dia automaticamente
+                        setTimeout(() => {
+                            const selectDia = document.getElementById('selectDia');
+                            selectDia.value = nomeDia;
+                            // Aguarda um pouco e carrega o treino
+                            setTimeout(() => {
+                                carregarTreinoDia();
+                            }, 500);
+                        }, 300);
+                    })
+                    .catch(e => {
+                        console.error("Erro ao criar dia:", e);
+                        alert('Erro ao criar dia: ' + e.message);
+                    });
+            }).catch(e => {
+                console.error("Erro ao verificar dia:", e);
+                alert('Erro ao verificar se o dia existe: ' + e.message);
+            });
+        }
+
+        function removerDiaTreino() {
+            if (!alunoSelecionadoChave) {
+                mostrarMensagem('Selecione um aluno primeiro!', 'erro');
+                return;
+            }
+
+            const select = document.getElementById('selectDia');
+            const diaParaRemover = select.value;
+
+            if (!diaParaRemover || diaParaRemover === '') {
+                mostrarMensagem('Selecione um dia para remover!', 'erro');
+                return;
+            }
+            
+            if (select.options.length <= 1) { 
+                mostrarMensagem('Você deve manter pelo menos um dia de treino!', 'erro');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja EXCLUIR o dia "${diaParaRemover}"?`)) {
+                database.ref(getPath(`treinoModel/${diaParaRemover}`)).remove()
+                    .then(() => {
+                        alert(`✅ Dia "${diaParaRemover}" removido com sucesso!`);
+                        carregarDiasTreinoDoAluno();
+                        document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>';
+                    })
+                    .catch(e => {
+                        console.error("Erro ao remover dia:", e);
+                        mostrarMensagem('Erro ao remover dia: ' + e.message, 'erro');
+                    });
+            }
+        }
+
+        // ============================================
+        // === FUNÇÕES DA TAB GRÁFICOS ===============
+        // ============================================
+
+        function carregarGraficosAluno() {
+            if (!alunoSelecionadoChave) return;
+            
+            const container = document.getElementById('graficos-container');
+            container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 20px;">Carregando gráficos...</div>';
+            
+            // Destruir gráficos existentes
+            Object.values(graficos).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+            graficos = {};
+            
+            Promise.all([
+                database.ref(getPath('medidas')).once('value'),
+                database.ref(getPath('cargas')).once('value'),
+                database.ref(getPath('presenca')).once('value')
+            ]).then(([snapMedidas, snapCargas, snapPresenca]) => {
+                container.innerHTML = '';
+                let temDados = false;
+                
+                // 1. Gráfico de medidas (só se tiver dados)
+                if (snapMedidas.exists() && snapMedidas.numChildren() > 1) {
+                    const medidasData = [];
+                    snapMedidas.forEach(child => {
+                        const medida = child.val();
+                        if (medida.peso && parseFloat(medida.peso) > 0) {
+                            medidasData.push({ ...medida, id: child.key });
+                        }
+                    });
+                    
+                    medidasData.sort((a, b) => a.timestamp - b.timestamp);
+                    
+                    if (medidasData.length > 1) {
+                        criarGraficoMedidas(medidasData);
+                        temDados = true;
+                    }
+                }
+                
+                // 2. Gráficos de carga (só exercícios com pelo menos 2 registros)
+                if (snapCargas.exists()) {
+                    const exerciciosComDados = [];
+                    
+                    snapCargas.forEach(exercicioSnap => {
+                        const nomeExercicio = exercicioSnap.key;
+                        const dadosExercicio = [];
+                        
+                        exercicioSnap.forEach(registro => {
+                            const dado = registro.val();
+                            if (dado.peso && parseFloat(dado.peso) > 0) {
+                                dadosExercicio.push({
+                                    ...dado,
+                                    id: registro.key
+                                });
+                            }
+                        });
+                        
+                        if (dadosExercicio.length >= 2) {
+                            exerciciosComDados.push({
+                                nome: nomeExercicio,
+                                dados: dadosExercicio
+                            });
+                        }
+                    });
+                    
+                    // Ordenar por nome do exercício
+                    exerciciosComDados.sort((a, b) => a.nome.localeCompare(b.nome));
+                    
+                    // Limitar a 4 gráficos de carga para não poluir
+                    exerciciosComDados.slice(0, 4).forEach(ex => {
+                        criarGraficoCarga(ex.nome, ex.dados);
+                        temDados = true;
+                    });
+                }
+                
+                // 3. Gráfico de presença (só se tiver pelo menos 2 presenças)
+                if (snapPresenca.exists() && snapPresenca.numChildren() >= 2) {
+                    const presencas = Object.keys(snapPresenca.val());
+                    if (presencas.length >= 2) {
+                        criarGraficoPresenca(presencas);
+                        temDados = true;
+                    }
+                }
+                
+                if (!temDados) {
+                    container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px;">Nenhum dado suficiente para gerar gráficos</div>';
+                }
+            }).catch(error => {
+                console.error("Erro ao carregar dados para gráficos:", error);
+                container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #dc3545; padding: 50px;">Erro ao carregar dados</div>';
+            });
+        }
+
+        function criarGraficoMedidas(dados) {
+            const container = document.getElementById('graficos-container');
+            
+            const canvasId = 'chart-medidas-' + Date.now();
+            const card = document.createElement('div');
+            card.className = 'chart-card';
+            card.innerHTML = `
+                <h4 style="margin: 0 0 15px 0; color: #00d4ff; font-size: 1.1em;">📏 Evolução Corporal</h4>
+                <canvas id="${canvasId}" height="250"></canvas>
+            `;
+            container.appendChild(card);
+            
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Formatar datas para serem mais legíveis
+            const labels = dados.map((d, index) => {
+                if (d.data) {
+                    // Formata data para DD/MM
+                    const parts = d.data.split('/');
+                    if (parts.length >= 2) {
+                        return `${parts[0]}/${parts[1]}`;
+                    }
+                    return d.data;
+                }
+                if (d.timestamp) {
+                    const date = new Date(d.timestamp);
+                    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                }
+                return `Reg ${index + 1}`;
+            });
+            
+            graficos[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Peso (kg)',
+                            data: dados.map(d => parseFloat(d.peso) || null),
+                            borderColor: '#00d4ff',
+                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Cintura (cm)',
+                            data: dados.map(d => parseFloat(d.cintura) || null),
+                            borderColor: '#38c172',
+                            backgroundColor: 'rgba(56, 193, 114, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Braço (cm)',
+                            data: dados.map(d => parseFloat(d.braco) || null),
+                            borderColor: '#ffc107',
+                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            labels: { 
+                                color: '#e0e0e0',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                            titleColor: '#00d4ff',
+                            bodyColor: '#e0e0e0',
+                            borderColor: '#333',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: false,
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#e0e0e0',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 11
+                                }
+                            }
+                        },
+                        x: { 
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#e0e0e0',
+                                maxRotation: 0,
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 10
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function criarGraficoCarga(nomeExercicio, dados) {
+            const container = document.getElementById('graficos-container');
+            
+            const canvasId = `chart-${nomeExercicio.replace(/\s+/g, '-')}-${Date.now()}`;
+            const card = document.createElement('div');
+            card.className = 'chart-card';
+            card.innerHTML = `
+                <h4 style="margin: 0 0 15px 0; color: #00d4ff; font-size: 1.1em;">🏋️ ${nomeExercicio}</h4>
+                <canvas id="${canvasId}" height="200"></canvas>
+            `;
+            container.appendChild(card);
+            
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            dados.sort((a, b) => a.timestamp - b.timestamp);
+            
+            // Formatar datas para serem mais legíveis
+            const labels = dados.map((d, index) => {
+                if (d.data) {
+                    // Formata data para DD/MM
+                    const parts = d.data.split('/');
+                    if (parts.length >= 2) {
+                        return `${parts[0]}/${parts[1]}`;
+                    }
+                    return d.data.length > 8 ? d.data.substring(0, 5) : d.data;
+                }
+                if (d.timestamp) {
+                    const date = new Date(d.timestamp);
+                    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                }
+                return `Reg ${index + 1}`;
+            });
+            
+            const valores = dados.map(d => parseFloat(d.peso) || 0);
+            
+            graficos[canvasId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Carga (kg)',
+                        data: valores,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            labels: { 
+                                color: '#e0e0e0',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                            titleColor: '#dc3545',
+                            bodyColor: '#e0e0e0',
+                            borderColor: '#333',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Carga: ${context.parsed.y} kg`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#e0e0e0',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 11
+                                },
+                                callback: function(value) {
+                                    return value + ' kg';
+                                }
+                            }
+                        },
+                        x: { 
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#e0e0e0',
+                                maxRotation: 0,
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 10
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function criarGraficoPresenca(presencas) {
+            const container = document.getElementById('graficos-container');
+            
+            const canvasId = 'chart-presenca-' + Date.now();
+            const card = document.createElement('div');
+            card.className = 'chart-card';
+            card.innerHTML = `
+                <h4 style="margin: 0 0 15px 0; color: #00d4ff; font-size: 1.1em;">📅 Frequência de Treinos</h4>
+                <canvas id="${canvasId}" height="200"></canvas>
+            `;
+            container.appendChild(card);
+            
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Agrupar por mês
+            const meses = {};
+            presencas.forEach(dataStr => {
+                try {
+                    const parts = dataStr.split('-');
+                    if (parts.length === 3) {
+                        const mesAno = `${parts[1]}/${parts[2]}`;
+                        if (!meses[mesAno]) meses[mesAno] = 0;
+                        meses[mesAno]++;
+                    }
+                } catch (e) {
+                    console.warn("Erro ao processar data:", dataStr, e);
+                }
+            });
+            
+            const labels = Object.keys(meses).sort((a, b) => {
+                const [mesA, anoA] = a.split('/').map(Number);
+                const [mesB, anoB] = b.split('/').map(Number);
+                if (anoA !== anoB) return anoA - anoB;
+                return mesA - mesB;
+            });
+            
+            const valores = labels.map(mes => meses[mes]);
+            
+            graficos[canvasId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.map(label => {
+                        const [mes, ano] = label.split('/');
+                        const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                        return `${mesesNomes[parseInt(mes) - 1]}/${ano}`;
+                    }),
+                    datasets: [{
+                        label: 'Treinos por Mês',
+                        data: valores,
+                        backgroundColor: '#38c172',
+                        borderColor: '#2da25a',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            labels: { 
+                                color: '#e0e0e0',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                            titleColor: '#38c172',
+                            bodyColor: '#e0e0e0',
+                            borderColor: '#333',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#e0e0e0',
+                                stepSize: 1,
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 11
+                                }
+                            }
+                        },
+                        x: { 
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: { 
+                                color: '#e0e0e0',
+                                maxRotation: 0,
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 10
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // === FUNÇÕES DA TAB MEDIDAS ================
+        // ============================================
+
+        function carregarMedidasCompletas() {
+            if (!alunoSelecionadoChave) return;
+            
+            const tbody = document.getElementById('tabela-medidas-completa');
+            tbody.innerHTML = '<tr><td colspan="5" class="sem-dados">Carregando...</td></tr>';
+            
+            database.ref(getPath('medidas')).once('value', snap => {
+                tbody.innerHTML = '';
+                
+                if (!snap.exists()) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="sem-dados">Nenhuma medida registrada</td></tr>';
+                    return;
+                }
+                
+                const medidas = [];
+                snap.forEach(child => {
+                    medidas.push({ ...child.val(), id: child.key });
+                });
+                
+                medidas.sort((a, b) => {
+                    const dateA = a.timestamp || (a.data ? new Date(a.data) : 0);
+                    const dateB = b.timestamp || (b.data ? new Date(b.data) : 0);
+                    return dateB - dateA;
+                });
+                
+                medidas.forEach(medida => {
+                    const tr = document.createElement('tr');
+                    
+                    let dataFormatada;
+                    if (medida.data) {
+                        const parts = medida.data.split('-');
+                        if (parts.length === 3) {
+                            dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        } else {
+                            dataFormatada = medida.data;
+                        }
+                    } else if (medida.timestamp) {
+                        const date = new Date(medida.timestamp);
+                        dataFormatada = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+                    } else {
+                        dataFormatada = 'N/D';
+                    }
+                    
+                    tr.innerHTML = `
+                        <td>${dataFormatada}</td>
+                        <td>${medida.peso ? parseFloat(medida.peso).toFixed(1) + ' kg' : '-'}</td>
+                        <td>${medida.cintura ? parseFloat(medida.cintura).toFixed(1) + ' cm' : '-'}</td>
+                        <td>${medida.braco ? parseFloat(medida.braco).toFixed(1) + ' cm' : '-'}</td>
+                        <td>
+                            <button class="btn-pequeno btn-remover" onclick="excluirMedida('${medida.id}')" style="padding: 6px 10px; font-size: 12px;">🗑️</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                });
+            }).catch(error => {
+                console.error("Erro ao carregar medidas:", error);
+                tbody.innerHTML = '<tr><td colspan="5" class="sem-dados" style="color: #dc3545;">Erro ao carregar medidas</td></tr>';
+            });
+        }
+
+        function abrirModalMedida() {
+            if (!alunoSelecionadoChave) return alert('Selecione um aluno primeiro!');
+            
+            const hoje = new Date();
+            const dataFormatada = hoje.toISOString().split('T')[0];
+            document.getElementById('medida-data').value = dataFormatada;
+            document.getElementById('medida-peso').value = '';
+            document.getElementById('medida-cintura').value = '';
+            document.getElementById('medida-braco').value = '';
+            document.getElementById('modalMedida').style.display = 'block';
+        }
+
+        function salvarMedida() {
+            if (!alunoSelecionadoChave) return;
+            
+            const data = document.getElementById('medida-data').value;
+            const peso = document.getElementById('medida-peso').value;
+            const cintura = document.getElementById('medida-cintura').value;
+            const braco = document.getElementById('medida-braco').value;
+            
+            if (!data) return alert('Informe a data da medida!');
+            if (!peso && !cintura && !braco) return alert('Informe pelo menos uma medida!');
+            
+            const medidaData = {
+                data: data,
+                peso: peso || null,
+                cintura: cintura || null,
+                braco: braco || null,
+                timestamp: Date.now(),
+                registradoPor: auth.currentUser.email
+            };
+            
+            database.ref(getPath('medidas')).push(medidaData)
+                .then(() => {
+                    alert('✅ Medida salva com sucesso!');
+                    document.getElementById('modalMedida').style.display = 'none';
+                    carregarMedidasCompletas();
+                    carregarGraficosAluno();
+                })
+                .catch(error => {
+                    alert('❌ Erro ao salvar medida: ' + error.message);
+                });
+        }
+
+        function excluirMedida(medidaId) {
+            if (!confirm('Tem certeza que deseja excluir esta medida?')) return;
+            
+            database.ref(getPath(`medidas/${medidaId}`)).remove()
+                .then(() => {
+                    alert('✅ Medida excluída!');
+                    carregarMedidasCompletas();
+                    carregarGraficosAluno();
+                })
+                .catch(error => {
+                    alert('❌ Erro ao excluir medida: ' + error.message);
+                });
+        }
+
+        // ============================================
+        // === FUNÇÕES EXISTENTES (MANTIDAS) =========
+        // ============================================
+        
+        function abrirModalAluno() {
+            const modal = document.getElementById('modalAluno');
+            document.getElementById('modal-titulo').textContent = 'Adicionar Novo Aluno';
+            document.getElementById('btn-salvar-aluno').textContent = 'Criar Aluno';
+            document.getElementById('aluno-nome').value = '';
+            document.getElementById('aluno-email').value = '';
+            modal.style.display = 'block';
+        }
+
+        function salvarAluno() {
+            const nome = document.getElementById('aluno-nome').value.trim();
+            const email = document.getElementById('aluno-email').value.trim(); 
+            const chave = formatarNomeParaChave(nome);
+
+            if (!nome || !email) {
+                alert('Por favor, preencha o Nome e o E-mail.');
+                return;
+            }
+
+            database.ref(`alunos/${chave}`).once('value')
+                .then(snap => {
+                    if (snap.exists()) {
+                        alert(`Erro: Já existe um aluno com a chave: ${chave} (Nome: ${nome}).`);
+                    } else {
+                        database.ref(`alunos/${chave}/info`).set({
+                            nome: nome,
+                            email: email,
+                            criacao: firebase.database.ServerValue.TIMESTAMP
+                        })
+                        .then(() => {
+                            alert(`✅ Aluno "${nome}" adicionado com sucesso!`);
+                            document.getElementById('modalAluno').style.display = 'none';
+                            alunoSelecionadoNome = nome;
+                            alunoSelecionadoChave = chave; 
+                            carregarListaAlunos();
+                        })
+                        .catch(e => alert('Erro ao adicionar aluno: ' + e.message));
+                    }
+                });
+        }
+        
+        function excluirAluno() {
+            if (!alunoSelecionadoChave) {
+                return alert('Selecione um aluno para excluir.');
+            }
+
+            if (confirm(`Tem certeza que deseja EXCLUIR PERMANENTEMENTE o aluno "${alunoSelecionadoNome}" e todos os seus dados?`)) {
+                database.ref(`alunos/${alunoSelecionadoChave}`).remove()
+                .then(() => {
+                    alert(`✅ Aluno "${alunoSelecionadoNome}" excluído com sucesso!`);
+                    alunoSelecionadoNome = ''; 
+                    alunoSelecionadoChave = '';
+                    carregarListaAlunos();
+                })
+                .catch(e => alert('Erro ao excluir aluno: ' + e.message));
+            }
+        }
+        
+        function abrirModalRenomearAluno() {
+            if (!alunoSelecionadoChave) {
+                return alert('Selecione um aluno para renomear.');
+            }
+            document.getElementById('nome-aluno-antigo').textContent = alunoSelecionadoNome;
+            document.getElementById('novo-nome-aluno').value = alunoSelecionadoNome;
+            document.getElementById('modalEditarNome').style.display = 'block';
+        }
+
+        function renomearAluno() {
+            const novoNome = document.getElementById('novo-nome-aluno').value.trim();
+            const nomeAntigo = alunoSelecionadoNome;
+            const chaveAntiga = alunoSelecionadoChave;
+
+            if (!novoNome || novoNome === nomeAntigo) {
+                return alert('O novo nome deve ser diferente e não pode ser vazio.');
+            }
+
+            const chaveNova = formatarNomeParaChave(novoNome);
+            
+            if (confirm(`Confirma a renomeação de "${nomeAntigo}" para "${novoNome}"? TODOS os dados serão movidos.`)) {
+                
+                database.ref(`alunos/${chaveNova}`).once('value')
+                .then(snapNova => {
+                    if (snapNova.exists()) {
+                        return Promise.reject(new Error(`Já existe um aluno com a chave: ${chaveNova} (Nome: ${novoNome}).`));
+                    }
+
+                    return database.ref(`alunos/${chaveAntiga}`).once('value');
+                })
+                .then(snapAntiga => {
+                    if (!snapAntiga.exists()) {
+                        return Promise.reject(new Error(`Erro: Aluno antigo "${nomeAntigo}" não encontrado.`));
+                    }
+                    const dadosAluno = snapAntiga.val();
+
+                    if (dadosAluno.info) {
+                        dadosAluno.info.nome = novoNome;
+                    } else {
+                         dadosAluno.info = { nome: novoNome, email: 'N/A', criacao: firebase.database.ServerValue.TIMESTAMP };
+                    }
+
+                    return database.ref(`alunos/${chaveNova}`).set(dadosAluno)
+                    .then(() => {
+                        return database.ref(`alunos/${chaveAntiga}`).remove();
+                    });
+                })
+                .then(() => {
+                    alert(`✅ Aluno renomeado com sucesso de "${nomeAntigo}" para "${novoNome}".`);
+                    document.getElementById('modalEditarNome').style.display = 'none';
+                    alunoSelecionadoNome = novoNome;
+                    alunoSelecionadoChave = chaveNova; 
+                    carregarListaAlunos();
+                })
+                .catch(e => {
+                    alert('Erro ao renomear aluno: ' + e.message);
+                    console.error(e);
+                });
+            }
+        }
+
+        // Adicionar event listener para fechar modais ao clicar fora
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Adicionar suporte a tecla ESC para fechar modais
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Redimensionar gráficos quando a janela mudar de tamanho
+        window.addEventListener('resize', function() {
+            Object.values(graficos).forEach(chart => {
+                if (chart && typeof chart.resize === 'function') {
+                    chart.resize();
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
