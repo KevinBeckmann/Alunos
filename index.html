@@ -346,6 +346,7 @@
         #status-treino {
             margin-top: 15px;
             text-align: center;
+            position: relative;
         }
         
         .grafico-treinos-container {
@@ -353,6 +354,36 @@
             margin: 10px auto;
             height: 250px;
             position: relative;
+        }
+        
+        /* Botão discreto de reset */
+        .mini-reset-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border-radius: 50%;
+            background-color: rgba(220, 53, 69, 0.7);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        
+        .mini-reset-btn:hover {
+            background-color: rgba(220, 53, 69, 1);
+            transform: scale(1.1);
+        }
+        
+        .mini-reset-btn i {
+            font-style: normal;
         }
     </style>
 </head>
@@ -508,6 +539,12 @@
             <!-- STATUS DE TREINO E GRÁFICO COM CORES DINÂMICAS -->
             <div id="status-treino" class="card" style="margin-top:15px; text-align:center; border: 1px solid rgba(255,255,255,0.1); padding: 15px;">
                 <h3 style="color:#ff9933; margin-top: 0;">Histórico de Treinos</h3>
+                
+                <!-- Botão discreto de reset -->
+                <button class="mini-reset-btn" onclick="resetarDados('treinos')" title="Resetar Histórico de Treinos">
+                    <i>↺</i>
+                </button>
+                
                 <p id="ultimo-treino" style="color:#ccc; font-size: 0.9em;">Carregando último treino...</p>
                 <p id="contador-treinos" style="color:#ffd700; font-weight:bold; font-size: 1.1em;">Treinos no mês: 0</p>
 
@@ -776,10 +813,36 @@
                         lista.push(treino);
                     });
                     
+                    console.log('Treinos carregados:', lista.length);
+                    if (lista.length > 0) {
+                        console.log('Exemplo de treino:', lista[0]);
+                        console.log('Dia do primeiro treino:', lista[0].dia);
+                        console.log('Tipo extraído do primeiro treino:', extrairTipoTreino(lista[0].dia));
+                    }
+                    
                     // Renderiza apenas o gráfico (lista de texto removida)
                     renderTreinosBarChart(lista);
                 }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
+        }
+        
+        // Função auxiliar para extrair tipo de treino
+        function extrairTipoTreino(diaString) {
+            if (!diaString) return null;
+            
+            // Converte para string e maiúsculas
+            const str = diaString.toString().toUpperCase();
+            
+            // Procura por qualquer letra A-G no nome do treino
+            const match = str.match(/[ABCDEFG]/);
+            
+            if (match) {
+                console.log(`Extraído de "${diaString}": ${match[0]}`);
+                return match[0];
+            }
+            
+            console.log(`Nenhum tipo encontrado em: "${diaString}"`);
+            return null;
         }
 
         // FUNÇÃO CORRIGIDA: Cores baseadas no tipo de treino (A, B, C, etc.)
@@ -803,6 +866,8 @@
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
 
+                console.log('Treinos ordenados para gráfico:', treinosOrdenados);
+
                 // Cores por tipo de treino - Mapeamento direto
                 const coresPorTreino = {
                     'A': '#ff6b6b', // Vermelho alaranjado
@@ -823,18 +888,12 @@
                 
                 // Cores baseadas no tipo de treino - LÓGICA CORRIGIDA
                 const cores = treinosOrdenados.map(t => {
-                    if (!t.dia) return coresPorTreino.default;
+                    const tipo = extrairTipoTreino(t.dia);
+                    console.log(`Treino: "${t.dia}" -> Tipo: ${tipo} -> Cor: ${coresPorTreino[tipo] || coresPorTreino.default}`);
                     
-                    // Converte para string e maiúsculas
-                    const diaStr = t.dia.toString().toUpperCase();
-                    
-                    // Procura por qualquer letra A-G no nome do treino
-                    const match = diaStr.match(/[ABCDEFG]/);
-                    if (match) {
-                        const tipo = match[0];
-                        return coresPorTreino[tipo] || coresPorTreino.default;
+                    if (tipo && coresPorTreino[tipo]) {
+                        return coresPorTreino[tipo];
                     }
-                    
                     return coresPorTreino.default;
                 });
 
@@ -898,7 +957,9 @@
                                 callbacks: {
                                     title: function(context) {
                                         const treino = treinosOrdenados[context[0].dataIndex];
-                                        return `Treino ${context[0].label}: ${treino.dia || 'Treino'}`;
+                                        const tipo = extrairTipoTreino(treino.dia);
+                                        const tipoStr = tipo ? ` (Treino ${tipo})` : '';
+                                        return `Treino ${context[0].label}: ${treino.dia || 'Treino'}${tipoStr}`;
                                     },
                                     label: function(context) {
                                         const treino = treinosOrdenados[context.dataIndex];
@@ -924,11 +985,60 @@
                         }
                     }
                 });
+                
+                // Atualiza a legenda para mostrar as cores realmente usadas
+                atualizarLegendaCores(coresPorTreino, treinosOrdenados);
             } catch(err) { 
                 console.warn('renderTreinosBarChart erro:', err);
                 setTimeout(() => {
                     if (treinosLista) renderTreinosBarChart(treinosLista);
                 }, 2000);
+            }
+        }
+        
+        // Função para atualizar a legenda baseada nos treinos reais
+        function atualizarLegendaCores(coresPorTreino, treinosOrdenados) {
+            const tiposPresentes = new Set();
+            
+            // Identifica quais tipos de treino estão presentes
+            treinosOrdenados.forEach(t => {
+                const tipo = extrairTipoTreino(t.dia);
+                if (tipo) {
+                    tiposPresentes.add(tipo);
+                }
+            });
+            
+            // Atualiza a legenda
+            const legendaContainer = document.getElementById('legenda-cores');
+            if (legendaContainer && tiposPresentes.size > 0) {
+                let html = '';
+                
+                // Ordena os tipos para consistência
+                const tiposOrdenados = Array.from(tiposPresentes).sort();
+                
+                tiposOrdenados.forEach(tipo => {
+                    if (coresPorTreino[tipo]) {
+                        html += `
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 12px; height: 12px; background-color: ${coresPorTreino[tipo]}; margin-right: 5px; border-radius: 2px;"></div>
+                                <span style="color: #ccc;">Treino ${tipo}</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                // Adiciona "Outros" se houver treinos sem tipo específico
+                const temOutros = treinosOrdenados.some(t => !extrairTipoTreino(t.dia));
+                if (temOutros) {
+                    html += `
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 12px; height: 12px; background-color: ${coresPorTreino.default}; margin-right: 5px; border-radius: 2px;"></div>
+                            <span style="color: #ccc;">Outros</span>
+                        </div>
+                    `;
+                }
+                
+                legendaContainer.innerHTML = html;
             }
         }
 
@@ -1294,6 +1404,10 @@
                     path = 'medidas';
                     msg = 'histórico de medidas corporais';
                     break;
+                case 'treinos':
+                    path = 'treinosFinalizados';
+                    msg = 'histórico completo de treinos';
+                    break;
                 default:
                     return;
             }
@@ -1305,6 +1419,11 @@
                         if (tipo === 'presenca') gerarCalendario();
                         if (tipo === 'cargas') inicializarGrafico();
                         if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
+                        if (tipo === 'treinos') {
+                            carregarUltimoTreino();
+                            contarTreinosDoMes();
+                            carregarTreinosFinalizados();
+                        }
                     })
                     .catch(error => {
                         console.error("Erro ao resetar dados:", error);
