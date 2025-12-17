@@ -151,7 +151,7 @@
         @media (max-width: 480px) {
             input, select {
                 padding: 10px;
-                font-size: 16px;
+                font-size: 16px; /* Melhor para mobile */
             }
         }
         
@@ -179,25 +179,49 @@
             }
         }
 
-        /* Estilos do Editor de Treino */
+        /* ================================================ */
+        /* ESTILOS DO EDITOR DE TREINO - MOBILE FRIENDLY */
+        /* ================================================ */
+        
         .treino-row { 
             display: grid; 
-            grid-template-columns: 1fr; 
             gap: 10px; 
             margin-bottom: 15px; 
-            padding-bottom: 15px; 
-            border-bottom: 1px dashed #333; 
-            align-items: end;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
         }
         
+        /* Layout para desktop */
         @media (min-width: 768px) {
             .treino-row {
-                grid-template-columns: 2fr 1fr 1fr auto auto;
+                grid-template-columns: 2fr 1fr 1fr 40px 40px;
+                align-items: center;
+                padding: 10px 15px;
+            }
+        }
+        
+        /* Layout para mobile */
+        @media (max-width: 767px) {
+            .treino-row {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .treino-row > div {
+                margin-bottom: 8px;
+            }
+            
+            .treino-row > div:last-child {
+                margin-bottom: 0;
             }
         }
         
         .treino-row:last-of-type { 
-            border-bottom: none; 
+            margin-bottom: 0; 
         }
 
         .handle-drag { 
@@ -206,11 +230,24 @@
             align-items: center;
             justify-content: center;
             height: 40px;
+            color: #aaa;
+            font-size: 20px;
         }
         
+        /* No mobile, esconde o handle-drag e mostra um indicador de arrasto no título */
         @media (max-width: 767px) {
             .handle-drag {
                 display: none;
+            }
+            
+            .treino-row::before {
+                content: "≡";
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                color: #aaa;
+                font-size: 20px;
+                opacity: 0.5;
             }
         }
 
@@ -231,6 +268,7 @@
             align-items: center;
             justify-content: center;
             transition: background-color 0.3s;
+            font-size: 14px;
         }
         
         .btn-remover:hover, .btn-acao-aluno:hover {
@@ -248,6 +286,67 @@
             background-color: #00d4ff; 
             color: #1e1e1e; 
             font-weight: bold; 
+        }
+        
+        /* Botão para adicionar exercício - estilizado para mobile */
+        #btnAddExercicio {
+            background: #38c172;
+            border: none;
+            color: white;
+            padding: 14px;
+            width: 100%;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        #btnAddExercicio:hover {
+            background: #2da25a;
+        }
+        
+        #btnAddExercicio::before {
+            content: "+";
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        /* Container do editor de treino */
+        #editor-container {
+            margin-top: 15px;
+        }
+        
+        .sortable-container {
+            margin-bottom: 10px;
+        }
+        
+        /* Melhorias nos inputs do editor de treino no mobile */
+        @media (max-width: 767px) {
+            .treino-row label {
+                font-size: 12px;
+                color: #aaa;
+                margin-bottom: 3px;
+                display: block;
+            }
+            
+            .treino-row input {
+                padding: 12px;
+                font-size: 15px;
+                width: 100%;
+            }
+            
+            .btn-remover {
+                padding: 12px;
+                height: 44px;
+                font-size: 14px;
+                margin-top: 5px;
+            }
         }
 
         /* TABELAS RESPONSIVAS */
@@ -317,6 +416,7 @@
             .modal-content {
                 margin: 10% auto;
                 padding: 15px;
+                max-width: 95%;
             }
         }
         
@@ -464,13 +564,17 @@
             font-size: 0.9em;
             min-width: 40px;
             min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         @media (max-width: 480px) {
             .btn-compact {
-                padding: 6px 10px;
-                min-width: 36px;
-                min-height: 36px;
+                padding: 10px 14px;
+                min-width: 44px;
+                min-height: 44px;
+                font-size: 16px;
             }
         }
         
@@ -516,6 +620,19 @@
             }
         }
         
+        /* Grupo de botões de ação para mobile */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        @media (min-width: 768px) {
+            .action-buttons {
+                margin-top: 0;
+            }
+        }
+        
         /* Ajuste para inputs em telas pequenas */
         input[type="date"] {
             min-height: 40px;
@@ -548,6 +665,13 @@
             margin-bottom: 15px;
         }
         
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.3em;
+                margin-bottom: 12px;
+            }
+        }
+        
         h3 {
             font-size: 1.3em;
             margin-bottom: 10px;
@@ -562,6 +686,28 @@
             border: none;
             border-top: 1px solid #333;
             margin: 20px 0;
+        }
+        
+        /* Instruções para mobile */
+        .mobile-instructions {
+            display: none;
+        }
+        
+        @media (max-width: 767px) {
+            .mobile-instructions {
+                display: block;
+                background: rgba(0, 212, 255, 0.1);
+                border-left: 3px solid #00d4ff;
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 4px;
+                font-size: 0.85em;
+                color: #aaa;
+            }
+            
+            .mobile-instructions strong {
+                color: #00d4ff;
+            }
         }
     </style>
 </head>
@@ -598,7 +744,7 @@
                             <label>Selecione o Aluno:</label>
                             <select id="selectAluno"><option>Carregando...</option></select>
                         </div>
-                        <div style="display: flex; gap: 5px;">
+                        <div class="action-buttons">
                             <button class="btn-acao-aluno btn-renomear-aluno btn-compact" onclick="abrirModalRenomearAluno()" title="Renomear Aluno">✏️</button>
                             <button class="btn-remover btn-compact" onclick="excluirAluno()" title="Excluir Aluno">🗑️</button>
                         </div>
@@ -609,7 +755,7 @@
                         <select id="selectDia" style="flex-grow: 1;">
                             <option value="">Selecione um dia</option>
                         </select>
-                        <div style="display: flex; gap: 5px;">
+                        <div class="action-buttons">
                             <button class="btn-acao-aluno btn-compact" onclick="abrirModalDia()" title="Adicionar Novo Dia" style="background-color: #38c172; font-weight: normal;">+</button>
                             <button class="btn-remover btn-compact" onclick="removerDiaTreino()" title="Remover Dia Selecionado">-</button>
                         </div>
@@ -617,7 +763,12 @@
                     
                     <hr>
                     
-                    <p style="font-size: 0.9em; color: #aaa; margin-bottom: 15px;">
+                    <!-- Instruções para mobile -->
+                    <div class="mobile-instructions">
+                        <strong>💡 Dica Mobile:</strong> Para reordenar exercícios, toque e segure qualquer exercício, então arraste para cima ou para baixo.
+                    </div>
+                    
+                    <p style="font-size: 0.9em; color: #aaa; margin-bottom: 15px; display: none;" id="desktop-instructions">
                         <span style="color: #00d4ff;">💡 Dica:</span> Arraste o ícone ☰ para reordenar os exercícios.
                     </p>
                     
@@ -946,7 +1097,7 @@
         }
 
         // ============================================
-        // === FUNÇÕES DA TAB TREINO (CORRIGIDAS) ====
+        // === FUNÇÕES DA TAB TREINO (OTIMIZADAS PARA MOBILE) ====
         // ============================================
 
         function carregarDiasTreinoDoAluno() {
@@ -1024,10 +1175,8 @@
                 }
 
                 const btn = document.createElement('button');
-                btn.textContent = '+ Add Exercício';
                 btn.id = 'btnAddExercicio';
-                btn.style.cssText = 'background:#38c172; border:none; color:white; padding:12px; width:100%; margin-top:15px; cursor:pointer; border-radius: 5px; font-size: 16px;';
-                btn.onclick = () => addLinha('', '', '', false);
+                btn.textContent = 'Adicionar Exercício';
                 container.appendChild(btn);
                 
                 initSortable();
@@ -1064,16 +1213,19 @@
                 container.appendChild(addButton);
             }
             
+            // Configuração do Sortable otimizada para mobile
             editorSortable = Sortable.create(sortableContainer, {
                 animation: 150, 
-                handle: '.handle-drag', 
+                handle: window.innerWidth >= 768 ? '.handle-drag' : '.treino-row', // No mobile, toda a linha é draggable
                 ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                touchStartThreshold: 5, // Sensibilidade para touch
                 onEnd: function() {
                     console.log("Ordem alterada");
                 }
             });
             
-            console.log("Sortable inicializado");
+            console.log("Sortable inicializado para " + (window.innerWidth >= 768 ? "desktop" : "mobile"));
         }
 
         function addLinha(nome = '', series = '', reps = '', isInitialLoad = false) {
@@ -1094,8 +1246,8 @@
                     <label>Repetições</label>
                     <input type="text" class="i-reps" value="${reps}" placeholder="Ex: 10-12">
                 </div>
-                <div class="handle-drag" style="width: 30px; text-align: center; color: #aaa; align-self: center; cursor: move;">☰</div> 
-                <div><button class="btn-remover" onclick="removerLinha(this)">X</button></div>`;
+                ${window.innerWidth >= 768 ? '<div class="handle-drag">☰</div>' : ''}
+                <div><button class="btn-remover" onclick="removerLinha(this)">Remover</button></div>`;
             
             const addButton = document.getElementById('btnAddExercicio');
             const sortableContainer = container.querySelector('.sortable-container');
@@ -1122,7 +1274,7 @@
 
         function removerLinha(botao) {
             const linha = botao.closest('.treino-row');
-            if (linha) {
+            if (linha && confirm('Remover este exercício?')) {
                 linha.remove();
             }
         }
@@ -1239,7 +1391,7 @@
         }
 
         // ============================================
-        // === FUNÇÕES DE DIAS DE TREINO (CORRIGIDAS) =
+        // === FUNÇÕES DE DIAS DE TREINO ====
         // ============================================
 
         function abrirModalDia() {
@@ -2059,6 +2211,12 @@
                     chart.resize();
                 }
             });
+            
+            // Reconfigurar o Sortable se a tela mudar de tamanho
+            if (editorSortable) {
+                editorSortable.destroy();
+                setTimeout(initSortable, 100);
+            }
         });
 
     </script>
