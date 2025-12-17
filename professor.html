@@ -624,7 +624,7 @@
                     <div id="mensagem-treino" class="mensagem" style="display:none;"></div>
                     
                     <div id="editor-container">
-                        <!-- O conteúdo será carregado aqui -->
+                        <p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>
                     </div>
                     
                     <button class="btn-save" onclick="salvarTreino()">💾 Salvar Treino</button>
@@ -755,15 +755,14 @@
 
         // === 1. CONFIGURAÇÃO FIREBASE ===
         const firebaseConfig = {
-  apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
-  authDomain: "ptf03-26fdb.firebaseapp.com",
-  databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
-  projectId: "ptf03-26fdb",
-  storageBucket: "ptf03-26fdb.firebasestorage.app",
-  messagingSenderId: "1020981883676",
-  appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
-};
-
+            apiKey: "AIzaSyDLkdyL4qgoEj1YqBr2xCs0F3aM1o82ef0",
+            authDomain: "ptf03-26fdb.firebaseapp.com",
+            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+            projectId: "ptf03-26fdb",
+            storageBucket: "ptf03-26fdb.appspot.com",
+            messagingSenderId: "1020981883676",
+            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+        };
         
         try {
             const app = firebase.initializeApp(firebaseConfig);
@@ -965,6 +964,7 @@
                 
                 if (!treinoModel || Object.keys(treinoModel).length === 0) {
                     selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
+                    document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Nenhum treino criado. Adicione um novo dia.</p>';
                 } else {
                     Object.keys(treinoModel).forEach(dia => {
                         const option = document.createElement('option');
@@ -972,20 +972,24 @@
                         option.textContent = dia;
                         selDia.appendChild(option);
                     });
+                    
+                    // Se houver apenas um dia, selecione-o automaticamente
+                    if (selDia.options.length === 2) { // 1 opção + "Selecione um dia"
+                        selDia.value = selDia.options[1].value;
+                        setTimeout(() => {
+                            carregarTreinoDia();
+                        }, 100);
+                    }
                 }
                 
                 selDia.onchange = null;
                 selDia.onchange = function() {
                     if (this.value) {
                         carregarTreinoDia();
+                    } else {
+                        document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>';
                     }
                 };
-                
-                // Se houver apenas um dia, selecione-o automaticamente
-                if (selDia.options.length === 2) { // 1 opção + "Selecione um dia"
-                    selDia.value = selDia.options[1].value;
-                    carregarTreinoDia();
-                }
             }).catch(error => {
                 console.error("Erro ao carregar dias:", error);
                 selDia.innerHTML = '<option value="">Erro ao carregar</option>';
@@ -1074,7 +1078,6 @@
 
         function addLinha(nome = '', series = '', reps = '', isInitialLoad = false) {
             const container = document.getElementById('editor-container');
-            const sortableContainer = container.querySelector('.sortable-container');
             
             const div = document.createElement('div');
             div.className = 'treino-row';
@@ -1094,10 +1097,21 @@
                 <div class="handle-drag" style="width: 30px; text-align: center; color: #aaa; align-self: center; cursor: move;">☰</div> 
                 <div><button class="btn-remover" onclick="removerLinha(this)">X</button></div>`;
             
+            const addButton = document.getElementById('btnAddExercicio');
+            const sortableContainer = container.querySelector('.sortable-container');
+            
             if (sortableContainer) {
-                sortableContainer.appendChild(div);
+                if (addButton) {
+                    sortableContainer.insertBefore(div, addButton);
+                } else {
+                    sortableContainer.appendChild(div);
+                }
             } else {
-                container.insertBefore(div, document.getElementById('btnAddExercicio'));
+                if (addButton) {
+                    container.insertBefore(div, addButton);
+                } else {
+                    container.appendChild(div);
+                }
             }
             
             // Re-inicializar o Sortable se necessário
@@ -1239,20 +1253,20 @@
 
         function salvarNovoDia() {
             if (!alunoSelecionadoChave) {
-                mostrarMensagem('Selecione um aluno primeiro!', 'erro');
+                alert('Selecione um aluno primeiro!');
                 return;
             }
 
             const nomeDia = document.getElementById('dia-nome').value.trim();
             if (!nomeDia) {
-                mostrarMensagem('Digite o nome do novo dia de treino!', 'erro');
+                alert('Digite o nome do novo dia de treino!');
                 return;
             }
 
             // Verifica se o dia já existe
             database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
                 if (snap.exists()) {
-                    mostrarMensagem(`O dia "${nomeDia}" já existe!`, 'erro');
+                    alert(`O dia "${nomeDia}" já existe!`);
                     return;
                 }
 
@@ -1269,13 +1283,19 @@
                         setTimeout(() => {
                             const selectDia = document.getElementById('selectDia');
                             selectDia.value = nomeDia;
-                            carregarTreinoDia();
+                            // Aguarda um pouco e carrega o treino
+                            setTimeout(() => {
+                                carregarTreinoDia();
+                            }, 500);
                         }, 300);
                     })
                     .catch(e => {
                         console.error("Erro ao criar dia:", e);
-                        mostrarMensagem('Erro ao criar dia: ' + e.message, 'erro');
+                        alert('Erro ao criar dia: ' + e.message);
                     });
+            }).catch(e => {
+                console.error("Erro ao verificar dia:", e);
+                alert('Erro ao verificar se o dia existe: ' + e.message);
             });
         }
 
@@ -1336,56 +1356,72 @@
                 database.ref(getPath('presenca')).once('value')
             ]).then(([snapMedidas, snapCargas, snapPresenca]) => {
                 container.innerHTML = '';
+                let temDados = false;
                 
-                // Gráfico de medidas
-                if (snapMedidas.exists() && snapMedidas.numChildren() > 0) {
+                // 1. Gráfico de medidas (só se tiver dados)
+                if (snapMedidas.exists() && snapMedidas.numChildren() > 1) {
                     const medidasData = [];
                     snapMedidas.forEach(child => {
-                        medidasData.push({ ...child.val(), id: child.key });
+                        const medida = child.val();
+                        if (medida.peso && parseFloat(medida.peso) > 0) {
+                            medidasData.push({ ...medida, id: child.key });
+                        }
                     });
                     
                     medidasData.sort((a, b) => a.timestamp - b.timestamp);
                     
-                    if (medidasData.length > 0) {
+                    if (medidasData.length > 1) {
                         criarGraficoMedidas(medidasData);
+                        temDados = true;
                     }
                 }
                 
-                // Gráficos de carga
+                // 2. Gráficos de carga (só exercícios com pelo menos 2 registros)
                 if (snapCargas.exists()) {
-                    const exercicios = [];
+                    const exerciciosComDados = [];
+                    
                     snapCargas.forEach(exercicioSnap => {
+                        const nomeExercicio = exercicioSnap.key;
                         const dadosExercicio = [];
+                        
                         exercicioSnap.forEach(registro => {
-                            dadosExercicio.push({
-                                ...registro.val(),
-                                id: registro.key
-                            });
+                            const dado = registro.val();
+                            if (dado.peso && parseFloat(dado.peso) > 0) {
+                                dadosExercicio.push({
+                                    ...dado,
+                                    id: registro.key
+                                });
+                            }
                         });
                         
-                        if (dadosExercicio.length > 0) {
-                            exercicios.push({
-                                nome: exercicioSnap.key,
+                        if (dadosExercicio.length >= 2) {
+                            exerciciosComDados.push({
+                                nome: nomeExercicio,
                                 dados: dadosExercicio
                             });
                         }
                     });
                     
-                    // Limitar a 3 gráficos de carga para não poluir
-                    exercicios.slice(0, 3).forEach(ex => {
+                    // Ordenar por nome do exercício
+                    exerciciosComDados.sort((a, b) => a.nome.localeCompare(b.nome));
+                    
+                    // Limitar a 4 gráficos de carga para não poluir
+                    exerciciosComDados.slice(0, 4).forEach(ex => {
                         criarGraficoCarga(ex.nome, ex.dados);
+                        temDados = true;
                     });
                 }
                 
-                // Gráfico de presença
-                if (snapPresenca.exists() && snapPresenca.numChildren() > 0) {
+                // 3. Gráfico de presença (só se tiver pelo menos 2 presenças)
+                if (snapPresenca.exists() && snapPresenca.numChildren() >= 2) {
                     const presencas = Object.keys(snapPresenca.val());
-                    if (presencas.length > 0) {
+                    if (presencas.length >= 2) {
                         criarGraficoPresenca(presencas);
+                        temDados = true;
                     }
                 }
                 
-                if (Object.keys(graficos).length === 0) {
+                if (!temDados) {
                     container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px;">Nenhum dado suficiente para gerar gráficos</div>';
                 }
             }).catch(error => {
@@ -1526,7 +1562,7 @@
             const card = document.createElement('div');
             card.className = 'chart-card';
             card.innerHTML = `
-                <h4 style="margin: 0 0 15px 0; color: #00d4ff; font-size: 1.1em;">🏋️ ${nomeExercicio.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                <h4 style="margin: 0 0 15px 0; color: #00d4ff; font-size: 1.1em;">🏋️ ${nomeExercicio}</h4>
                 <canvas id="${canvasId}" height="200"></canvas>
             `;
             container.appendChild(card);
@@ -1552,10 +1588,7 @@
                 return `Reg ${index + 1}`;
             });
             
-            const valores = dados.map(d => {
-                const valor = d.peso || d.carga || d.weight;
-                return parseFloat(valor) || 0;
-            });
+            const valores = dados.map(d => parseFloat(d.peso) || 0);
             
             graficos[canvasId] = new Chart(ctx, {
                 type: 'line',
@@ -1591,7 +1624,12 @@
                             titleColor: '#dc3545',
                             bodyColor: '#e0e0e0',
                             borderColor: '#333',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Carga: ${context.parsed.y} kg`;
+                                }
+                            }
                         }
                     },
                     scales: {
@@ -1605,14 +1643,9 @@
                                 color: '#e0e0e0',
                                 font: {
                                     size: window.innerWidth < 768 ? 10 : 11
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'kg',
-                                color: '#aaa',
-                                font: {
-                                    size: 11
+                                },
+                                callback: function(value) {
+                                    return value + ' kg';
                                 }
                             }
                         },
