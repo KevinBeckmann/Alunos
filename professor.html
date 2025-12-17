@@ -180,125 +180,176 @@
         }
 
         /* ================================================ */
-        /* ESTILOS DO EDITOR DE TREINO - MOBILE FRIENDLY */
+        /* EDITOR DE TREINO EM CAMPOS PEQUENOS (COMPACTOS) */
         /* ================================================ */
         
-        .treino-row { 
-            display: grid; 
-            gap: 10px; 
-            margin-bottom: 15px; 
-            padding: 15px;
+        .treino-compact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .treino-compact-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .treino-compact-container {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 8px;
+            }
+        }
+        
+        .treino-card {
             background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
             position: relative;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: move;
         }
         
-        /* Layout para desktop */
-        @media (min-width: 768px) {
-            .treino-row {
-                grid-template-columns: 2fr 1fr 1fr 40px 40px;
-                align-items: center;
-                padding: 10px 15px;
-            }
+        .treino-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
         }
         
-        /* Layout para mobile */
-        @media (max-width: 767px) {
-            .treino-row {
-                grid-template-columns: 1fr;
-                padding: 12px;
-                margin-bottom: 12px;
-            }
-            
-            .treino-row > div {
-                margin-bottom: 8px;
-            }
-            
-            .treino-row > div:last-child {
-                margin-bottom: 0;
-            }
-        }
-        
-        .treino-row:last-of-type { 
-            margin-bottom: 0; 
-        }
-
-        .handle-drag { 
-            cursor: move; 
+        .treino-card .exercicio-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            height: 40px;
-            color: #aaa;
-            font-size: 20px;
+            margin-bottom: 8px;
         }
         
-        /* No mobile, esconde o handle-drag e mostra um indicador de arrasto no título */
-        @media (max-width: 767px) {
-            .handle-drag {
-                display: none;
-            }
-            
-            .treino-row::before {
-                content: "≡";
-                position: absolute;
-                top: 12px;
-                right: 12px;
-                color: #aaa;
-                font-size: 20px;
-                opacity: 0.5;
-            }
-        }
-
-        .sortable-ghost { 
-            opacity: 0.4; 
-            background-color: #333; 
-        }
-
-        .btn-remover, .btn-acao-aluno { 
-            padding: 10px; 
-            background-color: #dc3545; 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.3s;
+        .treino-card .exercicio-nome {
+            font-weight: bold;
             font-size: 14px;
+            color: #e0e0e0;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
-        .btn-remover:hover, .btn-acao-aluno:hover {
-            opacity: 0.9;
+        .treino-card .drag-handle {
+            color: #777;
+            font-size: 18px;
+            cursor: move;
+            padding: 5px;
+            margin-left: 5px;
         }
         
-        .btn-acao-aluno { 
-            background-color: #ffc107; 
-            color: #1e1e1e; 
-            font-weight: bold; 
-        }
-
-        /* Botão de Renomear Aluno */
-        .btn-renomear-aluno { 
-            background-color: #00d4ff; 
-            color: #1e1e1e; 
-            font-weight: bold; 
+        .treino-card .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
         }
         
-        /* Botão para adicionar exercício - estilizado para mobile */
+        .treino-card .info-label {
+            color: #aaa;
+            font-weight: 500;
+        }
+        
+        .treino-card .info-value {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+        
+        .treino-card .btn-remover {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .treino-card:hover .btn-remover {
+            opacity: 1;
+        }
+        
+        .treino-card .input-exercicio {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 6px 8px;
+            color: white;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        
+        .treino-card .input-exercicio:focus {
+            border-color: #00d4ff;
+            outline: none;
+        }
+        
+        .treino-card .input-small {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            padding: 4px 6px;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .treino-card .form-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        
+        .treino-card .form-group {
+            flex: 1;
+        }
+        
+        .treino-card .form-group label {
+            font-size: 10px;
+            color: #aaa;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        /* Sortable styles */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: rgba(0, 212, 255, 0.1);
+        }
+        
+        .sortable-drag {
+            opacity: 0.8;
+            transform: rotate(2deg);
+        }
+        
+        /* Botão para adicionar exercício */
         #btnAddExercicio {
             background: #38c172;
             border: none;
             color: white;
-            padding: 14px;
+            padding: 12px;
             width: 100%;
             margin-top: 15px;
             cursor: pointer;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             transition: background-color 0.3s;
             display: flex;
@@ -311,45 +362,149 @@
             background: #2da25a;
         }
         
-        #btnAddExercicio::before {
-            content: "+";
+        #btnAddExercicio span {
             font-size: 20px;
             font-weight: bold;
         }
-        
+
         /* Container do editor de treino */
         #editor-container {
             margin-top: 15px;
         }
         
-        .sortable-container {
-            margin-bottom: 10px;
+        .mobile-instructions {
+            display: none;
         }
         
-        /* Melhorias nos inputs do editor de treino no mobile */
         @media (max-width: 767px) {
-            .treino-row label {
-                font-size: 12px;
-                color: #aaa;
-                margin-bottom: 3px;
+            .mobile-instructions {
                 display: block;
+                background: rgba(0, 212, 255, 0.1);
+                border-left: 3px solid #00d4ff;
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 4px;
+                font-size: 0.85em;
+                color: #aaa;
             }
             
-            .treino-row input {
-                padding: 12px;
-                font-size: 15px;
-                width: 100%;
-            }
-            
-            .btn-remover {
-                padding: 12px;
-                height: 44px;
-                font-size: 14px;
-                margin-top: 5px;
+            .mobile-instructions strong {
+                color: #00d4ff;
             }
         }
 
+        /* Mensagem de erro/sucesso */
+        .mensagem {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .mensagem.sucesso {
+            background-color: rgba(56, 193, 114, 0.2);
+            color: #38c172;
+            border: 1px solid #38c172;
+        }
+        
+        .mensagem.erro {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        /* Botões de ação compactos */
+        .btn-compact {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            min-width: 40px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 480px) {
+            .btn-compact {
+                padding: 10px 14px;
+                min-width: 44px;
+                min-height: 44px;
+                font-size: 16px;
+            }
+        }
+        
+        .btn-acao-aluno { 
+            background-color: #ffc107; 
+            color: #1e1e1e; 
+            font-weight: bold; 
+        }
+        
+        .btn-remover { 
+            background-color: #dc3545; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background-color 0.3s;
+        }
+        
+        .btn-remover:hover, .btn-acao-aluno:hover {
+            opacity: 0.9;
+        }
+
+        /* Layout principal responsivo */
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .left-col {
+            width: 100%;
+        }
+        
+        .graficos-section {
+            width: 100%;
+        }
+        
+        .medidas-section {
+            width: 100%;
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                grid-template-areas: 
+                    "left graficos"
+                    "medidas medidas";
+                gap: 20px;
+            }
+            
+            .left-col {
+                grid-area: left;
+            }
+            
+            .graficos-section {
+                grid-area: graficos;
+            }
+            
+            .medidas-section {
+                grid-area: medidas;
+            }
+        }
+        
         /* TABELAS RESPONSIVAS */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
         table { 
             width: 100%; 
             text-align: left; 
@@ -435,29 +590,63 @@
             color: #e0e0e0; 
             text-decoration: none; 
         }
-        
-        /* Mensagem de erro/sucesso */
-        .mensagem {
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 14px;
+
+        /* Controles flexíveis */
+        .flex-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .mensagem.sucesso {
-            background-color: rgba(56, 193, 114, 0.2);
-            color: #38c172;
-            border: 1px solid #38c172;
+        @media (min-width: 768px) {
+            .flex-controls {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+            
+            .flex-controls > div {
+                flex: 1;
+            }
+            
+            .flex-controls .btn-compact {
+                flex: 0 0 auto;
+            }
         }
         
-        .mensagem.erro {
-            background-color: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
-            border: 1px solid #dc3545;
+        .mobile-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        /* Grid de gráficos responsivo */
+        @media (min-width: 768px) {
+            .mobile-stack {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        @media (min-width: 768px) {
+            .action-buttons {
+                margin-top: 0;
+            }
+        }
+        
+        /* Botão Renomear Aluno */
+        .btn-renomear-aluno { 
+            background-color: #00d4ff; 
+            color: #1e1e1e; 
+            font-weight: bold; 
+        }
+        
+        /* Gráficos */
         .graficos-container {
             display: grid;
             grid-template-columns: 1fr;
@@ -498,152 +687,6 @@
             .chart-card canvas {
                 height: 210px !important;
             }
-        }
-        
-        /* Layout principal responsivo */
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .left-col {
-            width: 100%;
-        }
-        
-        .graficos-section {
-            width: 100%;
-        }
-        
-        .medidas-section {
-            width: 100%;
-        }
-        
-        @media (min-width: 1024px) {
-            .container {
-                display: grid;
-                grid-template-columns: 2fr 1fr;
-                grid-template-areas: 
-                    "left graficos"
-                    "medidas medidas";
-                gap: 20px;
-            }
-            
-            .left-col {
-                grid-area: left;
-            }
-            
-            .graficos-section {
-                grid-area: graficos;
-            }
-            
-            .medidas-section {
-                grid-area: medidas;
-            }
-        }
-        
-        @media (min-width: 1400px) {
-            .container {
-                grid-template-columns: 1fr 1fr;
-                grid-template-areas: 
-                    "left graficos"
-                    "medidas medidas";
-            }
-        }
-        
-        /* Gestão de Alunos */
-        .gestao-alunos-card {
-            margin-bottom: 20px;
-        }
-        
-        /* Botões compactos */
-        .btn-compact {
-            padding: 8px 12px;
-            font-size: 0.9em;
-            min-width: 40px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        @media (max-width: 480px) {
-            .btn-compact {
-                padding: 10px 14px;
-                min-width: 44px;
-                min-height: 44px;
-                font-size: 16px;
-            }
-        }
-        
-        /* Select alunos nos gráficos */
-        #selectAlunoGraficos {
-            margin-bottom: 15px;
-        }
-        
-        /* Controles flexíveis */
-        .flex-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        @media (min-width: 768px) {
-            .flex-controls {
-                flex-direction: row;
-                align-items: flex-end;
-            }
-            
-            .flex-controls > div {
-                flex: 1;
-            }
-            
-            .flex-controls .btn-compact {
-                flex: 0 0 auto;
-            }
-        }
-        
-        /* Melhorias na visualização móvel */
-        .mobile-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        @media (min-width: 768px) {
-            .mobile-stack {
-                flex-direction: row;
-                align-items: flex-end;
-            }
-        }
-        
-        /* Grupo de botões de ação para mobile */
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        
-        @media (min-width: 768px) {
-            .action-buttons {
-                margin-top: 0;
-            }
-        }
-        
-        /* Ajuste para inputs em telas pequenas */
-        input[type="date"] {
-            min-height: 40px;
-        }
-        
-        /* Scroll suave para tabelas */
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 8px;
-            border: 1px solid #333;
         }
         
         /* Labels */
@@ -687,28 +730,6 @@
             border-top: 1px solid #333;
             margin: 20px 0;
         }
-        
-        /* Instruções para mobile */
-        .mobile-instructions {
-            display: none;
-        }
-        
-        @media (max-width: 767px) {
-            .mobile-instructions {
-                display: block;
-                background: rgba(0, 212, 255, 0.1);
-                border-left: 3px solid #00d4ff;
-                padding: 10px;
-                margin: 10px 0;
-                border-radius: 4px;
-                font-size: 0.85em;
-                color: #aaa;
-            }
-            
-            .mobile-instructions strong {
-                color: #00d4ff;
-            }
-        }
     </style>
 </head>
 
@@ -731,7 +752,7 @@
         <div class="container">
             <!-- Coluna Esquerda - Gestão de Alunos e Treino -->
             <div class="left-col">
-                <div class="card gestao-alunos-card">
+                <div class="card">
                     <h2> Gestão de Alunos</h2>
                     <button class="btn-save" onclick="abrirModalAluno()" style="background-color: #38c172; margin-top: 0;">+ Adicionar Novo Aluno</button>
                 </div>
@@ -765,11 +786,11 @@
                     
                     <!-- Instruções para mobile -->
                     <div class="mobile-instructions">
-                        <strong>💡 Dica Mobile:</strong> Para reordenar exercícios, toque e segure qualquer exercício, então arraste para cima ou para baixo.
+                        <strong>💡 Dica Mobile:</strong> Para reordenar exercícios, toque e segure qualquer card, então arraste para a nova posição.
                     </div>
                     
-                    <p style="font-size: 0.9em; color: #aaa; margin-bottom: 15px; display: none;" id="desktop-instructions">
-                        <span style="color: #00d4ff;">💡 Dica:</span> Arraste o ícone ☰ para reordenar os exercícios.
+                    <p style="font-size: 0.9em; color: #aaa; margin-bottom: 15px;">
+                        <span style="color: #00d4ff;">💡 Dica:</span> Arraste os cards para reordenar os exercícios.
                     </p>
                     
                     <div id="mensagem-treino" class="mensagem" style="display:none;"></div>
@@ -905,7 +926,7 @@
         let graficos = {};
 
         // === 1. CONFIGURAÇÃO FIREBASE ===
-       const firebaseConfig = {
+        const firebaseConfig = {
   apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
   authDomain: "ptf03-26fdb.firebaseapp.com",
   databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
@@ -914,6 +935,7 @@
   messagingSenderId: "1020981883676",
   appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
 };
+
         
         try {
             const app = firebase.initializeApp(firebaseConfig);
@@ -1097,7 +1119,7 @@
         }
 
         // ============================================
-        // === FUNÇÕES DA TAB TREINO (OTIMIZADAS PARA MOBILE) ====
+        // === FUNÇÕES DA TAB TREINO (COMPACTO) ====
         // ============================================
 
         function carregarDiasTreinoDoAluno() {
@@ -1167,16 +1189,26 @@
                     editorSortable = null;
                 }
                 
+                const treinoContainer = document.createElement('div');
+                treinoContainer.className = 'treino-compact-container';
+                treinoContainer.id = 'treino-sortable';
+                
                 if(Array.isArray(treino) && treino.length > 0) {
-                    treino.forEach(t => addLinha(t.nome, t.series, t.reps, true));
+                    treino.forEach(t => addLinhaCompact(t.nome, t.series, t.reps, treinoContainer));
                 } else {
                     // Se não houver exercícios, adiciona uma linha vazia
-                    addLinha('', '', '', true);
+                    addLinhaCompact('', '', '', treinoContainer);
                 }
-
+                
+                container.appendChild(treinoContainer);
+                
                 const btn = document.createElement('button');
                 btn.id = 'btnAddExercicio';
-                btn.textContent = 'Adicionar Exercício';
+                btn.innerHTML = '<span>+</span> Adicionar Exercício';
+                btn.onclick = function() {
+                    addLinhaCompact('', '', '', treinoContainer);
+                    initSortable();
+                };
                 container.appendChild(btn);
                 
                 initSortable();
@@ -1188,95 +1220,102 @@
             });
         }
 
+        function addLinhaCompact(nome = '', series = '', reps = '', container = null) {
+            if (!container) {
+                container = document.getElementById('treino-sortable');
+                if (!container) return;
+            }
+            
+            const cardId = 'card-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const card = document.createElement('div');
+            card.className = 'treino-card';
+            card.id = cardId;
+            card.innerHTML = `
+                <button class="btn-remover" onclick="removerLinhaCompact('${cardId}')">×</button>
+                <div class="exercicio-header">
+                    <input type="text" class="input-exercicio i-nome" value="${nome}" placeholder="Nome do exercício" onchange="atualizarPreview('${cardId}')">
+                    <span class="drag-handle">☰</span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Séries</label>
+                        <input type="text" class="input-small i-series" value="${series}" placeholder="Ex: 4" onchange="atualizarPreview('${cardId}')">
+                    </div>
+                    <div class="form-group">
+                        <label>Reps</label>
+                        <input type="text" class="input-small i-reps" value="${reps}" placeholder="Ex: 10-12" onchange="atualizarPreview('${cardId}')">
+                    </div>
+                </div>
+                <div class="info-row" id="preview-${cardId}" style="display: ${nome || series || reps ? 'flex' : 'none'}">
+                    <span class="info-label">Séries:</span>
+                    <span class="info-value series-preview">${series || '-'}</span>
+                </div>
+                <div class="info-row" id="preview-reps-${cardId}" style="display: ${nome || series || reps ? 'flex' : 'none'}">
+                    <span class="info-label">Reps:</span>
+                    <span class="info-value reps-preview">${reps || '-'}</span>
+                </div>
+            `;
+            
+            container.appendChild(card);
+            
+            // Atualizar preview se houver dados
+            if (nome || series || reps) {
+                atualizarPreview(cardId);
+            }
+            
+            return cardId;
+        }
+
+        function atualizarPreview(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            
+            const nome = card.querySelector('.i-nome').value.trim();
+            const series = card.querySelector('.i-series').value.trim();
+            const reps = card.querySelector('.i-reps').value.trim();
+            
+            const previewRow = card.querySelector(`#preview-${cardId}`);
+            const previewRepsRow = card.querySelector(`#preview-reps-${cardId}`);
+            const seriesPreview = card.querySelector('.series-preview');
+            const repsPreview = card.querySelector('.reps-preview');
+            
+            if (series || reps) {
+                previewRow.style.display = 'flex';
+                previewRepsRow.style.display = 'flex';
+                seriesPreview.textContent = series || '-';
+                repsPreview.textContent = reps || '-';
+            } else {
+                previewRow.style.display = 'none';
+                previewRepsRow.style.display = 'none';
+            }
+        }
+
+        function removerLinhaCompact(cardId) {
+            const card = document.getElementById(cardId);
+            if (card && confirm('Remover este exercício?')) {
+                card.remove();
+            }
+        }
+
         function initSortable() {
-            const container = document.getElementById('editor-container');
+            const container = document.getElementById('treino-sortable');
+            
+            if (!container) return;
             
             if (editorSortable) {
                 editorSortable.destroy();
             }
             
-            // Encontrar todas as linhas de treino (exceto o botão)
-            const treinoRows = container.querySelectorAll('.treino-row');
-            const sortableContainer = document.createElement('div');
-            sortableContainer.className = 'sortable-container';
-            
-            // Mover as linhas para o container sortable
-            treinoRows.forEach(row => {
-                sortableContainer.appendChild(row);
-            });
-            
-            // Substituir as linhas pelo container sortable
-            const addButton = document.getElementById('btnAddExercicio');
-            container.innerHTML = '';
-            container.appendChild(sortableContainer);
-            if (addButton) {
-                container.appendChild(addButton);
-            }
-            
-            // Configuração do Sortable otimizada para mobile
-            editorSortable = Sortable.create(sortableContainer, {
+            editorSortable = Sortable.create(container, {
                 animation: 150, 
-                handle: window.innerWidth >= 768 ? '.handle-drag' : '.treino-row', // No mobile, toda a linha é draggable
+                handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
-                touchStartThreshold: 5, // Sensibilidade para touch
+                touchStartThreshold: 5,
                 onEnd: function() {
                     console.log("Ordem alterada");
                 }
             });
-            
-            console.log("Sortable inicializado para " + (window.innerWidth >= 768 ? "desktop" : "mobile"));
-        }
-
-        function addLinha(nome = '', series = '', reps = '', isInitialLoad = false) {
-            const container = document.getElementById('editor-container');
-            
-            const div = document.createElement('div');
-            div.className = 'treino-row';
-            div.innerHTML = `
-                <div>
-                    <label>Exercício</label>
-                    <input type="text" class="i-nome" value="${nome}" placeholder="Ex: Supino Reto">
-                </div>
-                <div>
-                    <label>Séries</label>
-                    <input type="text" class="i-series" value="${series}" placeholder="Ex: 4">
-                </div>
-                <div>
-                    <label>Repetições</label>
-                    <input type="text" class="i-reps" value="${reps}" placeholder="Ex: 10-12">
-                </div>
-                ${window.innerWidth >= 768 ? '<div class="handle-drag">☰</div>' : ''}
-                <div><button class="btn-remover" onclick="removerLinha(this)">Remover</button></div>`;
-            
-            const addButton = document.getElementById('btnAddExercicio');
-            const sortableContainer = container.querySelector('.sortable-container');
-            
-            if (sortableContainer) {
-                if (addButton) {
-                    sortableContainer.insertBefore(div, addButton);
-                } else {
-                    sortableContainer.appendChild(div);
-                }
-            } else {
-                if (addButton) {
-                    container.insertBefore(div, addButton);
-                } else {
-                    container.appendChild(div);
-                }
-            }
-            
-            // Re-inicializar o Sortable se necessário
-            if (!editorSortable) {
-                initSortable();
-            }
-        }
-
-        function removerLinha(botao) {
-            const linha = botao.closest('.treino-row');
-            if (linha && confirm('Remover este exercício?')) {
-                linha.remove();
-            }
         }
 
         function salvarTreino() {
@@ -1291,14 +1330,19 @@
                 return;
             }
             
-            const container = document.getElementById('editor-container');
-            const rows = container.querySelectorAll('.treino-row');
+            const container = document.getElementById('treino-sortable');
+            if (!container) {
+                mostrarMensagem('Adicione pelo menos um exercício!', 'erro');
+                return;
+            }
+            
+            const cards = container.querySelectorAll('.treino-card');
             const dados = [];
             
-            rows.forEach(r => {
-                const nome = r.querySelector('.i-nome')?.value.trim() || '';
-                const series = r.querySelector('.i-series')?.value.trim() || '';
-                const reps = r.querySelector('.i-reps')?.value.trim() || '';
+            cards.forEach(card => {
+                const nome = card.querySelector('.i-nome')?.value.trim() || '';
+                const series = card.querySelector('.i-series')?.value.trim() || '';
+                const reps = card.querySelector('.i-reps')?.value.trim() || '';
                 
                 if(nome) {
                     dados.push({ 
