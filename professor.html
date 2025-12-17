@@ -180,155 +180,82 @@
         }
 
         /* ================================================ */
-        /* EDITOR DE TREINO EM CAMPOS PEQUENOS (COMPACTOS) */
+        /* TABELAS DE TREINO VERTICAIS (ESTILO DA IMAGEM) */
         /* ================================================ */
         
-        .treino-compact-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        
-        @media (max-width: 768px) {
-            .treino-compact-container {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 10px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .treino-compact-container {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 8px;
-            }
-        }
-        
-        .treino-card {
-            background-color: rgba(255, 255, 255, 0.05);
+        .tabela-treino-vertical {
+            width: 100%;
+            margin-bottom: 10px;
+            border-collapse: collapse;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            padding: 12px;
-            position: relative;
-            transition: transform 0.2s, border-color 0.2s;
-            cursor: move;
-        }
-        
-        .treino-card:hover {
-            border-color: rgba(0, 212, 255, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .treino-card .exercicio-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .treino-card .exercicio-nome {
-            font-weight: bold;
-            font-size: 14px;
-            color: #e0e0e0;
-            flex: 1;
             overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
         
-        .treino-card .drag-handle {
-            color: #777;
-            font-size: 18px;
-            cursor: move;
-            padding: 5px;
-            margin-left: 5px;
-        }
-        
-        .treino-card .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 12px;
-        }
-        
-        .treino-card .info-label {
-            color: #aaa;
-            font-weight: 500;
-        }
-        
-        .treino-card .info-value {
+        .tabela-treino-vertical th {
+            background-color: rgba(0, 212, 255, 0.1);
             color: #00d4ff;
-            font-weight: bold;
-        }
-        
-        .treino-card .btn-remover {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(220, 53, 69, 0.8);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            width: 24px;
-            height: 24px;
+            padding: 10px;
+            text-align: center;
             font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.2s;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .treino-card:hover .btn-remover {
-            opacity: 1;
+        .tabela-treino-vertical td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        .treino-card .input-exercicio {
+        .tabela-treino-vertical tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .tabela-treino-vertical input {
             width: 100%;
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
-            padding: 6px 8px;
+            padding: 8px;
             color: white;
-            font-size: 13px;
-            margin-bottom: 6px;
+            font-size: 14px;
+            text-align: center;
         }
         
-        .treino-card .input-exercicio:focus {
+        .tabela-treino-vertical input:focus {
             border-color: #00d4ff;
             outline: none;
         }
         
-        .treino-card .input-small {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-            padding: 4px 6px;
+        .tabela-treino-vertical .handle-drag {
+            color: #777;
+            font-size: 18px;
+            cursor: move;
+            padding: 5px;
+        }
+        
+        .tabela-treino-vertical .btn-remover {
+            background: rgba(220, 53, 69, 0.8);
             color: white;
-            font-size: 12px;
-            text-align: center;
-        }
-        
-        .treino-card .form-row {
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+            cursor: pointer;
             display: flex;
-            gap: 6px;
-            margin-top: 6px;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
         }
         
-        .treino-card .form-group {
-            flex: 1;
+        .tabela-treino-vertical .btn-remover:hover {
+            background: rgba(220, 53, 69, 1);
         }
         
-        .treino-card .form-group label {
-            font-size: 10px;
-            color: #aaa;
-            display: block;
-            margin-bottom: 2px;
-        }
-        
-        /* Sortable styles */
         .sortable-ghost {
             opacity: 0.4;
             background-color: rgba(0, 212, 255, 0.1);
@@ -337,6 +264,11 @@
         .sortable-drag {
             opacity: 0.8;
             transform: rotate(2deg);
+        }
+        
+        /* Container das tabelas com arrastar */
+        .treino-tabelas-container {
+            margin-bottom: 15px;
         }
         
         /* Botão para adicionar exercício */
@@ -362,7 +294,8 @@
             background: #2da25a;
         }
         
-        #btnAddExercicio span {
+        #btnAddExercicio::before {
+            content: "+";
             font-size: 20px;
             font-weight: bold;
         }
@@ -390,6 +323,18 @@
             
             .mobile-instructions strong {
                 color: #00d4ff;
+            }
+            
+            /* Ajuste para tabelas em mobile */
+            .tabela-treino-vertical th,
+            .tabela-treino-vertical td {
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+            
+            .tabela-treino-vertical input {
+                padding: 6px;
+                font-size: 13px;
             }
         }
 
@@ -786,11 +731,11 @@
                     
                     <!-- Instruções para mobile -->
                     <div class="mobile-instructions">
-                        <strong>💡 Dica Mobile:</strong> Para reordenar exercícios, toque e segure qualquer card, então arraste para a nova posição.
+                        <strong>💡 Dica Mobile:</strong> Para reordenar exercícios, toque e segure o ícone ☰, então arraste para cima ou para baixo.
                     </div>
                     
                     <p style="font-size: 0.9em; color: #aaa; margin-bottom: 15px;">
-                        <span style="color: #00d4ff;">💡 Dica:</span> Arraste os cards para reordenar os exercícios.
+                        <span style="color: #00d4ff;">💡 Dica:</span> Arraste o ícone ☰ para reordenar os exercícios.
                     </p>
                     
                     <div id="mensagem-treino" class="mensagem" style="display:none;"></div>
@@ -799,8 +744,8 @@
                         <p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>
                     </div>
                     
+                    <!-- REMOVI O BOTÃO "Enviar para Aluno" -->
                     <button class="btn-save" onclick="salvarTreino()">💾 Salvar Treino</button>
-                    <button class="btn-save" onclick="enviarTreinoParaAluno()" style="background-color: #38c172; margin-top: 10px;">🚀 Enviar para Aluno</button>
                 </div>
             </div>
 
@@ -935,7 +880,6 @@
   messagingSenderId: "1020981883676",
   appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
 };
-
         
         try {
             const app = firebase.initializeApp(firebaseConfig);
@@ -1119,7 +1063,7 @@
         }
 
         // ============================================
-        // === FUNÇÕES DA TAB TREINO (COMPACTO) ====
+        // === FUNÇÕES DA TAB TREINO (TABELAS VERTICAIS) ====
         // ============================================
 
         function carregarDiasTreinoDoAluno() {
@@ -1190,23 +1134,23 @@
                 }
                 
                 const treinoContainer = document.createElement('div');
-                treinoContainer.className = 'treino-compact-container';
+                treinoContainer.className = 'treino-tabelas-container';
                 treinoContainer.id = 'treino-sortable';
                 
                 if(Array.isArray(treino) && treino.length > 0) {
-                    treino.forEach(t => addLinhaCompact(t.nome, t.series, t.reps, treinoContainer));
+                    treino.forEach(t => addLinhaTabela(t.nome, t.series, t.reps, treinoContainer));
                 } else {
                     // Se não houver exercícios, adiciona uma linha vazia
-                    addLinhaCompact('', '', '', treinoContainer);
+                    addLinhaTabela('', '', '', treinoContainer);
                 }
                 
                 container.appendChild(treinoContainer);
                 
                 const btn = document.createElement('button');
                 btn.id = 'btnAddExercicio';
-                btn.innerHTML = '<span>+</span> Adicionar Exercício';
+                btn.textContent = 'Adicionar Exercício';
                 btn.onclick = function() {
-                    addLinhaCompact('', '', '', treinoContainer);
+                    addLinhaTabela('', '', '', treinoContainer);
                     initSortable();
                 };
                 container.appendChild(btn);
@@ -1220,80 +1164,48 @@
             });
         }
 
-        function addLinhaCompact(nome = '', series = '', reps = '', container = null) {
+        function addLinhaTabela(nome = '', series = '', reps = '', container = null) {
             if (!container) {
                 container = document.getElementById('treino-sortable');
                 if (!container) return;
             }
             
-            const cardId = 'card-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            const card = document.createElement('div');
-            card.className = 'treino-card';
-            card.id = cardId;
-            card.innerHTML = `
-                <button class="btn-remover" onclick="removerLinhaCompact('${cardId}')">×</button>
-                <div class="exercicio-header">
-                    <input type="text" class="input-exercicio i-nome" value="${nome}" placeholder="Nome do exercício" onchange="atualizarPreview('${cardId}')">
-                    <span class="drag-handle">☰</span>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Séries</label>
-                        <input type="text" class="input-small i-series" value="${series}" placeholder="Ex: 4" onchange="atualizarPreview('${cardId}')">
-                    </div>
-                    <div class="form-group">
-                        <label>Reps</label>
-                        <input type="text" class="input-small i-reps" value="${reps}" placeholder="Ex: 10-12" onchange="atualizarPreview('${cardId}')">
-                    </div>
-                </div>
-                <div class="info-row" id="preview-${cardId}" style="display: ${nome || series || reps ? 'flex' : 'none'}">
-                    <span class="info-label">Séries:</span>
-                    <span class="info-value series-preview">${series || '-'}</span>
-                </div>
-                <div class="info-row" id="preview-reps-${cardId}" style="display: ${nome || series || reps ? 'flex' : 'none'}">
-                    <span class="info-label">Reps:</span>
-                    <span class="info-value reps-preview">${reps || '-'}</span>
-                </div>
+            const tabelaId = 'tabela-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const tabela = document.createElement('table');
+            tabela.className = 'tabela-treino-vertical';
+            tabela.id = tabelaId;
+            tabela.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Ex</th>
+                        <th>Sér</th>
+                        <th>Rep</th>
+                        <th style="width: 60px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="i-nome" value="${nome}" placeholder="Exercício"></td>
+                        <td><input type="text" class="i-series" value="${series}" placeholder="4"></td>
+                        <td><input type="text" class="i-reps" value="${reps}" placeholder="10-12"></td>
+                        <td>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                                <span class="handle-drag">☰</span>
+                                <button class="btn-remover" onclick="removerTabela('${tabelaId}')">×</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
             `;
             
-            container.appendChild(card);
-            
-            // Atualizar preview se houver dados
-            if (nome || series || reps) {
-                atualizarPreview(cardId);
-            }
-            
-            return cardId;
+            container.appendChild(tabela);
+            return tabelaId;
         }
 
-        function atualizarPreview(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            
-            const nome = card.querySelector('.i-nome').value.trim();
-            const series = card.querySelector('.i-series').value.trim();
-            const reps = card.querySelector('.i-reps').value.trim();
-            
-            const previewRow = card.querySelector(`#preview-${cardId}`);
-            const previewRepsRow = card.querySelector(`#preview-reps-${cardId}`);
-            const seriesPreview = card.querySelector('.series-preview');
-            const repsPreview = card.querySelector('.reps-preview');
-            
-            if (series || reps) {
-                previewRow.style.display = 'flex';
-                previewRepsRow.style.display = 'flex';
-                seriesPreview.textContent = series || '-';
-                repsPreview.textContent = reps || '-';
-            } else {
-                previewRow.style.display = 'none';
-                previewRepsRow.style.display = 'none';
-            }
-        }
-
-        function removerLinhaCompact(cardId) {
-            const card = document.getElementById(cardId);
-            if (card && confirm('Remover este exercício?')) {
-                card.remove();
+        function removerTabela(tabelaId) {
+            const tabela = document.getElementById(tabelaId);
+            if (tabela && confirm('Remover este exercício?')) {
+                tabela.remove();
             }
         }
 
@@ -1308,7 +1220,7 @@
             
             editorSortable = Sortable.create(container, {
                 animation: 150, 
-                handle: '.drag-handle',
+                handle: '.handle-drag',
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 touchStartThreshold: 5,
@@ -1336,13 +1248,13 @@
                 return;
             }
             
-            const cards = container.querySelectorAll('.treino-card');
+            const tabelas = container.querySelectorAll('.tabela-treino-vertical');
             const dados = [];
             
-            cards.forEach(card => {
-                const nome = card.querySelector('.i-nome')?.value.trim() || '';
-                const series = card.querySelector('.i-series')?.value.trim() || '';
-                const reps = card.querySelector('.i-reps')?.value.trim() || '';
+            tabelas.forEach(tabela => {
+                const nome = tabela.querySelector('.i-nome')?.value.trim() || '';
+                const series = tabela.querySelector('.i-series')?.value.trim() || '';
+                const reps = tabela.querySelector('.i-reps')?.value.trim() || '';
                 
                 if(nome) {
                     dados.push({ 
@@ -1369,69 +1281,6 @@
                     console.error("Erro ao salvar treino:", e);
                     mostrarMensagem('❌ Erro ao salvar treino: ' + e.message, 'erro');
                 });
-        }
-
-        function enviarTreinoParaAluno() {
-            if(!alunoSelecionadoChave) {
-                mostrarMensagem('Selecione um aluno primeiro!', 'erro');
-                return;
-            }
-            
-            const dia = document.getElementById('selectDia').value;
-            if(!dia || dia === '') {
-                mostrarMensagem('Selecione um dia de treino!', 'erro');
-                return;
-            }
-            
-            database.ref(getPath(`treinoModel/${dia}`)).once('value', snapshot => {
-                const treinoAtual = snapshot.val();
-                
-                if (!treinoAtual || !Array.isArray(treinoAtual) || treinoAtual.length === 0) {
-                    mostrarMensagem('Primeiro salve o treino antes de enviar!', 'erro');
-                    return;
-                }
-                
-                mostrarMensagem('Enviando treino para o aluno...', 'sucesso');
-                
-                const treinoFormatadoParaAluno = treinoAtual.map(exercicio => ({
-                    nome: exercicio.nome || '',
-                    series: exercicio.series || '',
-                    reps: exercicio.reps || '',
-                    concluido: false,
-                    carga: '',
-                    observacoes: ''
-                }));
-                
-                const hoje = new Date();
-                const dataFormatada = hoje.toISOString().split('T')[0];
-                
-                const dadosCompletos = {
-                    data: dataFormatada,
-                    dia: dia,
-                    exercicios: treinoFormatadoParaAluno,
-                    enviadoPor: auth.currentUser.email,
-                    timestamp: Date.now()
-                };
-                
-                database.ref(getPath(`treinoDiaAtual`)).set(dadosCompletos)
-                .then(() => {
-                    const historicoRef = database.ref(getPath('historicoEnvios')).push();
-                    return historicoRef.set({
-                        ...dadosCompletos,
-                        exerciciosCount: treinoFormatadoParaAluno.length
-                    });
-                })
-                .then(() => {
-                    return database.ref(getPath('info/ultimaAtualizacao')).set(Date.now());
-                })
-                .then(() => {
-                    mostrarMensagem('✅ Treino enviado com sucesso para o aluno!', 'sucesso');
-                })
-                .catch(error => {
-                    console.error('Erro ao enviar treino:', error);
-                    mostrarMensagem('❌ Erro ao enviar treino: ' + error.message, 'erro');
-                });
-            });
         }
 
         // ============================================
