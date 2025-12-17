@@ -782,7 +782,7 @@
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
-        // FUNÇÃO ATUALIZADA: Cores baseadas no tipo de treino (A, B, C, etc.)
+        // FUNÇÃO CORRIGIDA: Cores baseadas no tipo de treino (A, B, C, etc.)
         function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
@@ -803,7 +803,7 @@
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
 
-                // Cores por tipo de treino
+                // Cores por tipo de treino - Mapeamento direto
                 const coresPorTreino = {
                     'A': '#ff6b6b', // Vermelho alaranjado
                     'B': '#4ecdc4', // Turquesa
@@ -821,21 +821,17 @@
                 // Dados: exercícios concluídos em cada treino
                 const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
                 
-                // Cores baseadas no tipo de treino
+                // Cores baseadas no tipo de treino - LÓGICA CORRIGIDA
                 const cores = treinosOrdenados.map(t => {
                     if (!t.dia) return coresPorTreino.default;
                     
-                    // Extrai a letra do tipo de treino (A, B, C, etc.)
-                    const match = t.dia.match(/[ABCDEFG]/i);
-                    if (match) {
-                        const tipo = match[0].toUpperCase();
-                        return coresPorTreino[tipo] || coresPorTreino.default;
-                    }
+                    // Converte para string e maiúsculas
+                    const diaStr = t.dia.toString().toUpperCase();
                     
-                    // Se não encontrar uma letra específica, verifica por "Dia A", "Dia B", etc.
-                    const diaMatch = t.dia.match(/dia\s+([ABCDEFG])/i);
-                    if (diaMatch) {
-                        const tipo = diaMatch[1].toUpperCase();
+                    // Procura por qualquer letra A-G no nome do treino
+                    const match = diaStr.match(/[ABCDEFG]/);
+                    if (match) {
+                        const tipo = match[0];
                         return coresPorTreino[tipo] || coresPorTreino.default;
                     }
                     
@@ -873,7 +869,9 @@
                                 display: true,
                                 ticks: { 
                                     color: '#f0f0f0',
-                                    font: { size: 11 }
+                                    font: { size: 11 },
+                                    maxRotation: 0,
+                                    minRotation: 0
                                 },
                                 grid: { 
                                     display: false // Remove linhas de grade verticais
