@@ -505,7 +505,7 @@
                 <tbody id="calendario-body"></tbody>
             </table>
             
-            <!-- STATUS DE TREINO E GRÁFICO COM LEGENDA DE CORES -->
+            <!-- STATUS DE TREINO E GRÁFICO COM CORES DINÂMICAS -->
             <div id="status-treino" class="card" style="margin-top:15px; text-align:center; border: 1px solid rgba(255,255,255,0.1); padding: 15px;">
                 <h3 style="color:#ff9933; margin-top: 0;">Histórico de Treinos</h3>
                 <p id="ultimo-treino" style="color:#ccc; font-size: 0.9em;">Carregando último treino...</p>
@@ -518,20 +518,24 @@
                 <!-- LEGENDA DAS CORES -->
                 <div id="legenda-cores" style="margin-top: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 0.8em;">
                     <div style="display: flex; align-items: center;">
-                        <div style="width: 12px; height: 12px; background-color: rgba(255, 193, 7, 0.9); margin-right: 5px; border-radius: 2px;"></div>
-                        <span style="color: #ccc;">Últimos 2 dias</span>
+                        <div style="width: 12px; height: 12px; background-color: #ff6b6b; margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Treino A</span>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div style="width: 12px; height: 12px; background-color: rgba(50, 205, 50, 0.8); margin-right: 5px; border-radius: 2px;"></div>
-                        <span style="color: #ccc;">Última semana</span>
+                        <div style="width: 12px; height: 12px; background-color: #4ecdc4; margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Treino B</span>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div style="width: 12px; height: 12px; background-color: rgba(65, 105, 225, 0.8); margin-right: 5px; border-radius: 2px;"></div>
-                        <span style="color: #ccc;">Último mês</span>
+                        <div style="width: 12px; height: 12px; background-color: #ffd166; margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Treino C</span>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div style="width: 12px; height: 12px; background-color: rgba(119, 136, 153, 0.7); margin-right: 5px; border-radius: 2px;"></div>
-                        <span style="color: #ccc;">Mais antigos</span>
+                        <div style="width: 12px; height: 12px; background-color: #06d6a0; margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Treino D</span>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div style="width: 12px; height: 12px; background-color: #118ab2; margin-right: 5px; border-radius: 2px;"></div>
+                        <span style="color: #ccc;">Outros</span>
                     </div>
                 </div>
             </div>
@@ -778,7 +782,7 @@
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
-        // FUNÇÃO CORRIGIDA: mostra uma barra para CADA treino
+        // FUNÇÃO ATUALIZADA: Cores baseadas no tipo de treino (A, B, C, etc.)
         function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
@@ -799,33 +803,43 @@
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
 
-                // Cria labels únicos para cada treino (uma barra por treino)
-                const labels = treinosOrdenados.map((t, index) => {
-                    // Cria um label curto para cada treino
-                    if (t.dia && t.data) {
-                        const dataCurta = t.data.split('/').slice(0, 2).join('/'); // DD/MM
-                        return `Treino ${index + 1}: ${t.dia.substring(0, 10)} (${dataCurta})`;
-                    } else if (t.dia) {
-                        return `Treino ${index + 1}: ${t.dia.substring(0, 10)}`;
-                    } else {
-                        return `Treino ${index + 1}`;
-                    }
-                });
+                // Cores por tipo de treino
+                const coresPorTreino = {
+                    'A': '#ff6b6b', // Vermelho alaranjado
+                    'B': '#4ecdc4', // Turquesa
+                    'C': '#ffd166', // Amarelo
+                    'D': '#06d6a0', // Verde
+                    'E': '#118ab2', // Azul
+                    'F': '#ef476f', // Rosa
+                    'G': '#073b4c', // Azul escuro
+                    'default': '#6c757d' // Cinza para outros
+                };
 
+                // Labels apenas com números (sem texto)
+                const labels = treinosOrdenados.map((t, index) => `${index + 1}`);
+                
                 // Dados: exercícios concluídos em cada treino
                 const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
-
-                // Cores dinâmicas baseadas na data do treino
+                
+                // Cores baseadas no tipo de treino
                 const cores = treinosOrdenados.map(t => {
-                    if (!t.timestamp) return 'rgba(70, 130, 180, 0.8)'; // Azul padrão
+                    if (!t.dia) return coresPorTreino.default;
                     
-                    const idade = Date.now() - t.timestamp;
-                    const dias = idade / (1000 * 60 * 60 * 24);
+                    // Extrai a letra do tipo de treino (A, B, C, etc.)
+                    const match = t.dia.match(/[ABCDEFG]/i);
+                    if (match) {
+                        const tipo = match[0].toUpperCase();
+                        return coresPorTreino[tipo] || coresPorTreino.default;
+                    }
                     
-                    if (dias < 2) return 'rgba(255, 193, 7, 0.9)'; // Amarelo - últimos 2 dias
-                    else if (dias < 7) return 'rgba(50, 205, 50, 0.8)'; // Verde - última semana
-                    else if (dias < 30) return 'rgba(65, 105, 225, 0.8)'; // Azul royal - último mês
-                    else return 'rgba(119, 136, 153, 0.7)'; // Cinza - mais antigos
+                    // Se não encontrar uma letra específica, verifica por "Dia A", "Dia B", etc.
+                    const diaMatch = t.dia.match(/dia\s+([ABCDEFG])/i);
+                    if (diaMatch) {
+                        const tipo = diaMatch[1].toUpperCase();
+                        return coresPorTreino[tipo] || coresPorTreino.default;
+                    }
+                    
+                    return coresPorTreino.default;
                 });
 
                 if (typeof Chart === 'undefined') { 
@@ -847,7 +861,8 @@
                             backgroundColor: cores,
                             borderColor: 'rgba(255, 255, 255, 0.3)',
                             borderWidth: 1,
-                            borderRadius: 4 // Barras com bordas arredondadas
+                            borderRadius: 4,
+                            barPercentage: 0.7 // Barras mais estreitas
                         }]
                     },
                     options: {
@@ -855,13 +870,14 @@
                         maintainAspectRatio: false,
                         scales: {
                             x: { 
+                                display: true,
                                 ticks: { 
                                     color: '#f0f0f0',
-                                    maxRotation: 45,
-                                    minRotation: 45,
-                                    font: { size: 10 }
+                                    font: { size: 11 }
                                 },
-                                grid: { color: 'rgba(255,255,255,0.1)' }
+                                grid: { 
+                                    display: false // Remove linhas de grade verticais
+                                }
                             },
                             y: { 
                                 beginAtZero: true, 
@@ -872,37 +888,46 @@
                                 },
                                 grid: { color: 'rgba(255,255,255,0.1)' },
                                 title: {
-                                    display: true,
-                                    text: 'Exercícios Concluídos',
-                                    color: '#f0f0f0'
+                                    display: false // Remove título do eixo Y
                                 }
                             }
                         },
                         plugins: {
                             legend: { 
-                                labels: { 
-                                    color: '#f0f0f0',
-                                    font: { size: 12 }
-                                } 
+                                display: false // Remove a legenda padrão
                             },
                             tooltip: {
                                 callbacks: {
+                                    title: function(context) {
+                                        const treino = treinosOrdenados[context[0].dataIndex];
+                                        return `Treino ${context[0].label}: ${treino.dia || 'Treino'}`;
+                                    },
                                     label: function(context) {
                                         const treino = treinosOrdenados[context.dataIndex];
-                                        let label = `Exercícios: ${context.raw}`;
-                                        if (treino.dia) label += ` | ${treino.dia}`;
-                                        if (treino.data) label += ` | ${treino.data}`;
+                                        let label = `Exercícios concluídos: ${context.raw}`;
+                                        if (treino.data) label += ` | Data: ${treino.data}`;
                                         if (treino.hora) label += ` ${treino.hora}`;
                                         return label;
+                                    },
+                                    afterLabel: function(context) {
+                                        const treino = treinosOrdenados[context.dataIndex];
+                                        if (treino.exerciciosConcluidos && treino.exerciciosConcluidos.length > 0) {
+                                            return `Exercícios: ${treino.exerciciosConcluidos.join(', ')}`;
+                                        }
+                                        return '';
                                     }
-                                }
+                                },
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#ff9933',
+                                bodyColor: '#f0f0f0',
+                                borderColor: '#ff8c00',
+                                borderWidth: 1
                             }
                         }
                     }
                 });
             } catch(err) { 
                 console.warn('renderTreinosBarChart erro:', err);
-                // Tenta novamente em 2 segundos
                 setTimeout(() => {
                     if (treinosLista) renderTreinosBarChart(treinosLista);
                 }, 2000);
