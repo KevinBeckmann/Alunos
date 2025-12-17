@@ -17,21 +17,95 @@
         /* --- ESTILOS RESPONSIVOS DARK MODE --- */
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            padding: 15px; 
             background-color: #121212; 
             color: #e0e0e0;
             line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* Logo e Header */
+        .logo-header {
+            text-align: center;
+            padding: 20px 15px;
+            border-bottom: 1px solid #333;
+            background-color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #00d4ff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #00d4ff, #00a3cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+            margin: 0;
+        }
+        
+        .logo-subtitle {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+        
+        /* Botão Sair como setinha */
+        .btn-sair {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn-sair:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+            color: #00d4ff;
         }
         
         /* Responsividade para telas pequenas */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
+            }
+            
+            .logo-header {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .btn-sair {
+                top: 15px;
+                right: 15px;
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
             }
         }
         
@@ -40,29 +114,34 @@
                 padding: 8px;
                 font-size: 14px;
             }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
         }
         
         /* Estilos da Tela de Login */
         #login-screen {
             max-width: 400px; 
             margin: 50px auto; 
-            padding: 25px; 
+            padding: 30px; 
             background-color: #1e1e1e;
-            border-radius: 10px; 
+            border-radius: 12px; 
             border: 1px solid #333; 
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
         @media (max-width: 480px) {
             #login-screen {
                 margin: 20px auto;
-                padding: 20px;
+                padding: 25px;
             }
         }
         
         #login-screen h2 { 
             color: #00d4ff; 
-            margin-bottom: 20px; 
+            margin-bottom: 25px; 
             font-size: 1.5em;
         }
         
@@ -75,12 +154,22 @@
         #login-screen input { 
             width: 100%;
             margin-bottom: 15px; 
-            padding: 12px;
+            padding: 14px;
             font-size: 16px;
+            background: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: white;
+            transition: border-color 0.3s;
+        }
+        
+        #login-screen input:focus {
+            border-color: #00d4ff;
+            outline: none;
         }
         
         #login-screen button { 
-            padding: 12px; 
+            padding: 14px; 
             width: 100%;
         }
 
@@ -103,299 +192,360 @@
             }
         }
         
-        .main-header h1 { 
-            color: #00d4ff; 
-            margin: 0; 
-            font-size: 1.8em; 
-            text-align: center;
-        }
-        
-        @media (max-width: 480px) {
-            .main-header h1 {
-                font-size: 1.5em;
-            }
-        }
-        
         .card { 
             background-color: #1e1e1e; 
-            padding: 20px; 
-            border-radius: 10px; 
+            padding: 25px; 
+            border-radius: 12px; 
             border: 1px solid #333; 
             margin-bottom: 20px;
             width: 100%;
             overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         @media (max-width: 480px) {
             .card {
-                padding: 15px;
+                padding: 18px;
             }
         }
         
         input, select { 
             width: 100%; 
-            padding: 10px; 
+            padding: 12px; 
             margin-top: 5px; 
             background-color: #2c2c2c; 
             border: 1px solid #444; 
-            border-radius: 5px; 
+            border-radius: 8px; 
             color: white; 
             box-sizing: border-box;
-            font-size: 14px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #00d4ff;
+            outline: none;
         }
         
         select {
-            min-height: 40px;
+            min-height: 44px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0e0e0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
         }
         
         @media (max-width: 480px) {
             input, select {
-                padding: 10px;
-                font-size: 16px; /* Melhor para mobile */
+                padding: 14px;
+                font-size: 16px;
             }
         }
         
         button.btn-save { 
             width: 100%; 
-            padding: 12px; 
+            padding: 14px; 
             margin-top: 20px; 
-            background-color: #00d4ff; 
+            background: linear-gradient(90deg, #00d4ff, #00a3cc); 
             color: #000; 
             border: none; 
-            border-radius: 5px; 
+            border-radius: 8px; 
             cursor: pointer; 
             font-weight: bold; 
             font-size: 16px;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
         }
         
         button.btn-save:hover { 
-            background-color: #00a3cc; 
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
         }
         
         @media (max-width: 480px) {
             button.btn-save {
-                padding: 14px;
+                padding: 16px;
             }
         }
 
         /* ================================================ */
-        /* TABELAS DE TREINO VERTICAIS (ESTILO DA IMAGEM) */
+        /* TABELAS DE TREINO - LAYOUT MELHORADO */
         /* ================================================ */
         
-        .tabela-treino-vertical {
-            width: 100%;
-            margin-bottom: 10px;
-            border-collapse: collapse;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
+        .treino-tabelas-container {
+            margin-bottom: 20px;
         }
         
-        .tabela-treino-vertical th {
-            background-color: rgba(0, 212, 255, 0.1);
+        .tabela-treino {
+            width: 100%;
+            margin-bottom: 15px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .tabela-treino thead {
+            background: rgba(0, 212, 255, 0.15);
+        }
+        
+        .tabela-treino th {
             color: #00d4ff;
-            padding: 10px;
+            padding: 14px 12px;
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .tabela-treino-vertical td {
-            padding: 12px 10px;
+        .tabela-treino th:nth-child(1) { /* EX */
+            width: 50%;
+        }
+        
+        .tabela-treino th:nth-child(2), /* SÉR */
+        .tabela-treino th:nth-child(3) { /* REP */
+            width: 15%;
+        }
+        
+        .tabela-treino th:nth-child(4) { /* AÇÕES */
+            width: 20%;
+        }
+        
+        .tabela-treino td {
+            padding: 16px 12px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        .tabela-treino-vertical tr:last-child td {
+        .tabela-treino tr:last-child td {
             border-bottom: none;
         }
         
-        .tabela-treino-vertical input {
+        .tabela-treino input {
             width: 100%;
-            background: transparent;
+            background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            padding: 8px;
+            border-radius: 6px;
+            padding: 12px;
             color: white;
-            font-size: 14px;
+            font-size: 15px;
             text-align: center;
+            transition: all 0.3s ease;
         }
         
-        .tabela-treino-vertical input:focus {
+        .tabela-treino input:focus {
+            background: rgba(255, 255, 255, 0.12);
             border-color: #00d4ff;
-            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
         }
         
-        .tabela-treino-vertical .handle-drag {
-            color: #777;
-            font-size: 18px;
+        .tabela-treino .handle-drag {
+            color: #aaa;
+            font-size: 22px;
             cursor: move;
             padding: 5px;
+            transition: color 0.3s;
+            display: inline-block;
         }
         
-        .tabela-treino-vertical .btn-remover {
-            background: rgba(220, 53, 69, 0.8);
+        .tabela-treino .handle-drag:hover {
+            color: #00d4ff;
+        }
+        
+        .tabela-treino .btn-remover {
+            background: rgba(220, 53, 69, 0.9);
             color: white;
             border: none;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
-            font-size: 14px;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
+            margin-left: 8px;
         }
         
-        .tabela-treino-vertical .btn-remover:hover {
+        .tabela-treino .btn-remover:hover {
             background: rgba(220, 53, 69, 1);
+            transform: scale(1.05);
         }
         
         .sortable-ghost {
-            opacity: 0.4;
+            opacity: 0.3;
             background-color: rgba(0, 212, 255, 0.1);
         }
         
         .sortable-drag {
-            opacity: 0.8;
-            transform: rotate(2deg);
-        }
-        
-        /* Container das tabelas com arrastar */
-        .treino-tabelas-container {
-            margin-bottom: 15px;
+            opacity: 0.9;
+            transform: rotate(3deg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
         
         /* Botão para adicionar exercício */
         #btnAddExercicio {
-            background: #38c172;
+            background: linear-gradient(90deg, #38c172, #2da25a);
             border: none;
             color: white;
-            padding: 12px;
+            padding: 16px;
             width: 100%;
             margin-top: 15px;
             cursor: pointer;
-            border-radius: 5px;
-            font-size: 15px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: bold;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: 0.5px;
         }
         
         #btnAddExercicio:hover {
-            background: #2da25a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 193, 114, 0.3);
         }
         
         #btnAddExercicio::before {
             content: "+";
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
         }
 
         /* Container do editor de treino */
         #editor-container {
-            margin-top: 15px;
+            margin-top: 20px;
         }
         
-        .mobile-instructions {
-            display: none;
+        /* Instruções estilizadas */
+        .instrucoes-treino {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            color: #aaa;
+        }
+        
+        .instrucoes-treino strong {
+            color: #00d4ff;
         }
         
         @media (max-width: 767px) {
-            .mobile-instructions {
-                display: block;
-                background: rgba(0, 212, 255, 0.1);
-                border-left: 3px solid #00d4ff;
-                padding: 10px;
-                margin: 10px 0;
-                border-radius: 4px;
-                font-size: 0.85em;
-                color: #aaa;
-            }
-            
-            .mobile-instructions strong {
-                color: #00d4ff;
-            }
-            
             /* Ajuste para tabelas em mobile */
-            .tabela-treino-vertical th,
-            .tabela-treino-vertical td {
-                padding: 8px 6px;
-                font-size: 13px;
+            .tabela-treino th,
+            .tabela-treino td {
+                padding: 12px 8px;
+                font-size: 14px;
             }
             
-            .tabela-treino-vertical input {
-                padding: 6px;
-                font-size: 13px;
+            .tabela-treino input {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .tabela-treino th:nth-child(1) {
+                width: 40%;
+            }
+            
+            .tabela-treino th:nth-child(2),
+            .tabela-treino th:nth-child(3) {
+                width: 20%;
+            }
+            
+            .tabela-treino th:nth-child(4) {
+                width: 20%;
             }
         }
 
         /* Mensagem de erro/sucesso */
         .mensagem {
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 5px;
+            padding: 14px;
+            margin: 15px 0;
+            border-radius: 8px;
             text-align: center;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .mensagem.sucesso {
-            background-color: rgba(56, 193, 114, 0.2);
+            background-color: rgba(56, 193, 114, 0.15);
             color: #38c172;
-            border: 1px solid #38c172;
+            border: 1px solid rgba(56, 193, 114, 0.3);
         }
         
         .mensagem.erro {
-            background-color: rgba(220, 53, 69, 0.2);
+            background-color: rgba(220, 53, 69, 0.15);
             color: #dc3545;
-            border: 1px solid #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
         }
 
         /* Botões de ação compactos */
         .btn-compact {
-            padding: 8px 12px;
+            padding: 10px 14px;
             font-size: 0.9em;
-            min-width: 40px;
-            min-height: 40px;
+            min-width: 44px;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
         
         @media (max-width: 480px) {
             .btn-compact {
-                padding: 10px 14px;
-                min-width: 44px;
-                min-height: 44px;
+                padding: 12px 16px;
+                min-width: 48px;
+                min-height: 48px;
                 font-size: 16px;
             }
         }
         
         .btn-acao-aluno { 
-            background-color: #ffc107; 
+            background: linear-gradient(90deg, #ffc107, #e0a800); 
             color: #1e1e1e; 
             font-weight: bold; 
         }
         
-        .btn-remover { 
-            background-color: #dc3545; 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            transition: background-color 0.3s;
+        .btn-acao-aluno:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
         }
         
-        .btn-remover:hover, .btn-acao-aluno:hover {
-            opacity: 0.9;
+        .btn-remover { 
+            background: linear-gradient(90deg, #dc3545, #c82333); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s ease;
+        }
+        
+        .btn-remover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
         }
 
         /* Layout principal responsivo */
@@ -405,6 +555,7 @@
             gap: 20px;
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0 15px 30px;
         }
         
         .left-col {
@@ -426,7 +577,7 @@
                 grid-template-areas: 
                     "left graficos"
                     "medidas medidas";
-                gap: 20px;
+                gap: 25px;
             }
             
             .left-col {
@@ -442,106 +593,102 @@
             }
         }
         
-        /* TABELAS RESPONSIVAS */
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 8px;
-            border: 1px solid #333;
+        /* Gráficos */
+        .graficos-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
         }
         
-        table { 
-            width: 100%; 
-            text-align: left; 
-            border-collapse: collapse; 
-            margin-top: 15px; 
-            display: block;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        th, td { 
-            padding: 10px 8px; 
-            border-bottom: 1px solid #333; 
-            white-space: nowrap;
-            min-width: 100px;
-        }
-        
-        @media (max-width: 768px) {
-            th, td {
-                padding: 8px 6px;
-                font-size: 13px;
+        @media (min-width: 768px) {
+            .graficos-container {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             }
         }
         
-        th { 
-            color: #aaa; 
-            font-size: 0.9em; 
-            background-color: #2a2a2a;
-        }
-        
-        .sem-dados { 
-            color: #777; 
-            font-style: italic; 
-            padding: 20px; 
-            text-align: center; 
-        }
-
-        /* MODAIS RESPONSIVAS */
-        .modal { 
-            display: none; 
-            position: fixed; 
-            z-index: 1000; 
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.9); 
-            padding: 15px;
-        }
-        
-        .modal-content { 
-            background-color: #1e1e1e; 
-            margin: 5% auto; 
-            padding: 20px; 
-            border: 1px solid #333; 
-            width: 100%; 
-            max-width: 450px; 
-            border-radius: 10px; 
+        .chart-card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            height: 320px;
+            min-height: 320px;
             position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         @media (max-width: 480px) {
-            .modal-content {
-                margin: 10% auto;
-                padding: 15px;
-                max-width: 95%;
+            .chart-card {
+                height: 300px;
+                min-height: 300px;
+                padding: 16px;
             }
         }
         
-        .close { 
-            color: #aaa; 
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px; 
-            font-weight: bold; 
-            cursor: pointer;
-            z-index: 2;
+        .chart-card canvas {
+            width: 100% !important;
+            height: 250px !important;
         }
         
-        .close:hover, .close:focus { 
-            color: #e0e0e0; 
-            text-decoration: none; 
+        @media (max-width: 480px) {
+            .chart-card canvas {
+                height: 230px !important;
+            }
         }
-
+        
+        /* Labels */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            color: #aaa;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        
+        h2, h3, h4 {
+            margin-top: 0;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        h2 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 1.4em;
+                margin-bottom: 16px;
+            }
+        }
+        
+        h3 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+        
+        h4 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #333, transparent);
+            margin: 25px 0;
+        }
+        
         /* Controles flexíveis */
         .flex-controls {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
         @media (min-width: 768px) {
@@ -562,7 +709,7 @@
         .mobile-stack {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         
         @media (min-width: 768px) {
@@ -574,8 +721,8 @@
         
         .action-buttons {
             display: flex;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 10px;
+            margin-top: 12px;
         }
         
         @media (min-width: 768px) {
@@ -586,94 +733,37 @@
         
         /* Botão Renomear Aluno */
         .btn-renomear-aluno { 
-            background-color: #00d4ff; 
+            background: linear-gradient(90deg, #00d4ff, #00a3cc); 
             color: #1e1e1e; 
             font-weight: bold; 
         }
         
-        /* Gráficos */
-        .graficos-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-top: 20px;
+        .btn-renomear-aluno:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
         }
         
-        @media (min-width: 768px) {
-            .graficos-container {
-                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            }
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #777;
         }
         
-        .chart-card {
-            background: #1e1e1e;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            height: 300px;
-            min-height: 300px;
-            position: relative;
+        .loading::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
         }
         
-        @media (max-width: 480px) {
-            .chart-card {
-                height: 280px;
-                min-height: 280px;
-                padding: 12px;
-            }
-        }
-        
-        .chart-card canvas {
-            width: 100% !important;
-            height: 230px !important;
-        }
-        
-        @media (max-width: 480px) {
-            .chart-card canvas {
-                height: 210px !important;
-            }
-        }
-        
-        /* Labels */
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-            color: #aaa;
-            font-weight: 500;
-        }
-        
-        h2, h3, h4 {
-            margin-top: 0;
-            color: #00d4ff;
-        }
-        
-        h2 {
-            font-size: 1.5em;
-            margin-bottom: 15px;
-        }
-        
-        @media (max-width: 480px) {
-            h2 {
-                font-size: 1.3em;
-                margin-bottom: 12px;
-            }
-        }
-        
-        h3 {
-            font-size: 1.3em;
-            margin-bottom: 10px;
-        }
-        
-        h4 {
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-        
-        hr {
-            border: none;
-            border-top: 1px solid #333;
-            margin: 20px 0;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -681,29 +771,39 @@
 <body>
 
     <div id="login-screen" style="display:none;">
-        <h2>Acesso Restrito - Painel do Professor</h2>
+        <div class="logo-header" style="border-bottom: none; background: transparent; padding: 0 0 20px 0; margin: 0;">
+            <h1 class="logo">GYM PRO</h1>
+            <p class="logo-subtitle">Painel do Treinador</p>
+        </div>
+        <h2>Acesso Restrito</h2>
         <input type="email" id="login-email" placeholder="E-mail" required>
         <input type="password" id="login-senha" placeholder="Senha" required>
         <button class="btn-save" onclick="fazerLogin()">Entrar</button>
-        <p id="login-erro" style="color: #dc3545; margin-top: 10px;"></p>
+        <p id="login-erro" style="color: #dc3545; margin-top: 15px; font-size: 14px;"></p>
     </div>
 
     <div id="main-content" style="display:none;">
-        <div class="main-header">
-            <h1>Painel do Professor</h1>
-            <button class="btn-save" onclick="fazerLogout()" style="width: auto; margin: 0; background-color: #dc3545; min-width: 100px;">Sair</button>
+        <!-- Logo Centralizado no Topo -->
+        <div class="logo-header">
+            <h1 class="logo">GYM PRO</h1>
+            <p class="logo-subtitle">Painel do Treinador</p>
         </div>
+        
+        <!-- Botão Sair como setinha -->
+        <a href="javascript:void(0)" class="btn-sair" onclick="fazerLogout()" title="Sair">
+            ←
+        </a>
 
         <div class="container">
             <!-- Coluna Esquerda - Gestão de Alunos e Treino -->
             <div class="left-col">
                 <div class="card">
-                    <h2> Gestão de Alunos</h2>
-                    <button class="btn-save" onclick="abrirModalAluno()" style="background-color: #38c172; margin-top: 0;">+ Adicionar Novo Aluno</button>
+                    <h2>Gestão de Alunos</h2>
+                    <button class="btn-save" onclick="abrirModalAluno()" style="background: linear-gradient(90deg, #38c172, #2da25a);">+ Adicionar Novo Aluno</button>
                 </div>
                 
                 <div class="card">
-                    <h2> Editar Treino</h2>
+                    <h2>Editar Treino</h2>
                     
                     <div class="flex-controls">
                         <div>
@@ -722,29 +822,24 @@
                             <option value="">Selecione um dia</option>
                         </select>
                         <div class="action-buttons">
-                            <button class="btn-acao-aluno btn-compact" onclick="abrirModalDia()" title="Adicionar Novo Dia" style="background-color: #38c172; font-weight: normal;">+</button>
+                            <button class="btn-acao-aluno btn-compact" onclick="abrirModalDia()" title="Adicionar Novo Dia" style="background: linear-gradient(90deg, #38c172, #2da25a); font-weight: normal;">+</button>
                             <button class="btn-remover btn-compact" onclick="removerDiaTreino()" title="Remover Dia Selecionado">-</button>
                         </div>
                     </div>
                     
                     <hr>
                     
-                    <!-- Instruções para mobile -->
-                    <div class="mobile-instructions">
-                        <strong>💡 Dica Mobile:</strong> Para reordenar exercícios, toque e segure o ícone ☰, então arraste para cima ou para baixo.
+                    <!-- Instruções estilizadas -->
+                    <div class="instrucoes-treino">
+                        <strong>💡 Dica:</strong> Arraste o ícone ☰ para reordenar os exercícios.
                     </div>
-                    
-                    <p style="font-size: 0.9em; color: #aaa; margin-bottom: 15px;">
-                        <span style="color: #00d4ff;">💡 Dica:</span> Arraste o ícone ☰ para reordenar os exercícios.
-                    </p>
                     
                     <div id="mensagem-treino" class="mensagem" style="display:none;"></div>
                     
                     <div id="editor-container">
-                        <p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>
+                        <p style="color: #777; text-align: center; padding: 30px;">Selecione um dia de treino para começar</p>
                     </div>
                     
-                    <!-- REMOVI O BOTÃO "Enviar para Aluno" -->
                     <button class="btn-save" onclick="salvarTreino()">💾 Salvar Treino</button>
                 </div>
             </div>
@@ -761,7 +856,7 @@
                     </div>
                     
                     <div class="graficos-container" id="graficos-container">
-                        <div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px;">
+                        <div class="loading" style="grid-column: 1 / -1;">
                             Selecione um aluno para carregar os gráficos
                         </div>
                     </div>
@@ -779,22 +874,22 @@
                         </select>
                     </div>
                     
-                    <button class="btn-save" onclick="abrirModalMedida()" style="background-color: #38c172; margin-bottom: 20px;">+ Adicionar Medida</button>
+                    <button class="btn-save" onclick="abrirModalMedida()" style="background: linear-gradient(90deg, #38c172, #2da25a); margin-bottom: 20px;">+ Adicionar Medida</button>
                     
                     <h3>Histórico Completo</h3>
-                    <div class="table-container">
-                        <table>
+                    <div style="overflow-x: auto; border-radius: 8px; border: 1px solid #333;">
+                        <table style="width: 100%; text-align: left; border-collapse: collapse;">
                             <thead>
                                 <tr>
-                                    <th>Data</th>
-                                    <th>Peso (kg)</th>
-                                    <th>Cintura (cm)</th>
-                                    <th>Braço (cm)</th>
-                                    <th>Ações</th>
+                                    <th style="padding: 12px; background: rgba(0, 212, 255, 0.1); color: #00d4ff; border-bottom: 1px solid #333;">Data</th>
+                                    <th style="padding: 12px; background: rgba(0, 212, 255, 0.1); color: #00d4ff; border-bottom: 1px solid #333;">Peso (kg)</th>
+                                    <th style="padding: 12px; background: rgba(0, 212, 255, 0.1); color: #00d4ff; border-bottom: 1px solid #333;">Cintura (cm)</th>
+                                    <th style="padding: 12px; background: rgba(0, 212, 255, 0.1); color: #00d4ff; border-bottom: 1px solid #333;">Braço (cm)</th>
+                                    <th style="padding: 12px; background: rgba(0, 212, 255, 0.1); color: #00d4ff; border-bottom: 1px solid #333;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-medidas-completa">
-                                <tr><td colspan="5" class="sem-dados">Selecione um aluno</td></tr>
+                                <tr><td colspan="5" style="padding: 30px; text-align: center; color: #777; font-style: italic;">Selecione um aluno</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -808,10 +903,10 @@
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('modalAluno').style.display='none'">&times;</span>
             <h2 id="modal-titulo">Adicionar Novo Aluno</h2>
-            <label>Nome Completo do Aluno (Exato):</label>
+            <label>Nome Completo do Aluno:</label>
             <input type="text" id="aluno-nome" placeholder="Nome do Aluno" required>
             
-            <label>E-mail (Será usado como Chave):</label>
+            <label>E-mail do Aluno:</label>
             <input type="email" id="aluno-email" placeholder="email@aluno.com" required>
 
             <button class="btn-save" id="btn-salvar-aluno" onclick="salvarAluno()">Criar Aluno</button>
@@ -822,10 +917,10 @@
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('modalEditarNome').style.display='none'">&times;</span>
             <h2>✏️ Renomear Aluno</h2>
-            <p>Seu aluno atual é: <strong id="nome-aluno-antigo"></strong></p>
-            <p style="color:#ffc107; font-size: 0.9em;">Atenção: Renomear o aluno moverá *todos* os seus dados (medidas, treinos, presenças) para o novo nome.</p>
+            <p>Aluno atual: <strong id="nome-aluno-antigo"></strong></p>
+            <p style="color:#ffc107; font-size: 0.9em; background: rgba(255, 193, 7, 0.1); padding: 10px; border-radius: 6px;">Atenção: Renomear moverá todos os dados do aluno para o novo nome.</p>
             
-            <label>Novo Nome Completo do Aluno:</label>
+            <label>Novo Nome do Aluno:</label>
             <input type="text" id="novo-nome-aluno" placeholder="Novo Nome do Aluno" required>
 
             <button class="btn-save" id="btn-renomear" onclick="renomearAluno()">Confirmar Renomeação</button>
@@ -836,8 +931,8 @@
         <div class="modal-content">
             <span class="close" onclick="document.getElementById('modalDia').style.display='none'">&times;</span>
             <h2>Adicionar Novo Dia de Treino</h2>
-            <label>Nome do Dia (Ex: Dia D, Foco Peito):</label>
-            <input type="text" id="dia-nome" placeholder="Dia de Treino (Ex: Dia D)" required>
+            <label>Nome do Dia (ex: Peito, Costas, Pernas):</label>
+            <input type="text" id="dia-nome" placeholder="Dia de Treino" required>
             <button class="btn-save" onclick="salvarNovoDia()">Criar Dia</button>
         </div>
     </div>
@@ -871,7 +966,7 @@
         let graficos = {};
 
         // === 1. CONFIGURAÇÃO FIREBASE ===
-        const firebaseConfig = {
+       const firebaseConfig = {
   apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
   authDomain: "ptf03-26fdb.firebaseapp.com",
   databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
@@ -1005,7 +1100,9 @@
                 document.getElementById('selectAlunoMedidas')
             ];
             
-            selects.forEach(sel => sel.innerHTML = '<option>Carregando...</option>');
+            selects.forEach(sel => {
+                sel.innerHTML = '<option>Carregando alunos...</option>';
+            });
             
             database.ref('alunos/').once('value', snap => {
                 const alunos = snap.val();
@@ -1013,7 +1110,7 @@
                 selects.forEach(sel => {
                     sel.innerHTML = '';
                     if(!alunos) { 
-                        sel.innerHTML = '<option>Sem alunos</option>'; 
+                        sel.innerHTML = '<option>Nenhum aluno cadastrado</option>'; 
                         return; 
                     }
                     
@@ -1063,7 +1160,7 @@
         }
 
         // ============================================
-        // === FUNÇÕES DA TAB TREINO (TABELAS VERTICAIS) ====
+        // === FUNÇÕES DA TAB TREINO - LAYOUT MELHORADO ====
         // ============================================
 
         function carregarDiasTreinoDoAluno() {
@@ -1073,7 +1170,7 @@
             }
 
             const selDia = document.getElementById('selectDia');
-            selDia.innerHTML = '<option>Carregando Dias...</option>';
+            selDia.innerHTML = '<option>Carregando dias...</option>';
 
             database.ref(getPath('treinoModel')).once('value', snap => {
                 const treinoModel = snap.val();
@@ -1081,7 +1178,7 @@
                 
                 if (!treinoModel || Object.keys(treinoModel).length === 0) {
                     selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
-                    document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Nenhum treino criado. Adicione um novo dia.</p>';
+                    document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Nenhum treino criado. Adicione um novo dia.</p>';
                 } else {
                     Object.keys(treinoModel).forEach(dia => {
                         const option = document.createElement('option');
@@ -1091,7 +1188,7 @@
                     });
                     
                     // Se houver apenas um dia, selecione-o automaticamente
-                    if (selDia.options.length === 2) { // 1 opção + "Selecione um dia"
+                    if (selDia.options.length === 2) {
                         selDia.value = selDia.options[1].value;
                         setTimeout(() => {
                             carregarTreinoDia();
@@ -1104,7 +1201,7 @@
                     if (this.value) {
                         carregarTreinoDia();
                     } else {
-                        document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>';
+                        document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Selecione um dia de treino</p>';
                     }
                 };
             }).catch(error => {
@@ -1116,13 +1213,12 @@
         function carregarTreinoDia() {
             const dia = document.getElementById('selectDia').value;
             if(!alunoSelecionadoChave || !dia || dia === '') {
-                console.log("Condições não atendidas para carregar treino");
-                document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>';
+                document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Selecione um dia de treino</p>';
                 return;
             }
             
             const container = document.getElementById('editor-container');
-            container.innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Carregando treino...</p>';
+            container.innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Carregando treino...</p>';
 
             database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
                 const treino = snap.val();
@@ -1138,10 +1234,10 @@
                 treinoContainer.id = 'treino-sortable';
                 
                 if(Array.isArray(treino) && treino.length > 0) {
-                    treino.forEach(t => addLinhaTabela(t.nome, t.series, t.reps, treinoContainer));
+                    treino.forEach(t => addLinhaTabelaMelhorada(t.nome, t.series, t.reps, treinoContainer));
                 } else {
                     // Se não houver exercícios, adiciona uma linha vazia
-                    addLinhaTabela('', '', '', treinoContainer);
+                    addLinhaTabelaMelhorada('', '', '', treinoContainer);
                 }
                 
                 container.appendChild(treinoContainer);
@@ -1150,7 +1246,7 @@
                 btn.id = 'btnAddExercicio';
                 btn.textContent = 'Adicionar Exercício';
                 btn.onclick = function() {
-                    addLinhaTabela('', '', '', treinoContainer);
+                    addLinhaTabelaMelhorada('', '', '', treinoContainer);
                     initSortable();
                 };
                 container.appendChild(btn);
@@ -1160,11 +1256,11 @@
                 console.log(`Treino do dia "${dia}" carregado com sucesso`);
             }).catch(error => {
                 console.error("Erro ao carregar treino:", error);
-                container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 20px;">Erro ao carregar treino</p>';
+                container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 30px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">Erro ao carregar treino</p>';
             });
         }
 
-        function addLinhaTabela(nome = '', series = '', reps = '', container = null) {
+        function addLinhaTabelaMelhorada(nome = '', series = '', reps = '', container = null) {
             if (!container) {
                 container = document.getElementById('treino-sortable');
                 if (!container) return;
@@ -1172,24 +1268,24 @@
             
             const tabelaId = 'tabela-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
             const tabela = document.createElement('table');
-            tabela.className = 'tabela-treino-vertical';
+            tabela.className = 'tabela-treino';
             tabela.id = tabelaId;
             tabela.innerHTML = `
                 <thead>
                     <tr>
-                        <th>Ex</th>
-                        <th>Sér</th>
-                        <th>Rep</th>
-                        <th style="width: 60px;">Ações</th>
+                        <th>EX</th>
+                        <th>SÉR</th>
+                        <th>REP</th>
+                        <th>AÇÕES</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" class="i-nome" value="${nome}" placeholder="Exercício"></td>
+                        <td><input type="text" class="i-nome" value="${nome}" placeholder="Nome do exercício"></td>
                         <td><input type="text" class="i-series" value="${series}" placeholder="4"></td>
                         <td><input type="text" class="i-reps" value="${reps}" placeholder="10-12"></td>
                         <td>
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                                 <span class="handle-drag">☰</span>
                                 <button class="btn-remover" onclick="removerTabela('${tabelaId}')">×</button>
                             </div>
@@ -1205,7 +1301,11 @@
         function removerTabela(tabelaId) {
             const tabela = document.getElementById(tabelaId);
             if (tabela && confirm('Remover este exercício?')) {
-                tabela.remove();
+                tabela.style.opacity = '0.5';
+                tabela.style.transform = 'translateX(-100px)';
+                setTimeout(() => {
+                    tabela.remove();
+                }, 300);
             }
         }
 
@@ -1219,13 +1319,17 @@
             }
             
             editorSortable = Sortable.create(container, {
-                animation: 150, 
+                animation: 200, 
                 handle: '.handle-drag',
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 touchStartThreshold: 5,
+                onStart: function() {
+                    document.body.style.cursor = 'grabbing';
+                },
                 onEnd: function() {
-                    console.log("Ordem alterada");
+                    document.body.style.cursor = '';
+                    console.log("Ordem dos exercícios alterada");
                 }
             });
         }
@@ -1248,7 +1352,7 @@
                 return;
             }
             
-            const tabelas = container.querySelectorAll('.tabela-treino-vertical');
+            const tabelas = container.querySelectorAll('.tabela-treino');
             const dados = [];
             
             tabelas.forEach(tabela => {
@@ -1368,7 +1472,7 @@
                     .then(() => {
                         alert(`✅ Dia "${diaParaRemover}" removido com sucesso!`);
                         carregarDiasTreinoDoAluno();
-                        document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 20px;">Selecione um dia de treino</p>';
+                        document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Selecione um dia de treino</p>';
                     })
                     .catch(e => {
                         console.error("Erro ao remover dia:", e);
@@ -1385,7 +1489,7 @@
             if (!alunoSelecionadoChave) return;
             
             const container = document.getElementById('graficos-container');
-            container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 20px;">Carregando gráficos...</div>';
+            container.innerHTML = '<div class="loading">Carregando gráficos...</div>';
             
             // Destruir gráficos existentes
             Object.values(graficos).forEach(chart => {
@@ -1467,11 +1571,11 @@
                 }
                 
                 if (!temDados) {
-                    container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px;">Nenhum dado suficiente para gerar gráficos</div>';
+                    container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #777; padding: 50px; font-style: italic;">Nenhum dado suficiente para gerar gráficos</div>';
                 }
             }).catch(error => {
                 console.error("Erro ao carregar dados para gráficos:", error);
-                container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #dc3545; padding: 50px;">Erro ao carregar dados</div>';
+                container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #dc3545; padding: 50px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">Erro ao carregar dados</div>';
             });
         }
 
@@ -1519,7 +1623,8 @@
                             tension: 0.3,
                             borderWidth: 2,
                             pointRadius: 4,
-                            pointHoverRadius: 6
+                            pointHoverRadius: 6,
+                            fill: true
                         },
                         {
                             label: 'Cintura (cm)',
@@ -1529,7 +1634,8 @@
                             tension: 0.3,
                             borderWidth: 2,
                             pointRadius: 4,
-                            pointHoverRadius: 6
+                            pointHoverRadius: 6,
+                            fill: true
                         },
                         {
                             label: 'Braço (cm)',
@@ -1539,7 +1645,8 @@
                             tension: 0.3,
                             borderWidth: 2,
                             pointRadius: 4,
-                            pointHoverRadius: 6
+                            pointHoverRadius: 6,
+                            fill: true
                         }
                     ]
                 },
@@ -1837,13 +1944,13 @@
             if (!alunoSelecionadoChave) return;
             
             const tbody = document.getElementById('tabela-medidas-completa');
-            tbody.innerHTML = '<tr><td colspan="5" class="sem-dados">Carregando...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="padding: 30px; text-align: center; color: #777;">Carregando...</td></tr>';
             
             database.ref(getPath('medidas')).once('value', snap => {
                 tbody.innerHTML = '';
                 
                 if (!snap.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="sem-dados">Nenhuma medida registrada</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="padding: 30px; text-align: center; color: #777; font-style: italic;">Nenhuma medida registrada</td></tr>';
                     return;
                 }
                 
@@ -1877,12 +1984,12 @@
                     }
                     
                     tr.innerHTML = `
-                        <td>${dataFormatada}</td>
-                        <td>${medida.peso ? parseFloat(medida.peso).toFixed(1) + ' kg' : '-'}</td>
-                        <td>${medida.cintura ? parseFloat(medida.cintura).toFixed(1) + ' cm' : '-'}</td>
-                        <td>${medida.braco ? parseFloat(medida.braco).toFixed(1) + ' cm' : '-'}</td>
-                        <td>
-                            <button class="btn-pequeno btn-remover" onclick="excluirMedida('${medida.id}')" style="padding: 6px 10px; font-size: 12px;">🗑️</button>
+                        <td style="padding: 12px; border-bottom: 1px solid #333;">${dataFormatada}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #333;">${medida.peso ? parseFloat(medida.peso).toFixed(1) + ' kg' : '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #333;">${medida.cintura ? parseFloat(medida.cintura).toFixed(1) + ' cm' : '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #333;">${medida.braco ? parseFloat(medida.braco).toFixed(1) + ' cm' : '-'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #333;">
+                            <button class="btn-pequeno btn-remover" onclick="excluirMedida('${medida.id}')" style="padding: 8px 12px; font-size: 12px; background: rgba(220, 53, 69, 0.9);">🗑️</button>
                         </td>
                     `;
                     
@@ -1890,7 +1997,7 @@
                 });
             }).catch(error => {
                 console.error("Erro ao carregar medidas:", error);
-                tbody.innerHTML = '<tr><td colspan="5" class="sem-dados" style="color: #dc3545;">Erro ao carregar medidas</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="padding: 30px; text-align: center; color: #dc3545; background: rgba(220, 53, 69, 0.1);">Erro ao carregar medidas</td></tr>';
             });
         }
 
