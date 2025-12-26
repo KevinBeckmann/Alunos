@@ -1050,15 +1050,15 @@
         let graficos = {};
 
         // === 1. CONFIGURAÇÃO FIREBASE ===
-       const firebaseConfig = {
-  apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
-  authDomain: "ptf03-26fdb.firebaseapp.com",
-  databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
-  projectId: "ptf03-26fdb",
-  storageBucket: "ptf03-26fdb.firebasestorage.app",
-  messagingSenderId: "1020981883676",
-  appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
+            authDomain: "ptf03-26fdb.firebaseapp.com",
+            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+            projectId: "ptf03-26fdb",
+            storageBucket: "ptf03-26fdb.firebasestorage.app",
+            messagingSenderId: "1020981883676",
+            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+        };
         
         try {
             const app = firebase.initializeApp(firebaseConfig);
@@ -1246,7 +1246,7 @@
         }
 
         // ============================================
-        // === FUNÇÕES DA TAB TREINO - LAYOUT MELHORADO ====
+        // === FUNÇÕES DA TAB TREINO - CORRIGIDAS ====
         // ============================================
 
         function carregarDiasTreinoDoAluno() {
@@ -1258,22 +1258,33 @@
             const selDia = document.getElementById('selectDia');
             selDia.innerHTML = '<option>Carregando dias...</option>';
 
-            database.ref(getPath('treinoModel')).once('value', snap => {
+            // VERIFICAÇÃO DE ESTRUTURA
+            console.log(`🔍 Buscando treinoModel em: alunos/${alunoSelecionadoChave}/treinoModel`);
+            
+            database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).once('value', snap => {
                 const treinoModel = snap.val();
+                console.log('✅ Dados encontrados no treinoModel:', treinoModel);
+                
                 selDia.innerHTML = '<option value="">Selecione um dia</option>';
                 
                 if (!treinoModel || Object.keys(treinoModel).length === 0) {
+                    console.log('⚠️ Nenhum treino encontrado para este aluno');
                     selDia.innerHTML = '<option value="">Nenhum treino criado</option>';
                     document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Nenhum treino criado. Adicione um novo dia.</p>';
                 } else {
-                    Object.keys(treinoModel).forEach(dia => {
+                    console.log(`✅ ${Object.keys(treinoModel).length} dias encontrados:`, Object.keys(treinoModel));
+                    
+                    // Ordena os dias alfabeticamente
+                    const diasOrdenados = Object.keys(treinoModel).sort();
+                    
+                    diasOrdenados.forEach(dia => {
                         const option = document.createElement('option');
                         option.value = dia;
                         option.textContent = dia;
                         selDia.appendChild(option);
                     });
                     
-                    // Se houver apenas um dia, selecione-o automaticamente
+                    // Se houver apenas um dia, seleciona-o automaticamente
                     if (selDia.options.length === 2) {
                         selDia.value = selDia.options[1].value;
                         setTimeout(() => {
@@ -1282,17 +1293,21 @@
                     }
                 }
                 
+                // Configura o evento de mudança
                 selDia.onchange = null;
                 selDia.onchange = function() {
                     if (this.value) {
+                        console.log(`📌 Dia selecionado: ${this.value}`);
                         carregarTreinoDia();
                     } else {
                         document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Selecione um dia de treino</p>';
                     }
                 };
             }).catch(error => {
-                console.error("Erro ao carregar dias:", error);
+                console.error("❌ Erro ao carregar dias:", error);
                 selDia.innerHTML = '<option value="">Erro ao carregar</option>';
+                document.getElementById('editor-container').innerHTML = 
+                    '<p style="color: #dc3545; text-align: center; padding: 30px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">Erro ao carregar: ' + error.message + '</p>';
             });
         }
 
@@ -1306,8 +1321,12 @@
             const container = document.getElementById('editor-container');
             container.innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Carregando treino...</p>';
 
-            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
+            console.log(`🔍 Carregando treino para: alunos/${alunoSelecionadoChave}/treinoModel/${dia}`);
+
+            database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${dia}`).once('value', snap => {
                 const treino = snap.val();
+                console.log(`✅ Dados do treino "${dia}":`, treino);
+                
                 container.innerHTML = '';
                 
                 if (editorSortable) {
@@ -1320,9 +1339,18 @@
                 treinoContainer.id = 'treino-sortable';
                 
                 if(Array.isArray(treino) && treino.length > 0) {
-                    treino.forEach(t => addLinhaTabelaMelhorada(t.nome, t.series, t.reps, treinoContainer));
+                    console.log(`✅ ${treino.length} exercícios encontrados`);
+                    treino.forEach((t, index) => {
+                        console.log(`Exercício ${index + 1}:`, t);
+                        addLinhaTabelaMelhorada(t.nome || t.exercicio || '', t.series || t.series || '', t.reps || t.repetitions || '', treinoContainer);
+                    });
+                } else if (treino && typeof treino === 'string') {
+                    // Se for string (formato antigo)
+                    console.log(`⚠️ Formato antigo (string): "${treino}"`);
+                    addLinhaTabelaMelhorada(treino, '', '', treinoContainer);
                 } else {
                     // Se não houver exercícios, adiciona uma linha vazia
+                    console.log('⚠️ Nenhum exercício encontrado, criando linha vazia');
                     addLinhaTabelaMelhorada('', '', '', treinoContainer);
                 }
                 
@@ -1339,10 +1367,10 @@
                 
                 initSortable();
                 
-                console.log(`Treino do dia "${dia}" carregado com sucesso`);
+                console.log(`✅ Treino do dia "${dia}" carregado com sucesso`);
             }).catch(error => {
-                console.error("Erro ao carregar treino:", error);
-                container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 30px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">Erro ao carregar treino</p>';
+                console.error("❌ Erro ao carregar treino:", error);
+                container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 30px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">Erro ao carregar treino: ' + error.message + '</p>';
             });
         }
 
@@ -1462,19 +1490,27 @@
             
             mostrarMensagem('Salvando treino...', 'sucesso');
             
-            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
+            console.log(`💾 Salvando treino em: alunos/${alunoSelecionadoChave}/treinoModel/${dia}`);
+            console.log('Dados a salvar:', dados);
+            
+            database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${dia}`).set(dados)
                 .then(() => {
+                    console.log(`✅ Treino "${dia}" salvo com sucesso!`);
                     mostrarMensagem('✅ Treino salvo com sucesso!', 'sucesso');
-                    console.log(`Treino "${dia}" salvo com ${dados.length} exercícios`);
+                    
+                    // Verifica se foi salvo
+                    database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${dia}`).once('value', snap => {
+                        console.log('Verificação pós-salvar:', snap.val());
+                    });
                 })
                 .catch(e => {
-                    console.error("Erro ao salvar treino:", e);
+                    console.error("❌ Erro ao salvar treino:", e);
                     mostrarMensagem('❌ Erro ao salvar treino: ' + e.message, 'erro');
                 });
         }
 
         // ============================================
-        // === FUNÇÕES DE DIAS DE TREINO ====
+        // === FUNÇÕES DE DIAS DE TREINO - CORRIGIDAS ====
         // ============================================
 
         function abrirModalDia() {
@@ -1498,39 +1534,109 @@
                 return;
             }
 
-            // Verifica se o dia já existe
-            database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
-                if (snap.exists()) {
-                    alert(`O dia "${nomeDia}" já existe!`);
+            // Verifica se o aluno existe
+            database.ref(`alunos/${alunoSelecionadoChave}`).once('value', alunoSnap => {
+                if (!alunoSnap.exists()) {
+                    alert(`❌ Aluno "${alunoSelecionadoNome}" não encontrado!`);
                     return;
                 }
 
-                // Cria o novo dia com array vazio
-                database.ref(getPath(`treinoModel/${nomeDia}`)).set([])
-                    .then(() => {
-                        alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
-                        document.getElementById('modalDia').style.display = 'none';
-                        
-                        // Atualiza a lista de dias
-                        carregarDiasTreinoDoAluno();
-                        
-                        // Seleciona o novo dia automaticamente
-                        setTimeout(() => {
-                            const selectDia = document.getElementById('selectDia');
-                            selectDia.value = nomeDia;
-                            // Aguarda um pouco e carrega o treino
-                            setTimeout(() => {
-                                carregarTreinoDia();
-                            }, 500);
-                        }, 300);
-                    })
-                    .catch(e => {
-                        console.error("Erro ao criar dia:", e);
-                        alert('Erro ao criar dia: ' + e.message);
-                    });
+                console.log(`🔍 Verificando se o dia "${nomeDia}" já existe...`);
+                console.log(`Caminho: alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`);
+
+                // Verifica se o dia já existe
+                database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`).once('value', snap => {
+                    if (snap.exists()) {
+                        console.log(`❌ Dia "${nomeDia}" já existe!`);
+                        alert(`O dia "${nomeDia}" já existe!`);
+                        return;
+                    }
+
+                    // Cria o novo dia com array vazio
+                    console.log(`💾 Criando novo dia "${nomeDia}"...`);
+                    
+                    database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`).set([])
+                        .then(() => {
+                            console.log(`✅ Dia "${nomeDia}" criado com sucesso!`);
+                            
+                            // Verifica se realmente foi salvo
+                            return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`).once('value');
+                        })
+                        .then(verificarSnap => {
+                            console.log('✅ Verificação pós-criação:', verificarSnap.val());
+                            
+                            if (verificarSnap.exists()) {
+                                alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
+                                document.getElementById('modalDia').style.display = 'none';
+                                
+                                // Atualiza a lista de dias
+                                carregarDiasTreinoDoAluno();
+                                
+                                // Seleciona o novo dia automaticamente
+                                setTimeout(() => {
+                                    const selectDia = document.getElementById('selectDia');
+                                    selectDia.value = nomeDia;
+                                    // Aguarda e carrega o treino
+                                    setTimeout(() => {
+                                        carregarTreinoDia();
+                                    }, 500);
+                                }, 300);
+                            } else {
+                                throw new Error('Dia não foi salvo no Firebase');
+                            }
+                        })
+                        .catch(e => {
+                            console.error("❌ Erro ao criar dia:", e);
+                            alert('Erro ao criar dia: ' + e.message + '\nCódigo: ' + e.code);
+                            
+                            // Tenta método alternativo se o primeiro falhar
+                            tentarSalvarDiaAlternativo(nomeDia);
+                        });
+                }).catch(e => {
+                    console.error("❌ Erro ao verificar dia:", e);
+                    alert('Erro ao verificar se o dia existe: ' + e.message);
+                });
             }).catch(e => {
-                console.error("Erro ao verificar dia:", e);
-                alert('Erro ao verificar se o dia existe: ' + e.message);
+                alert('Erro ao verificar aluno: ' + e.message);
+            });
+        }
+
+        function tentarSalvarDiaAlternativo(nomeDia) {
+            console.log(`🔄 Tentando método alternativo para salvar dia "${nomeDia}"...`);
+            
+            // Tenta primeiro garantir que a estrutura treinoModel existe
+            database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).once('value', snap => {
+                if (!snap.exists()) {
+                    console.log('⚠️ treinoModel não existe, criando...');
+                    // Cria o nó treinoModel se não existir
+                    return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).set({});
+                }
+                return Promise.resolve();
+            })
+            .then(() => {
+                // Agora cria o dia específico
+                return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`).set([]);
+            })
+            .then(() => {
+                console.log(`✅ Dia "${nomeDia}" criado (método alternativo)!`);
+                alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
+                document.getElementById('modalDia').style.display = 'none';
+                
+                // Atualiza a lista de dias
+                carregarDiasTreinoDoAluno();
+                
+                // Seleciona o novo dia automaticamente
+                setTimeout(() => {
+                    const selectDia = document.getElementById('selectDia');
+                    selectDia.value = nomeDia;
+                    setTimeout(() => {
+                        carregarTreinoDia();
+                    }, 500);
+                }, 300);
+            })
+            .catch(e => {
+                console.error('❌ Método alternativo também falhou:', e);
+                alert('Falha completa ao criar dia: ' + e.message);
             });
         }
 
@@ -1554,14 +1660,17 @@
             }
 
             if (confirm(`Tem certeza que deseja EXCLUIR o dia "${diaParaRemover}"?`)) {
-                database.ref(getPath(`treinoModel/${diaParaRemover}`)).remove()
+                console.log(`🗑️ Removendo dia: alunos/${alunoSelecionadoChave}/treinoModel/${diaParaRemover}`);
+                
+                database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${diaParaRemover}`).remove()
                     .then(() => {
+                        console.log(`✅ Dia "${diaParaRemover}" removido com sucesso!`);
                         alert(`✅ Dia "${diaParaRemover}" removido com sucesso!`);
                         carregarDiasTreinoDoAluno();
                         document.getElementById('editor-container').innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Selecione um dia de treino</p>';
                     })
                     .catch(e => {
-                        console.error("Erro ao remover dia:", e);
+                        console.error("❌ Erro ao remover dia:", e);
                         mostrarMensagem('Erro ao remover dia: ' + e.message, 'erro');
                     });
             }
