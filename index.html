@@ -1,39 +1,4 @@
-A causa principal é que o `index` do aluno ainda está lendo o treino no formato ANTIGO (lista simples de exercícios) enquanto o painel do professor passou a salvar no formato NOVO:
 
-```json
-alunos/{aluno}/treinoModel/{dia} = {
-  criadoEm: 173529...
-  atualizadoEm: 173529...
-  exercicios: [
-    { nome: "Supino reto", series: "4", reps: "10-12" },
-    ...
-  ]
-}
-```
-
-No seu `index` o código de leitura ainda faz:
-
-```js
-database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
-    ...
-    snap.forEach(childSnapshot => {
-        const t = childSnapshot.val();
-        if (t && t.nome) { ... }
-    });
-});
-```
-
-Como agora `treinoModel/{dia}` é um objeto com a propriedade `exercicios`, não há mais filhos `nome`, então nada é renderizado.
-
-Abaixo está o **index do aluno completo e ajustado**, mantendo todo o resto do código, mas corrigindo:
-
-1. `carregarTreinoDoProfessor(dia)`: passa a ler tanto formato novo (`exercicios`) quanto o antigo (array direto), igual ao painel do professor.
-2. `carregarDiasTreino()`: continua listando os dias, funciona com o formato novo.
-3. Pequenos ajustes de mensagens para ficar claro quando não há treino.
-
-Copie e substitua seu `indexalunohto.txt` inteiro por este arquivo:
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 
