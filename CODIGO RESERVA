@@ -796,7 +796,7 @@
             });
         }
 
-        // Finalizar treino (registra em treinosFinalizados)
+        // Finalizar treino (registra em treinosFinalizados e limpa checks)
         function finalizarTreino() {
             try {
                 const select = document.getElementById('seletorTreino');
@@ -848,6 +848,9 @@
                         contarTreinosDoMes();
                         marcarTreinoNoCalendario(new Date());
                         carregarTreinosFinalizados();
+
+                        // Limpa status e checkboxes desse dia
+                        limparStatusTreinoDoDia(dia);
                     })
                     .catch(err => {
                         console.error('Erro ao salvar treino finalizado:', err);
@@ -1399,6 +1402,28 @@
                         li.classList.add('concluido');
                     }
                 });
+            });
+        }
+
+        // Limpa status e desmarca todos os exercícios do dia após finalizar treino
+        function limparStatusTreinoDoDia(dia) {
+            // Remove o status salvo no Firebase
+            database.ref(getPath(`treino_status/${dia}`)).remove()
+                .then(() => {
+                    console.log('Status de treino limpo para o dia:', dia);
+                })
+                .catch(err => {
+                    console.warn('Erro ao limpar status de treino do dia:', dia, err);
+                });
+
+            // Desmarca visualmente todos os exercícios
+            const listaEl = document.getElementById('lista-treino-dinamico');
+            if (!listaEl) return;
+
+            listaEl.querySelectorAll('li.exercicio-item').forEach(li => {
+                const cb = li.querySelector('input[type="checkbox"]');
+                if (cb) cb.checked = false;
+                li.classList.remove('concluido');
             });
         }
 
