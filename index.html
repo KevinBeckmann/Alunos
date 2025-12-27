@@ -616,37 +616,76 @@
             });
         }
 
-        // Your web app's Firebase configuration
-       // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
-  authDomain: "ptf03-26fdb.firebaseapp.com",
-  databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
-  projectId: "ptf03-26fdb",
-  storageBucket: "ptf03-26fdb.firebasestorage.app",
-  messagingSenderId: "1020981883676",
-  appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
-};
+        // Firebase config
+        const firebaseConfig = {
+          apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
+          authDomain: "ptf03-26fdb.firebaseapp.com",
+          databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+          projectId: "ptf03-26fdb",
+          storageBucket: "ptf03-26fdb.firebasestorage.app",
+          messagingSenderId: "1020981883676",
+          appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+        };
 
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // ✅ FIX: separar nome digitado vs chave real no Firebase
         let alunoNome = '';
+        let alunoChave = ''; // <- esta é a chave REAL do nó em /alunos/
+
         let pesoChart;
         let chartTreinos = null;
         let coresPorTreino = {
-            'A': '#ff6b6b', // Vermelho alaranjado
-            'B': '#4ecdc4', // Turquesa
-            'C': '#ffd166', // Amarelo
-            'D': '#06d6a0', // Verde
-            'E': '#118ab2', // Azul
-            'F': '#ef476f', // Rosa
-            'G': '#073b4c', // Azul escuro
-            'default': '#6c757d' // Cinza para outros
+            'A': '#ff6b6b',
+            'B': '#4ecdc4',
+            'C': '#ffd166',
+            'D': '#06d6a0',
+            'E': '#118ab2',
+            'F': '#ef476f',
+            'G': '#073b4c',
+            'default': '#6c757d'
         };
 
+        // ✅ FIX: getPath usa alunoChave (não nome digitado)
         function getPath(sub) {
-            return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
+            return `alunos/${alunoChave}/${sub}`;
+        }
+
+        // ✅ FIX: normalização de texto para comparar nomes (remove acento, lower, etc.)
+        function normalizeName(str) {
+            return (str || '')
+                .trim()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, ' ')
+                .toLowerCase();
+        }
+
+        // ✅ FIX: tenta resolver a chave do aluno no Firebase (preferência: info.nome)
+        async function resolverChaveAlunoPeloNome(nomeDigitado) {
+            const nomeNorm = normalizeName(nomeDigitado);
+
+            const snap = await database.ref('alunos').once('value');
+            const alunos = snap.val() || {};
+
+            // 1) tenta match por info.nome
+            for (const chave in alunos) {
+                const nomeInfo = alunos[chave]?.info?.nome;
+                if (normalizeName(nomeInfo) === nomeNorm) {
+                    return chave;
+                }
+            }
+
+            // 2) fallback: tenta match por chave (com _ e espaços)
+            const tentativa = normalizeName(nomeDigitado).replace(/\s/g, '_');
+            for (const chave in alunos) {
+                const chaveNorm = normalizeName(chave.replace(/_/g, ' ')).replace(/\s/g, '_');
+                if (chaveNorm === tentativa) {
+                    return chave;
+                }
+            }
+
+            return '';
         }
 
         const rawData = [
@@ -684,43 +723,73 @@ const firebaseConfig = {
             return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
         }
 
-        function obterNomeAluno() {
+        async function obterNomeAluno() {
             const nomeLocal = localStorage.getItem('nomeAluno');
+            const chaveLocal = localStorage.getItem('alunoChave'); // ✅ FIX
+
             if (!nomeLocal) {
                 document.getElementById('modal-nome').style.display = 'flex';
-            } else {
-                alunoNome = nomeLocal;
-                start();
+                return;
             }
+
+            alunoNome = nomeLocal;
+
+            // ✅ FIX: se já temos a chave salva, usa
+            if (chaveLocal) {
+                alunoChave = chaveLocal;
+                start();
+                return;
+            }
+
+            // ✅ FIX: tenta resolver chave pelo nome
+            const chave = await resolverChaveAlunoPeloNome(alunoNome);
+            if (!chave) {
+                alert('Não encontrei seu cadastro no sistema. Peça ao professor para cadastrar seu nome corretamente.');
+                localStorage.removeItem('nomeAluno');
+                document.getElementById('modal-nome').style.display = 'flex';
+                return;
+            }
+
+            alunoChave = chave;
+            localStorage.setItem('alunoChave', alunoChave);
+            start();
         }
 
-        function salvarNomeModal() {
+        async function salvarNomeModal() {
             const n = document.getElementById('nomeModalInput').value.trim();
             if (n.length < 2) return alert('Por favor, insira um nome válido!');
+
             alunoNome = n;
             localStorage.setItem('nomeAluno', n);
+
+            // ✅ FIX: resolve chave ao entrar
+            const chave = await resolverChaveAlunoPeloNome(alunoNome);
+            if (!chave) {
+                alert('Não encontrei seu cadastro no sistema. Peça ao professor para cadastrar seu nome corretamente.');
+                localStorage.removeItem('nomeAluno');
+                return;
+            }
+
+            alunoChave = chave;
+            localStorage.setItem('alunoChave', alunoChave);
+
             document.getElementById('modal-nome').style.display = 'none';
             start();
         }
 
-        // Função para carregar os dias de treino dinamicamente
+        // ✅ FIX: carregar dias (sem mudar seu layout/fluxo)
         function carregarDiasTreino() {
             const select = document.getElementById('seletorTreino');
-            
-            // Limpa opções atuais
             select.innerHTML = '<option value="">Carregando...</option>';
             
-            // Busca os dias de treino disponíveis no Firebase
             database.ref(getPath('treinoModel')).once('value', snapshot => {
                 if (!snapshot.exists()) {
                     select.innerHTML = '<option value="">Nenhum treino disponível</option>';
                     return;
                 }
                 
-                // Limpa as opções
                 select.innerHTML = '';
                 
-                // Adiciona cada dia encontrado
                 snapshot.forEach(childSnapshot => {
                     const dia = childSnapshot.key;
                     const option = document.createElement('option');
@@ -729,13 +798,83 @@ const firebaseConfig = {
                     select.appendChild(option);
                 });
                 
-                // Carrega o primeiro treino por padrão
                 if (select.options.length > 0) {
                     select.value = select.options[0].value;
                     carregarTreinoDoProfessor(select.value);
                 }
             });
         }
+
+        // ✅ FIX: carregar treino suporta formato antigo (array) e novo ({exercicios: []})
+        function carregarTreinoDoProfessor(dia) {
+            const treinoContainer = document.getElementById('treino-dinamico-container');
+            
+            treinoContainer.innerHTML = `
+                <h3 style="color:#ff9933;">${dia}</h3>
+                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                        Carregando treino...
+                    </li>
+                </ul>
+                <div style="margin-top:10px;">
+                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
+                </div>
+            `;
+            
+            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
+                const ul = document.getElementById('lista-treino-dinamico');
+                ul.innerHTML = '';
+                
+                if (!snap.exists()) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Treino não encontrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
+                
+                const raw = snap.val();
+                const exercicios = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.exercicios) ? raw.exercicios : []);
+                
+                if (!Array.isArray(exercicios) || exercicios.length === 0) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Nenhum exercício cadastrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
+
+                let contador = 0;
+                exercicios.forEach(t => {
+                    contador++;
+                    if (t && t.nome) {
+                        const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
+                        const li = document.createElement('li');
+                        li.className = 'exercicio-item';
+                        li.setAttribute('data-exercicio', id);
+                        li.innerHTML = `
+                            <div class="exercicio-info">
+                                <strong>${t.nome}</strong>
+                                <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
+                                ${t.nota ? `<br><small style="color:#ccc;">${t.nota}</small>` : ''}
+                            </div>
+                            <div class="checkbox-container">
+                                <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
+                            </div>
+                        `;
+                        ul.appendChild(li);
+                    }
+                });
+                
+                carregarCheckboxes(dia);
+            });
+        }
+
+        // ====== O RESTO DO SEU CÓDIGO PERMANECE IGUAL ======
+        // IMPORTANTE: abaixo estão as funções que você tinha no indexalunoht.txt original.
+        // Eu mantive elas sem alteração (exceto chamadas ao getPath que agora usa alunoChave).
 
         // Função: finalizarTreino (salva treino finalizado com Firebase SDK)
         function finalizarTreino() {
@@ -1139,6 +1278,7 @@ const firebaseConfig = {
             }
         }
 
+        // ======== A PARTIR DAQUI É O SEU CÓDIGO ORIGINAL (SEM MUDANÇAS) ========
         function inicializarGrafico() {
             const ex = document.getElementById('seletorExercicio').value;
             database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
@@ -1240,64 +1380,6 @@ const firebaseConfig = {
                     div.innerHTML =
                         `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura||'-'} | Braço: ${d.braco||'-'}`;
                 });
-            });
-        }
-
-        function carregarTreinoDoProfessor(dia) {
-            const treinoContainer = document.getElementById('treino-dinamico-container');
-            
-            // Atualiza o conteúdo do container
-            treinoContainer.innerHTML = `
-                <h3 style="color:#ff9933;">${dia}</h3>
-                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                        Carregando treino...
-                    </li>
-                </ul>
-                <div style="margin-top:10px;">
-                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
-                </div>
-            `;
-            
-            // Busca os exercícios do dia específico
-            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
-                const ul = document.getElementById('lista-treino-dinamico');
-                ul.innerHTML = '';
-                
-                if (!snap.exists()) {
-                    ul.innerHTML = `
-                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                            Treino não encontrado para ${dia}
-                        </li>
-                    `;
-                    return;
-                }
-                
-                let contador = 0;
-                snap.forEach(childSnapshot => {
-                    contador++;
-                    const t = childSnapshot.val();
-                    if (t && t.nome) {
-                        const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
-                        const li = document.createElement('li');
-                        li.className = 'exercicio-item';
-                        li.setAttribute('data-exercicio', id);
-                        li.innerHTML = `
-                            <div class="exercicio-info">
-                                <strong>${t.nome}</strong>
-                                <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
-                                ${t.nota ? `<br><small style="color:#ccc;">${t.nota}</small>` : ''}
-                            </div>
-                            <div class="checkbox-container">
-                                <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
-                            </div>
-                        `;
-                        ul.appendChild(li);
-                    }
-                });
-                
-                // Carrega status dos checkboxes
-                carregarCheckboxes(dia);
             });
         }
 
