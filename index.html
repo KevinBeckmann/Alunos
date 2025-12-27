@@ -4,22 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    
     <!-- Meta tags PWA adicionadas para instalabilidade -->
     <meta name="theme-color" content="#000000">
     <meta name="description" content="Dashboard do Aluno - Acompanhe seu treino, medidas e progresso">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Dashboard Aluno">
-
+    
     <!-- Link para o manifest.json -->
     <link rel="manifest" href="manifest.json">
-
+    
     <!-- Ícones para dispositivos Apple -->
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-
+    
     <title>Dashboard do Aluno - Dark Mode</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
@@ -92,7 +92,6 @@
             .container {
                 grid-template-columns: 1fr 1fr;
             }
-
             #chart-card {
                 grid-column: 1 / 3;
                 order: 1;
@@ -103,7 +102,6 @@
             .container {
                 grid-template-columns: 1fr 1fr 1fr;
             }
-
             #chart-card {
                 grid-column: auto;
                 order: initial;
@@ -343,21 +341,21 @@
         #ai-resposta strong {
             color: #ff9933;
         }
-
+        
         /* Status de treino */
         #status-treino {
             margin-top: 15px;
             text-align: center;
             position: relative;
         }
-
+        
         .grafico-treinos-container {
             max-width: 100%;
             margin: 10px auto;
             height: 250px;
             position: relative;
         }
-
+        
         /* Botão discreto de reset */
         .mini-reset-btn {
             position: absolute;
@@ -378,16 +376,16 @@
             transition: all 0.3s;
             z-index: 10;
         }
-
+        
         .mini-reset-btn:hover {
             background-color: rgba(220, 53, 69, 1);
             transform: scale(1.1);
         }
-
+        
         .mini-reset-btn i {
             font-style: normal;
         }
-
+        
         /* Legenda melhorada */
         #legenda-cores {
             margin-top: 15px;
@@ -400,7 +398,7 @@
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
         }
-
+        
         .legenda-item {
             display: flex;
             align-items: center;
@@ -423,18 +421,18 @@
             <h3>Bem-vindo(a)!</h3>
             <p>Por favor, insira seu nome:</p>
             <input type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva"
-                style="
-                    width: 100%;
-                    padding: 12px;
-                    margin-bottom: 12px;
-                    background-color: rgba(255,255,255,0.08);
-                    color: #f0f0f0;
-                    text-align: center;
-                    border: 1px solid rgba(255,255,255,0.3);
-                    border-radius: 6px;
-                    display: block;
-                    box-sizing: border-box;
-                ">
+    style="
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        background-color: rgba(255,255,255,0.08);
+        color: #f0f0f0;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 6px;
+        display: block;
+        box-sizing: border-box;
+    ">
 
             <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
         </div>
@@ -515,7 +513,7 @@
             <hr style="border-color: rgba(255, 255, 255, 0.2);">
 
             <p style="text-align: center;">
-                <strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff9933">...</span> |
+                <strong>Aluno:</strong> <span id="nome-aluno" style="color:#ff9933">...</span> | 
                 <strong>Data:</strong> <span id="data-atual"></span>
             </p>
 
@@ -531,17 +529,16 @@
             <h2> IA PTF3</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta"
-                placeholder="Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'"></textarea>
+            <textarea id="exercicioPergunta" placeholder= "Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'" ></textarea>
 
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
             <div id="ai-resposta">
-
+                
             </div>
         </div>
-
+        
         <div id="presenca-card" class="card">
             <h2> Presença Mensal</h2>
             <p style="text-align: center;">Clique nas datas para marcar.</p>
@@ -559,59 +556,48 @@
                 </thead>
                 <tbody id="calendario-body"></tbody>
             </table>
-
+            
             <!-- STATUS DE TREINO E GRÁFICO COM CORES DINÂMICAS -->
-            <div id="status-treino" class="card"
-                style="margin-top:15px; text-align:center; border: 1px solid rgba(255,255,255,0.1); padding: 15px;">
+            <div id="status-treino" class="card" style="margin-top:15px; text-align:center; border: 1px solid rgba(255,255,255,0.1); padding: 15px;">
                 <h3 style="color:#ff9933; margin-top: 0;">Histórico de Treinos</h3>
-
+                
                 <!-- Botão discreto de reset -->
                 <button class="mini-reset-btn" onclick="resetarDados('treinos')" title="Resetar Histórico de Treinos">
                     <i>↺</i>
                 </button>
-
+                
                 <p id="ultimo-treino" style="color:#ccc; font-size: 0.9em;">Carregando último treino...</p>
                 <p id="contador-treinos" style="color:#ffd700; font-weight:bold; font-size: 1.1em;">Treinos no mês: 0</p>
 
                 <div class="grafico-treinos-container">
                     <canvas id="graficoTreinos" height="250"></canvas>
                 </div>
-
+                
                 <!-- LEGENDA DAS CORES (será atualizada dinamicamente) -->
                 <div id="legenda-cores">
                     <div class="legenda-item">
-                        <div
-                            style="width: 12px; height: 12px; background-color: #ff6b6b; margin-right: 5px; border-radius: 2px;">
-                        </div>
+                        <div style="width: 12px; height: 12px; background-color: #ff6b6b; margin-right: 5px; border-radius: 2px;"></div>
                         <span style="color: #ccc;">Treino A</span>
                     </div>
                     <div class="legenda-item">
-                        <div
-                            style="width: 12px; height: 12px; background-color: #4ecdc4; margin-right: 5px; border-radius: 2px;">
-                        </div>
+                        <div style="width: 12px; height: 12px; background-color: #4ecdc4; margin-right: 5px; border-radius: 2px;"></div>
                         <span style="color: #ccc;">Treino B</span>
                     </div>
                     <div class="legenda-item">
-                        <div
-                            style="width: 12px; height: 12px; background-color: #ffd166; margin-right: 5px; border-radius: 2px;">
-                        </div>
+                        <div style="width: 12px; height: 12px; background-color: #ffd166; margin-right: 5px; border-radius: 2px;"></div>
                         <span style="color: #ccc;">Treino C</span>
                     </div>
                     <div class="legenda-item">
-                        <div
-                            style="width: 12px; height: 12px; background-color: #06d6a0; margin-right: 5px; border-radius: 2px;">
-                        </div>
+                        <div style="width: 12px; height: 12px; background-color: #06d6a0; margin-right: 5px; border-radius: 2px;"></div>
                         <span style="color: #ccc;">Treino D</span>
                     </div>
                     <div class="legenda-item">
-                        <div
-                            style="width: 12px; height: 12px; background-color: #118ab2; margin-right: 5px; border-radius: 2px;">
-                        </div>
+                        <div style="width: 12px; height: 12px; background-color: #118ab2; margin-right: 5px; border-radius: 2px;"></div>
                         <span style="color: #ccc;">Outros</span>
                     </div>
                 </div>
             </div>
-
+    
             <button class="reset-btn" onclick="resetarDados('presenca')">Resetar Presenças</button>
         </div>
 
@@ -630,22 +616,24 @@
             });
         }
 
-        // Firebase configuration
+        // Firebase config
         const firebaseConfig = {
-            apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
-            authDomain: "ptf03-26fdb.firebaseapp.com",
-            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
-            projectId: "ptf03-26fdb",
-            storageBucket: "ptf03-26fdb.firebasestorage.app",
-            messagingSenderId: "1020981883676",
-            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+          apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
+          authDomain: "ptf03-26fdb.firebaseapp.com",
+          databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+          projectId: "ptf03-26fdb",
+          storageBucket: "ptf03-26fdb.firebasestorage.app",
+          messagingSenderId: "1020981883676",
+          appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
         };
 
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // ======= FIX PRINCIPAL: usar chave real do aluno =======
         let alunoNome = '';
-        let alunoChave = ''; // ✅ chave real do aluno no Firebase
+        let alunoChave = ''; // chave real em /alunos/<alunoChave>
+
         let pesoChart;
         let chartTreinos = null;
         let coresPorTreino = {
@@ -659,13 +647,11 @@
             'default': '#6c757d' // Cinza para outros
         };
 
-        // ✅ FIX: usar a chave real quando existir
-        function getPath(sub) {
-            const chave = alunoChave || alunoNome.replace(/\s/g, '_');
-            return `alunos/${chave}/${sub}`;
+        function normalize(str) {
+            return (str || '').toLowerCase().replace(/[^a-z0-9\s]/g, '');
         }
 
-        // ✅ FIX: normalização para comparar nomes (acentos, espaços, etc.)
+        // normaliza nome com acento e case, para comparar
         function normalizeName(str) {
             return (str || '')
                 .trim()
@@ -674,14 +660,13 @@
                 .toLowerCase();
         }
 
-        // ✅ FIX: resolve a chave do aluno no Firebase (preferência: info.nome)
+        // resolve a chave do nó do aluno comparando com /alunos/<chave>/info/nome
         async function resolverChaveAlunoPeloNome(nomeDigitado) {
             const nomeNorm = normalizeName(nomeDigitado);
-
             const snap = await database.ref('alunos').once('value');
             const alunos = snap.val() || {};
 
-            // 1) tenta match por info.nome
+            // 1) tenta por info.nome
             for (const chave in alunos) {
                 const nomeInfo = alunos[chave]?.info?.nome;
                 if (normalizeName(nomeInfo) === nomeNorm) {
@@ -689,7 +674,7 @@
                 }
             }
 
-            // 2) fallback: tenta match por chave (com _ e espaços)
+            // 2) fallback: tenta comparar com a chave (convertendo _ pra espaço)
             const tentativa = normalizeName(nomeDigitado).replace(/\s/g, '_');
             for (const chave in alunos) {
                 const chaveNorm = normalizeName(chave.replace(/_/g, ' ')).replace(/\s/g, '_');
@@ -699,6 +684,11 @@
             }
 
             return '';
+        }
+
+        // agora getPath usa alunoChave
+        function getPath(sub) {
+            return `alunos/${alunoChave}/${sub}`;
         }
 
         const rawData = [
@@ -732,11 +722,6 @@
             }
         });
 
-        function normalize(str) {
-            return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
-        }
-
-        // ✅ FIX: agora obtém chave real antes de start()
         async function obterNomeAluno() {
             const nomeLocal = localStorage.getItem('nomeAluno');
             const chaveLocal = localStorage.getItem('alunoChave');
@@ -748,16 +733,19 @@
 
             alunoNome = nomeLocal;
 
+            // se já tiver chave em cache, usa
             if (chaveLocal) {
                 alunoChave = chaveLocal;
                 start();
                 return;
             }
 
+            // resolve chave real do firebase
             const chave = await resolverChaveAlunoPeloNome(alunoNome);
             if (!chave) {
                 alert('Não encontrei seu cadastro no sistema. Peça ao professor para cadastrar seu nome corretamente.');
                 localStorage.removeItem('nomeAluno');
+                localStorage.removeItem('alunoChave');
                 document.getElementById('modal-nome').style.display = 'flex';
                 return;
             }
@@ -767,11 +755,9 @@
             start();
         }
 
-        // ✅ FIX: ao salvar nome, resolve chave real antes de start()
         async function salvarNomeModal() {
             const n = document.getElementById('nomeModalInput').value.trim();
             if (n.length < 2) return alert('Por favor, insira um nome válido!');
-
             alunoNome = n;
             localStorage.setItem('nomeAluno', n);
 
@@ -779,6 +765,7 @@
             if (!chave) {
                 alert('Não encontrei seu cadastro no sistema. Peça ao professor para cadastrar seu nome corretamente.');
                 localStorage.removeItem('nomeAluno');
+                localStorage.removeItem('alunoChave');
                 return;
             }
 
@@ -792,21 +779,16 @@
         // Função para carregar os dias de treino dinamicamente
         function carregarDiasTreino() {
             const select = document.getElementById('seletorTreino');
-
-            // Limpa opções atuais
             select.innerHTML = '<option value="">Carregando...</option>';
 
-            // Busca os dias de treino disponíveis no Firebase
             database.ref(getPath('treinoModel')).once('value', snapshot => {
                 if (!snapshot.exists()) {
                     select.innerHTML = '<option value="">Nenhum treino disponível</option>';
                     return;
                 }
 
-                // Limpa as opções
                 select.innerHTML = '';
 
-                // Adiciona cada dia encontrado
                 snapshot.forEach(childSnapshot => {
                     const dia = childSnapshot.key;
                     const option = document.createElement('option');
@@ -815,7 +797,6 @@
                     select.appendChild(option);
                 });
 
-                // Carrega o primeiro treino por padrão
                 if (select.options.length > 0) {
                     select.value = select.options[0].value;
                     carregarTreinoDoProfessor(select.value);
@@ -828,23 +809,22 @@
             try {
                 const select = document.getElementById('seletorTreino');
                 const dia = select ? select.value : null;
-
+                
                 if (!dia) {
                     alert('Selecione um treino primeiro!');
                     return;
                 }
-
-                // Extrai o tipo do treino automaticamente
+                
                 const tipoTreino = extrairTipoTreino(dia);
                 const treinoComTipo = tipoTreino ? `${dia} (Treino ${tipoTreino})` : dia;
-
+                
                 const agora = new Date();
-                const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const dataLegivel = agora.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
                 const horaLegivel = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
+                
                 const listaEl = document.getElementById('lista-treino-dinamico');
                 const concluidos = [];
-
+                
                 if (listaEl) {
                     listaEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                         if (cb.checked) {
@@ -854,10 +834,10 @@
                         }
                     });
                 }
-
+                
                 const payload = {
-                    dia: treinoComTipo, // Salva com tipo incluído
-                    tipo: tipoTreino || extrairTipoTreinoManual(), // Tipo extraído
+                    dia: treinoComTipo,
+                    tipo: tipoTreino || extrairTipoTreinoManual(),
                     data: dataLegivel,
                     hora: horaLegivel,
                     timestamp: Date.now(),
@@ -865,14 +845,13 @@
                     concluidoCount: concluidos.length,
                     exerciciosConcluidos: concluidos
                 };
-
+                
                 console.log('Salvando treino:', payload);
-
+                
                 const ref = database.ref(getPath('treinosFinalizados')).push();
                 ref.set(payload)
                     .then(() => {
                         alert(`Treino ${treinoComTipo} registrado com sucesso!`);
-                        // Recarrega as estatísticas
                         carregarUltimoTreino();
                         contarTreinosDoMes();
                         marcarTreinoNoCalendario(new Date());
@@ -882,56 +861,36 @@
                         console.error('Erro ao salvar treino finalizado:', err);
                         alert('Erro ao registrar treino. Tente novamente.');
                     });
-            } catch (err) {
+            } catch(err) {
                 console.error('Erro em finalizarTreino():', err);
                 alert('Erro ao registrar treino. Tente novamente.');
             }
         }
 
-        // Função auxiliar para extrair tipo de treino - VERSÃO CORRIGIDA
         function extrairTipoTreino(diaString) {
             if (!diaString) return null;
-
-            // Converte para string
             const str = diaString.toString();
-
-            // Procura por padrões como "Treino A", "Dia A", "Treino: A", etc.
             const patterns = [
-                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,  // "Treino A", "Dia: B"
-                /\(([ABCDEFG])\)/i,                          // Entre parênteses "(A)"
-                /[:\-]\s*([ABCDEFG])/i,                      // Após dois pontos ou hífen
-                /\b([ABCDEFG])\b(?!\w)/i                     // Letra isolada
+                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,
+                /\(([ABCDEFG])\)/i,
+                /[:\-]\s*([ABCDEFG])/i,
+                /\b([ABCDEFG])\b(?!\w)/i
             ];
-
             for (const pattern of patterns) {
                 const match = str.match(pattern);
-                if (match && match[1]) {
-                    const tipo = match[1].toUpperCase();
-                    console.log(`Extraído de "${diaString}": ${tipo} (padrão: ${pattern})`);
-                    return tipo;
-                }
+                if (match && match[1]) return match[1].toUpperCase();
             }
-
-            // Verifica se o nome termina com letra
             const ultimoChar = str.trim().slice(-1);
-            if (ultimoChar.match(/[ABCDEFG]/i)) {
-                console.log(`Extraído (último char) de "${diaString}": ${ultimoChar.toUpperCase()}`);
-                return ultimoChar.toUpperCase();
-            }
-
-            console.log(`Nenhum tipo encontrado em: "${diaString}"`);
+            if (ultimoChar.match(/[ABCDEFG]/i)) return ultimoChar.toUpperCase();
             return null;
         }
 
-        // Função alternativa para determinar tipo quando não encontrado
         function extrairTipoTreinoManual() {
-            // Lógica de rotação: A → B → C → D → A...
             const ultimoTipo = localStorage.getItem('ultimoTipoTreino') || 'D';
             const tipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const indexAtual = tipos.indexOf(ultimoTipo);
             const proximoIndex = (indexAtual + 1) % tipos.length;
             const novoTipo = tipos[proximoIndex];
-
             localStorage.setItem('ultimoTipoTreino', novoTipo);
             return novoTipo;
         }
@@ -986,22 +945,18 @@
                         treino.id = c.key;
                         lista.push(treino);
                     });
-
+                    
                     console.log('Treinos carregados:', lista.length);
-
-                    // Renderiza o gráfico
                     renderTreinosBarChart(lista);
                 }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
-        // FUNÇÃO PRINCIPAL: Renderiza gráfico de barras com cores por tipo de treino
         function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
                 if (!canvas) return;
-
-                // Se não houver treinos, limpa o gráfico
+                
                 if (!treinosLista || treinosLista.length === 0) {
                     if (chartTreinos) chartTreinos.destroy();
                     chartTreinos = null;
@@ -1009,37 +964,25 @@
                     atualizarLegendaCores([], coresPorTreino);
                     return;
                 }
-
+                
                 canvas.style.display = 'block';
-
-                // Ordena por timestamp (mais antigo primeiro)
+                
                 const treinosOrdenados = treinosLista.slice().sort((a, b) => {
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
 
-                console.log('Treinos ordenados para gráfico:', treinosOrdenados);
-
-                // Labels com números sequenciais
                 const labels = treinosOrdenados.map((t, index) => `${index + 1}`);
-
-                // Dados: exercícios concluídos
                 const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
 
-                // Cores baseadas no tipo de treino - LÓGICA CORRIGIDA
                 const cores = treinosOrdenados.map(t => {
                     const tipo = t.tipo || extrairTipoTreino(t.dia);
-                    console.log(`Treino: "${t.dia}" -> Tipo: ${tipo} -> Cor: ${coresPorTreino[tipo] || coresPorTreino.default}`);
-
-                    if (tipo && coresPorTreino[tipo]) {
-                        return coresPorTreino[tipo];
-                    }
+                    if (tipo && coresPorTreino[tipo]) return coresPorTreino[tipo];
                     return coresPorTreino.default;
                 });
 
-                // Atualiza a legenda com os tipos presentes
                 atualizarLegendaCores(treinosOrdenados, coresPorTreino);
 
-                if (typeof Chart === 'undefined') {
+                if (typeof Chart === 'undefined') { 
                     console.warn('Chart.js não carregado, tentando novamente...');
                     setTimeout(() => renderTreinosBarChart(treinosLista), 1000);
                     return;
@@ -1066,51 +1009,45 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            x: {
+                            x: { 
                                 display: true,
-                                ticks: {
+                                ticks: { 
                                     color: '#f0f0f0',
                                     font: { size: 11 },
                                     maxRotation: 0,
                                     minRotation: 0
                                 },
-                                grid: {
-                                    display: false
-                                }
+                                grid: { display: false }
                             },
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { 
                                     color: '#f0f0f0',
                                     stepSize: 1,
                                     precision: 0
                                 },
                                 grid: { color: 'rgba(255,255,255,0.1)' },
-                                title: {
-                                    display: false
-                                }
+                                title: { display: false }
                             }
                         },
                         plugins: {
-                            legend: {
-                                display: false
-                            },
+                            legend: { display: false },
                             tooltip: {
                                 callbacks: {
-                                    title: function (context) {
+                                    title: function(context) {
                                         const treino = treinosOrdenados[context[0].dataIndex];
                                         const tipo = treino.tipo || extrairTipoTreino(treino.dia);
                                         const tipoStr = tipo ? ` (Treino ${tipo})` : '';
                                         return `Treino ${context[0].label}: ${treino.dia || 'Treino'}${tipoStr}`;
                                     },
-                                    label: function (context) {
+                                    label: function(context) {
                                         const treino = treinosOrdenados[context.dataIndex];
                                         let label = `Exercícios concluídos: ${context.raw}`;
                                         if (treino.data) label += ` | Data: ${treino.data}`;
                                         if (treino.hora) label += ` ${treino.hora}`;
                                         return label;
                                     },
-                                    afterLabel: function (context) {
+                                    afterLabel: function(context) {
                                         const treino = treinosOrdenados[context.dataIndex];
                                         if (treino.exerciciosConcluidos && treino.exerciciosConcluidos.length > 0) {
                                             return `Exercícios: ${treino.exerciciosConcluidos.slice(0, 3).join(', ')}${treino.exerciciosConcluidos.length > 3 ? '...' : ''}`;
@@ -1127,39 +1064,27 @@
                         }
                     }
                 });
-            } catch (err) {
+            } catch(err) { 
                 console.warn('renderTreinosBarChart erro:', err);
                 setTimeout(() => {
                     if (treinosLista) renderTreinosBarChart(treinosLista);
                 }, 2000);
             }
         }
-
-        // Função para atualizar a legenda baseada nos treinos reais
+        
         function atualizarLegendaCores(treinosOrdenados, coresPorTreino) {
             const tiposPresentes = new Set();
-
-            // Identifica quais tipos de treino estão presentes
             treinosOrdenados.forEach(t => {
                 const tipo = t.tipo || extrairTipoTreino(t.dia);
-                if (tipo) {
-                    tiposPresentes.add(tipo.toUpperCase());
-                }
+                if (tipo) tiposPresentes.add(tipo.toUpperCase());
             });
-
-            // Verifica se há treinos sem tipo específico
             const temOutros = treinosOrdenados.some(t => !(t.tipo || extrairTipoTreino(t.dia)));
-
-            // Ordena os tipos para consistência
             const todosTipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const tiposFiltrados = todosTipos.filter(t => tiposPresentes.has(t));
-
-            // Atualiza a legenda
+            
             const legendaContainer = document.getElementById('legenda-cores');
             if (legendaContainer) {
                 let html = '';
-
-                // Adiciona cada tipo presente
                 tiposFiltrados.forEach(tipo => {
                     if (coresPorTreino[tipo]) {
                         html += `
@@ -1170,8 +1095,6 @@
                         `;
                     }
                 });
-
-                // Adiciona "Outros" se houver treinos sem tipo específico
                 if (temOutros) {
                     html += `
                         <div class="legenda-item">
@@ -1180,42 +1103,35 @@
                         </div>
                     `;
                 }
-
-                // Se não houver nenhum tipo, mostra mensagem
                 if (tiposFiltrados.length === 0 && !temOutros) {
                     html = '<div style="color: #ccc; font-size: 0.8em;">Nenhum treino registrado</div>';
                 }
-
                 legendaContainer.innerHTML = html;
             }
         }
 
         function marcarTreinoNoCalendario(dataObj) {
             try {
-                const dia = String(dataObj.getDate()).padStart(2, '0');
-                const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+                const dia = String(dataObj.getDate()).padStart(2,'0');
+                const mes = String(dataObj.getMonth()+1).padStart(2,'0');
                 const ano = dataObj.getFullYear();
                 const chave = `${dia}-${mes}-${ano}`;
-                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e => console.warn('marcarTreinoNoCalendario erro', e));
-            } catch (e) { console.warn('marcarTreinoNoCalendario erro', e); }
+                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
+            } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
         }
 
         function start() {
             document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
             document.getElementById('nome-aluno').textContent = alunoNome;
             document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
-
+        
             inicializarGrafico();
             carregarUltimasMedidas();
             gerarCalendario();
-
-            // Carrega os dias de treino dinamicamente
             carregarDiasTreino();
-
             carregarUltimoTreino();
             contarTreinosDoMes();
-
-            // Aguarda Chart.js carregar e então renderiza os treinos
+            
             if (typeof Chart !== 'undefined') {
                 carregarTreinosFinalizados();
             } else {
@@ -1324,16 +1240,15 @@
                 snap.forEach(c => {
                     const d = c.val();
                     div.innerHTML =
-                        `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura || '-'} | Braço: ${d.braco || '-'}`;
+                        `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura||'-'} | Braço: ${d.braco||'-'}`;
                 });
             });
         }
 
-        // ✅ FIX: suporta treinoModel como lista (antigo) OU como objeto com filhos (atual)
+        // ======= FIX: ler treinoModel salvo como ARRAY (igual professor salva) =======
         function carregarTreinoDoProfessor(dia) {
             const treinoContainer = document.getElementById('treino-dinamico-container');
-
-            // Atualiza o conteúdo do container
+            
             treinoContainer.innerHTML = `
                 <h3 style="color:#ff9933;">${dia}</h3>
                 <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
@@ -1345,11 +1260,11 @@
                     <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
                 </div>
             `;
-
+            
             database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
                 const ul = document.getElementById('lista-treino-dinamico');
                 ul.innerHTML = '';
-
+                
                 if (!snap.exists()) {
                     ul.innerHTML = `
                         <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
@@ -1359,18 +1274,22 @@
                     return;
                 }
 
-                const raw = snap.val();
+                const treino = snap.val();
 
-                // se for array (set([]) ou set([{...}]))
-                const exercicios = Array.isArray(raw)
-                    ? raw
-                    // se for objeto com itens (push/children)
-                    : Object.values(raw || {});
+                // professor salva como array: [{nome, series, reps}, ...]
+                if (!Array.isArray(treino) || treino.length === 0) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Nenhum exercício cadastrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
 
                 let contador = 0;
-                exercicios.forEach(t => {
+                treino.forEach(t => {
+                    contador++;
                     if (t && t.nome) {
-                        contador++;
                         const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
                         const li = document.createElement('li');
                         li.className = 'exercicio-item';
@@ -1388,17 +1307,7 @@
                         ul.appendChild(li);
                     }
                 });
-
-                if (contador === 0) {
-                    ul.innerHTML = `
-                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                            Nenhum exercício cadastrado para ${dia}
-                        </li>
-                    `;
-                    return;
-                }
-
-                // Carrega status dos checkboxes
+                
                 carregarCheckboxes(dia);
             });
         }
@@ -1410,8 +1319,7 @@
             } else {
                 li.classList.remove('concluido');
             }
-
-            // Salva o status no Firebase
+            
             database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
         }
 
@@ -1446,7 +1354,7 @@
                     } else if (contadorDias > ultimoDiaMes) {
                         html += '<td></td>';
                     } else {
-                        const chaveData = `${String(contadorDias).padStart(2, '0')}-${String(mesAtual + 1).padStart(2, '0')}-${anoAtual}`;
+                        const chaveData = `${String(contadorDias).padStart(2,'0')}-${String(mesAtual+1).padStart(2,'0')}-${anoAtual}`;
                         html += `<td id="dia-${chaveData}" onclick="togglePresenca('${chaveData}')">${contadorDias}</td>`;
                         contadorDias++;
                     }
@@ -1486,7 +1394,7 @@
             const perguntaNormalizada = normalize(pergunta);
             const respostaDiv = document.getElementById('ai-resposta');
             const botao = document.querySelector('#ai-search-card .btn-primary');
-
+            
             if (pergunta.length < 3) {
                 respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
                 return;
@@ -1495,9 +1403,9 @@
             botao.disabled = true;
             botao.textContent = 'Pesquisando no Banco de Dados...';
             respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
-
+            
             await new Promise(resolve => setTimeout(resolve, 800));
-
+            
             let respostaTexto = '';
             let exercicioEncontrado = null;
 
@@ -1546,7 +1454,7 @@
                 .replace(/\n/g, '<br>');
 
             respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
-
+            
             botao.disabled = false;
             botao.textContent = 'Perguntar à IA';
         }
@@ -1597,5 +1505,4 @@
         }
     </script>
 </body>
-
 </html>
