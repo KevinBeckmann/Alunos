@@ -1078,12 +1078,58 @@
             } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
         }
 
-        function start() {
+        // >>> AJUSTE PRINCIPAL AQUI <<<
+        // Escolhe automaticamente, no carregamento, o exercício que tiver
+        // 3 ou mais registros de carga. Se não tiver, fica o padrão.
+        function escolherExercicioInicial() {
+            return new Promise((resolve) => {
+                const MIN_PONTOS = 3; // "mais de dois pontos"
+                
+                database.ref(getPath('cargas')).once('value')
+                    .then((snap) => {
+                        if (!snap.exists()) {
+                            // Nenhum dado de cargas ainda
+                            return resolve(null);
+                        }
+
+                        let melhorExercicio = null;
+
+                        snap.forEach((child) => {
+                            const nomeExercicio = child.key; // ex: "AgachamentoLivre"
+                            const qtdRegistros = child.numChildren();
+
+                            if (!melhorExercicio && qtdRegistros >= MIN_PONTOS) {
+                                melhorExercicio = nomeExercicio;
+                            }
+                        });
+
+                        resolve(melhorExercicio);
+                    })
+                    .catch((e) => {
+                        console.warn('Erro ao buscar cargas para exercício inicial:', e);
+                        resolve(null);
+                    });
+            });
+        }
+
+        async function start() {
             document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
             document.getElementById('nome-aluno').textContent = alunoNome;
             document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
-        
+
+            // 1) Descobrir qual exercício tem pelo menos 3 pontos
+            const exercicioInicial = await escolherExercicioInicial();
+
+            // 2) Se achou, muda o select para esse exercício
+            if (exercicioInicial) {
+                const seletor = document.getElementById('seletorExercicio');
+                if (seletor) {
+                    seletor.value = exercicioInicial;
+                }
+            }
+            // 3) Monta o gráfico já com o exercício escolhido
             inicializarGrafico();
+
             carregarUltimasMedidas();
             gerarCalendario();
             carregarDiasTreino();
