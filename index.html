@@ -407,75 +407,269 @@
             background: rgba(255, 255, 255, 0.05);
         }
         
-        /* AVATAR FIXO */
+        /* AVATAR FIXO COM APARÊNCIA EXATA DA IMAGEM */
         #avatar-fixo-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 100;
-            background-color: rgba(26, 26, 26, 0.9);
-            border: 2px solid #ff8c00;
-            border-radius: 10px;
-            padding: 10px;
-            width: 120px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff9d;
+            border-radius: 15px;
+            padding: 15px;
+            width: 180px;
+            height: 240px;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 157, 0.5),
+                inset 0 0 20px rgba(0, 255, 157, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
         
         #avatar-fixo-container:hover {
             transform: scale(1.05);
-            background-color: rgba(40, 40, 40, 0.95);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 157, 0.8),
+                inset 0 0 30px rgba(0, 255, 157, 0.2);
         }
         
         #avatar-toggle {
             position: absolute;
             top: -10px;
             left: -10px;
-            width: 25px;
-            height: 25px;
-            background-color: #ff8c00;
+            width: 30px;
+            height: 30px;
+            background-color: #00ff9d;
             color: #000;
             border: none;
             border-radius: 50%;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 101;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.8);
         }
         
-        .avatar-header {
+        .avatar-title-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .avatar-title {
+            font-size: 1.2em;
+            color: #00ff9d;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.8);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(90deg, #00ff9d, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        #avatar-controls {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 5px;
+            gap: 5px;
+            margin-top: 5px;
         }
         
-        #avatar-gender-select {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #f0f0f0;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .avatar-btn {
+            background-color: rgba(0, 255, 157, 0.1);
+            color: #00ff9d;
+            border: 1px solid #00ff9d;
             border-radius: 4px;
-            padding: 2px 5px;
+            padding: 3px 8px;
             font-size: 0.8em;
             cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .avatar-btn:hover {
+            background-color: #00ff9d;
+            color: #000;
+        }
+        
+        #avatar-canvas-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 5px 0;
         }
         
         #avatar-fixo {
-            width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-top: 5px;
+            width: 140px;
+            height: 140px;
+            border-radius: 10px;
+            display: block;
         }
         
-        .avatar-exercise-name {
-            font-size: 0.8em;
+        .avatar-status {
+            font-size: 0.85em;
             text-align: center;
-            color: #ff9933;
+            color: #00ff9d;
             margin-top: 5px;
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 255, 157, 0.8);
+            font-family: 'Courier New', monospace;
+            height: 20px;
+        }
+        
+        .avatar-instruction {
+            font-size: 0.7em;
+            text-align: center;
+            color: #aaa;
+            margin-top: 5px;
+            font-style: italic;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* MODAL DE DEMONSTRAÇÃO */
+        #demonstracao-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .demonstracao-content {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            border: 3px solid #00ff9d;
+            box-shadow: 
+                0 0 40px rgba(0, 255, 157, 0.8),
+                inset 0 0 20px rgba(0, 255, 157, 0.1);
+        }
+        
+        #demonstracao-canvas-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+        }
+        
+        #demonstracao-canvas {
+            width: 300px;
+            height: 300px;
+            border-radius: 10px;
+            display: block;
+            background-color: transparent;
+        }
+        
+        .demonstracao-titulo {
+            color: #00ff9d;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.8);
+        }
+        
+        .demonstracao-descricao {
+            color: #ccc;
+            text-align: left;
+            font-size: 0.9em;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid rgba(0, 255, 157, 0.3);
+            border-radius: 5px;
+            background: rgba(0, 255, 157, 0.05);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .demonstracao-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .demonstracao-btn {
+            background-color: rgba(0, 255, 157, 0.2);
+            color: #00ff9d;
+            border: 1px solid #00ff9d;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .demonstracao-btn:hover {
+            background-color: #00ff9d;
+            color: #000;
+            transform: scale(1.05);
+        }
+        
+        /* Botão na IA para demonstrar exercício */
+        #btn-demonstrar-avatar {
+            background-color: rgba(0, 255, 157, 0.2);
+            color: #00ff9d;
+            border: 1px solid #00ff9d;
+            border-radius: 4px;
+            padding: 8px 15px;
+            margin-top: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            font-family: 'Courier New', monospace;
+            width: 100%;
+        }
+        
+        #btn-demonstrar-avatar:hover {
+            background-color: #00ff9d;
+            color: #000;
+        }
+        
+        /* Efeitos visuais */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff9d, transparent);
+            animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 157, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 157, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            opacity: 0.3;
         }
         
         /* Responsividade do avatar */
@@ -483,8 +677,29 @@
             #avatar-fixo-container {
                 bottom: 10px;
                 right: 10px;
-                width: 100px;
-                padding: 8px;
+                width: 150px;
+                height: 210px;
+                padding: 12px;
+            }
+            
+            #avatar-canvas-container {
+                width: 120px;
+                height: 120px;
+            }
+            
+            #avatar-fixo {
+                width: 120px;
+                height: 120px;
+            }
+            
+            #demonstracao-canvas-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            #demonstracao-canvas {
+                width: 250px;
+                height: 250px;
             }
         }
         
@@ -492,7 +707,22 @@
             #avatar-fixo-container {
                 bottom: 5px;
                 right: 5px;
-                width: 90px;
+                width: 130px;
+                height: 190px;
+            }
+            
+            #avatar-canvas-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            #avatar-fixo {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .avatar-title {
+                font-size: 1em;
             }
         }
     </style>
@@ -618,9 +848,11 @@
             <h2> IA PTF3</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta" placeholder= "Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'" ></textarea>
+            <textarea id="exercicioPergunta" placeholder="Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'"></textarea>
 
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
+            
+            <button id="btn-demonstrar-avatar" onclick="demonstrarExercicioIA()">👁 VER DEMONSTRAÇÃO DO MOVIMENTO</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
             <div id="ai-resposta">
@@ -692,22 +924,69 @@
 
     </div>
     
-    <!-- AVATAR FIXO NO CANTO DA TELA -->
+    <!-- MODAL DE DEMONSTRAÇÃO -->
+    <div id="demonstracao-modal" class="modal-overlay">
+        <div class="demonstracao-content">
+            <div class="demonstracao-titulo" id="demonstracao-titulo">DEMONSTRAÇÃO DO EXERCÍCIO</div>
+            <p style="color: #aaa; font-size: 0.9em;">Observa atentamente a execução correta</p>
+            
+            <div id="demonstracao-canvas-container">
+                <canvas id="demonstracao-canvas" width="300" height="300"></canvas>
+                <div class="scan-line"></div>
+                <div class="grid-overlay"></div>
+            </div>
+            
+            <div class="demonstracao-descricao" id="demonstracao-descricao">
+                Aguarde a demonstração do movimento...
+            </div>
+            
+            <div class="demonstracao-controls">
+                <button class="demonstracao-btn" onclick="reproduzirMovimento()">▶ REPRODUZIR MOVIMENTO</button>
+                <button class="demonstracao-btn" onclick="fecharDemonstracao()">✖ FECHAR</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AVATAR FIXO NO CANTO DA TELA - APARÊNCIA PONDOT -->
     <div id="avatar-fixo-container">
         <button id="avatar-toggle" onclick="toggleAvatar()">▲</button>
-        <div class="avatar-header">
-            <span style="font-size: 0.9em; color: #ff8c00; font-weight: bold;">Meu Avatar</span>
-            <select id="avatar-gender-select" onchange="mudarGeneroAvatar()">
-                <option value="M">♂</option>
-                <option value="F">♀</option>
-            </select>
+        <div class="scan-line"></div>
+        <div class="grid-overlay"></div>
+        
+        <div class="avatar-title-container">
+            <div class="avatar-title" id="avatar-title">PONDOT</div>
         </div>
-        <canvas id="avatar-fixo" width="100" height="150"></canvas>
-        <div class="avatar-exercise-name" id="avatar-exercise-name">Em repouso</div>
+        
+        <div id="avatar-canvas-container">
+            <canvas id="avatar-fixo" width="140" height="140"></canvas>
+            <div class="scan-line"></div>
+            <div class="grid-overlay"></div>
+        </div>
+        
+        <div class="avatar-status" id="avatar-status">PRONTO</div>
+        
+        <div id="avatar-controls">
+            <button class="avatar-btn" onclick="mudarNome()">NOME</button>
+            <button class="avatar-btn" onclick="mostrarDemonstracao()">DEMO</button>
+        </div>
+        
+        <div class="avatar-instruction">Clique em DEMO para ver o movimento</div>
     </div>
 
     <script>
-        // Configuração do Firebase
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado com sucesso:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Falha ao registrar Service Worker:', error);
+                    });
+            });
+        }
+
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
@@ -718,43 +997,84 @@
             appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
         };
 
-        // Inicializar Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Variáveis globais
         let alunoNome = '';
         let pesoChart;
         let chartTreinos = null;
         let coresPorTreino = {
-            'A': '#ff6b6b',
-            'B': '#4ecdc4',
-            'C': '#ffd166',
-            'D': '#06d6a0',
-            'E': '#118ab2',
-            'F': '#ef476f',
-            'G': '#073b4c',
-            'default': '#6c757d'
+            'A': '#ff6b6b', // Vermelho alaranjado
+            'B': '#4ecdc4', // Turquesa
+            'C': '#ffd166', // Amarelo
+            'D': '#06d6a0', // Verde
+            'E': '#118ab2', // Azul
+            'F': '#ef476f', // Rosa
+            'G': '#073b4c', // Azul escuro
+            'default': '#6c757d' // Cinza para outros
         };
         
-        // Variáveis do avatar
-        let avatarGenero = 'M';
-        let avatarExercicioAtual = 'repouso';
-        let avatarMedidas = {
-            torax: 100,
-            braco: 35,
-            coxa: 55,
-            cintura: 85,
-            altura: 170
+        // Variáveis do avatar PONDOT
+        const nomesPONDOT = ["PONDOT", "Vientatas", "Loners", "Dotion", "Sinert", "Rengreo"];
+        let nomeAtualIndex = 0;
+        let exercicioDemonstracao = null;
+        let avatarAnimacaoAtiva = false;
+        let faseAnimacao = 0;
+        
+        // Cores do estilo PONDOT da imagem
+        const coresPONDOT = {
+            primaria: '#00ff9d', // Verde neon
+            secundaria: '#00ccff', // Azul neon
+            fundo: '#000000',
+            detalhe: '#ffffff',
+            grid: 'rgba(0, 255, 157, 0.1)'
         };
 
-        // Função para obter o caminho no Firebase
         function getPath(sub) {
-            const nomeChave = alunoNome.replace(/\s/g, '_').toLowerCase();
-            return `alunos/${nomeChave}/${sub}`;
+            return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
         }
 
-        // Função para obter nome do aluno
+        const rawData = [
+            "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco, pés firmes no chão. Segure a barra na largura dos ombros. Desça-a controladamente até o peito. Empurre a barra para cima, estendendo os braços. | Mantenha as escápulas retraídas (ombros para trás e para baixo) para estabilizar e proteger a articulação do ombro.",
+            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Gluteo Máximo, Isquiotibiais | Com a barra nas costas, desça o quadril como se fosse sentar em uma cadeira, mantendo o peito alto e a coluna neutra. Os joelhos devem seguir a direção dos pés. | A profundidade ideal é abaixo de 90 graus (se a mobilidade permitir). Distribua o peso nos calcanhares e evite que os joelhos 'caiam' para dentro.",
+            "Rosca Direta | Musculação | Braços | Bíceps Braquial, Braquial | Em pé, segure halteres ou barra com as palmas voltadas para cima. Mantenha os cotovelos fixos ao lado do corpo. Flexione os antebraços levando o peso em direção aos ombros. | Evite balançar o corpo para ajudar no movimento. Contraia o abdômen para estabilização.",
+            "Puxada Frontal | Musculação | Costas | Grande Dorsal, Bíceps, Romboides | Sentado no aparelho, segure a barra com as mãos afastadas na largura dos ombros. Puxe a barra em direção ao peito, mantendo o tronco reto. Retorne lentamente à posição inicial. | Contraia as escápulas no momento da puxada para melhor ativação muscular.",
+            "Elevação Pélvica | Musculação | Glúteos | Glúteo Máximo, Isquiotibiais | Deitado de costas com os joelhos flexionados e pés apoiados no chão. Eleve o quadril até formar uma linha reta entre joelhos, quadril e ombros. | Contraia os glúteos no topo do movimento por 1-2 segundos.",
+            "Tríceps Testa | Musculação | Braços | Tríceps Braquial | Deitado no banco, segure a barra ou halteres com os braços estendidos acima do peito. Flexione os cotovelos levando o peso em direção à testa. | Mantenha os cotovelos apontando para cima durante todo o movimento.",
+            "Desenvolvimento Militar | Musculação | Ombros | Deltóide Anterior, Médio, Posterior | Em pé ou sentado, segure halteres ou barra na altura dos ombros. Empurre os pesos para cima até estender os braços. Retorne controladamente. | Evite arquear as costas excessivamente durante o movimento.",
+            "Cadeira Extensora | Musculação | Pernas | Quadríceps | Sentado no aparelho, ajuste o apoio para a altura dos tornozelos. Estenda as pernas contra a resistência até joelhos totalmente estendidos. | Controle o retorno para maximizar a contração excêntrica."
+        ];
+
+        const bancoDeExercicios = {};
+
+        rawData.forEach(item => {
+            const parts = item.split(' | ');
+            if (parts.length === 6) {
+                const [nome, modalidade, categoria, musculos, execucao, dica] = parts;
+                const key = normalize(nome).replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+                const searchTerms = [
+                    ...nome.split(/\s+/).map(normalize),
+                    ...musculos.split(/,\s*/).map(normalize).filter(t => t.length > 2),
+                    normalize(categoria),
+                    normalize(modalidade)
+                ];
+
+                bancoDeExercicios[key] = {
+                    nome: nome,
+                    modalidade: modalidade,
+                    categoria: categoria,
+                    musculos: musculos,
+                    execucao: execucao,
+                    dica: dica,
+                    termos: [...new Set(searchTerms.filter(t => t))]
+                };
+            }
+        });
+
+        function normalize(str) {
+            return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+        }
+
         function obterNomeAluno() {
             const nomeLocal = localStorage.getItem('nomeAluno');
             if (!nomeLocal) {
@@ -765,219 +1085,564 @@
             }
         }
 
-        // Função para salvar nome
         function salvarNomeModal() {
             const n = document.getElementById('nomeModalInput').value.trim();
-            if (n.length < 2) {
-                alert('Por favor, insira um nome válido!');
-                return;
-            }
-            
+            if (n.length < 2) return alert('Por favor, insira um nome válido!');
             alunoNome = n;
             localStorage.setItem('nomeAluno', n);
             document.getElementById('modal-nome').style.display = 'none';
-            
-            // Cria estrutura inicial do aluno no Firebase
-            const nomeChave = alunoNome.replace(/\s/g, '_').toLowerCase();
-            database.ref(`alunos/${nomeChave}/info`).set({
-                nome: alunoNome,
-                criacao: Date.now()
-            }).then(() => {
-                start();
-            }).catch(error => {
-                console.error("Erro ao criar aluno:", error);
-                start(); // Continua mesmo com erro
-            });
+            start();
         }
 
-        // Função principal de inicialização
-        function start() {
-            document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
-            document.getElementById('nome-aluno').textContent = alunoNome;
-            document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
-        
-            inicializarGrafico();
-            carregarUltimasMedidas();
-            gerarCalendario();
+        // FUNÇÕES DO AVATAR PONDOT - Estilo exato da imagem
+        function inicializarAvatarPONDOT() {
+            desenharAvatarPONDOT();
+            atualizarStatus("SISTEMA ATIVO");
+        }
+
+        function desenharAvatarPONDOT() {
+            const canvas = document.getElementById('avatar-fixo');
+            const demoCanvas = document.getElementById('demonstracao-canvas');
             
-            // Carrega os dias de treino dinamicamente
-            carregarDiasTreino();
-        
-            carregarUltimoTreino();
-            contarTreinosDoMes();
+            if (!canvas) return;
             
-            // Inicializar avatar
-            atualizarMedidasAvatar();
+            const ctx = canvas.getContext('2d');
             
-            // Verificar avatar a cada 2 segundos
-            setInterval(detectarExercicioNoTreino, 2000);
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Aguarda Chart.js carregar e então renderiza os treinos
-            if (typeof Chart !== 'undefined') {
-                carregarTreinosFinalizados();
+            // Desenhar avatar no estilo PONDOT
+            desenharSilhuetaPONDOT(ctx, canvas.width, canvas.height, faseAnimacao);
+        }
+
+        function desenharSilhuetaPONDOT(ctx, width, height, fase = 0) {
+            // Fundo escuro
+            ctx.fillStyle = coresPONDOT.fundo;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Grid de fundo
+            ctx.strokeStyle = coresPONDOT.grid;
+            ctx.lineWidth = 0.5;
+            
+            // Linhas verticais
+            for (let x = 0; x <= width; x += 10) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            
+            // Linhas horizontais
+            for (let y = 0; y <= height; y += 10) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            // Silhueta humana estilizada - estilo PONDOT
+            ctx.fillStyle = coresPONDOT.primaria;
+            
+            // Cabeça (forma oval futurista)
+            ctx.beginPath();
+            ctx.ellipse(width/2, height*0.25, width*0.15, width*0.2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Detalhe da cabeça
+            ctx.fillStyle = coresPONDOT.fundo;
+            ctx.beginPath();
+            ctx.ellipse(width/2, height*0.25, width*0.12, width*0.16, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Olhos (pontos brilhantes)
+            ctx.fillStyle = coresPONDOT.primaria;
+            ctx.beginPath();
+            ctx.arc(width/2 - width*0.04, height*0.23, 2, 0, Math.PI * 2);
+            ctx.arc(width/2 + width*0.04, height*0.23, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Torso (forma geométrica angular)
+            ctx.fillStyle = coresPONDOT.primaria;
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.1, height*0.35);
+            ctx.lineTo(width/2 - width*0.15, height*0.55);
+            ctx.lineTo(width/2 + width*0.15, height*0.55);
+            ctx.lineTo(width/2 + width*0.1, height*0.35);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Detalhes do torso (linhas de energia)
+            ctx.strokeStyle = coresPONDOT.secundaria;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(width/2, height*0.35);
+            ctx.lineTo(width/2, height*0.55);
+            ctx.stroke();
+            
+            // Desenhar braços baseado no exercício e fase
+            if (exercicioDemonstracao && avatarAnimacaoAtiva) {
+                desenharBracosMovimento(ctx, width, height, exercicioDemonstracao, fase);
             } else {
-                setTimeout(() => {
-                    carregarTreinosFinalizados();
-                }, 1000);
+                desenharBracosNeutro(ctx, width, height);
+            }
+            
+            // Pernas (formas geométricas)
+            ctx.fillStyle = coresPONDOT.primaria;
+            // Perna esquerda
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.05, height*0.55);
+            ctx.lineTo(width/2 - width*0.08, height*0.8);
+            ctx.lineTo(width/2 - width*0.02, height*0.8);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Perna direita
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.05, height*0.55);
+            ctx.lineTo(width/2 + width*0.08, height*0.8);
+            ctx.lineTo(width/2 + width*0.02, height*0.8);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Efeito de brilho/aura
+            ctx.strokeStyle = coresPONDOT.primaria;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(width/2, height/2, width*0.25, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Efeito de partículas (pontinhos)
+            if (avatarAnimacaoAtiva) {
+                ctx.fillStyle = coresPONDOT.secundaria;
+                for (let i = 0; i < 10; i++) {
+                    const x = width/2 + Math.cos(Date.now()/500 + i) * 30;
+                    const y = height/2 + Math.sin(Date.now()/500 + i) * 30;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
 
-        // Função para inicializar gráfico de cargas
-        function inicializarGrafico() {
-            const ex = document.getElementById('seletorExercicio').value;
-            database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
-                const datas = [];
-                const pesos = [];
-                snap.forEach(c => {
-                    const v = c.val();
-                    if (v && v.data && v.peso) {
-                        datas.push(v.data);
-                        pesos.push(parseFloat(v.peso));
+        function desenharBracosNeutro(ctx, width, height) {
+            // Braços em posição neutra (ao lado do corpo)
+            ctx.fillStyle = coresPONDOT.primaria;
+            
+            // Braço esquerdo
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.1, height*0.35);
+            ctx.lineTo(width/2 - width*0.15, height*0.45);
+            ctx.lineTo(width/2 - width*0.05, height*0.45);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Braço direito
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.1, height*0.35);
+            ctx.lineTo(width/2 + width*0.15, height*0.45);
+            ctx.lineTo(width/2 + width*0.05, height*0.45);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function desenharBracosMovimento(ctx, width, height, exercicio, fase) {
+            ctx.fillStyle = coresPONDOT.primaria;
+            
+            switch(exercicio) {
+                case 'supino':
+                    desenharSupino(ctx, width, height, fase);
+                    break;
+                case 'agachamento':
+                    desenharAgachamento(ctx, width, height, fase);
+                    break;
+                case 'rosca':
+                    desenharRosca(ctx, width, height, fase);
+                    break;
+                case 'puxada':
+                    desenharPuxada(ctx, width, height, fase);
+                    break;
+                default:
+                    desenharBracosNeutro(ctx, width, height);
+            }
+        }
+
+        function desenharSupino(ctx, width, height, fase) {
+            const altura = fase % 2 === 0 ? 0.4 : 0.3;
+            
+            // Braços levantando/abaixando barra
+            // Braço esquerdo
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.1, height*0.35);
+            ctx.lineTo(width/2 - width*0.2, height*altura);
+            ctx.lineTo(width/2 - width*0.05, height*(altura+0.05));
+            ctx.closePath();
+            ctx.fill();
+            
+            // Braço direito
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.1, height*0.35);
+            ctx.lineTo(width/2 + width*0.2, height*altura);
+            ctx.lineTo(width/2 + width*0.05, height*(altura+0.05));
+            ctx.closePath();
+            ctx.fill();
+            
+            // Barra
+            ctx.fillStyle = coresPONDOT.secundaria;
+            ctx.fillRect(width/2 - width*0.22, altura*height - 3, width*0.44, 6);
+        }
+
+        function desenharAgachamento(ctx, width, height, fase) {
+            const profundidade = 0.55 + (fase % 2 === 0 ? 0.1 : 0);
+            
+            // Ajustar posição das pernas
+            // Perna esquerda flexionada
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.05, profundidade*height);
+            ctx.lineTo(width/2 - width*0.1, height*0.8);
+            ctx.lineTo(width/2 - width*0.01, height*0.8);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Perna direita flexionada
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.05, profundidade*height);
+            ctx.lineTo(width/2 + width*0.1, height*0.8);
+            ctx.lineTo(width/2 + width*0.01, height*0.8);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Braços segurando barra nas costas
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.1, height*0.35);
+            ctx.lineTo(width/2 - width*0.15, height*0.4);
+            ctx.lineTo(width/2 - width*0.05, height*0.4);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.1, height*0.35);
+            ctx.lineTo(width/2 + width*0.15, height*0.4);
+            ctx.lineTo(width/2 + width*0.05, height*0.4);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Barra nas costas
+            ctx.fillStyle = coresPONDOT.secundaria;
+            ctx.fillRect(width/2 - width*0.2, height*0.4, width*0.4, 6);
+        }
+
+        function desenharRosca(ctx, width, height, fase) {
+            const angulo = (fase % 4) * 0.2;
+            
+            // Braço esquerdo flexionado
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.1, height*0.35);
+            ctx.lineTo(width/2 - width*0.2, height*(0.35 + angulo));
+            ctx.lineTo(width/2 - width*0.05, height*(0.4 + angulo));
+            ctx.closePath();
+            ctx.fill();
+            
+            // Braço direito flexionado
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.1, height*0.35);
+            ctx.lineTo(width/2 + width*0.2, height*(0.35 + angulo));
+            ctx.lineTo(width/2 + width*0.05, height*(0.4 + angulo));
+            ctx.closePath();
+            ctx.fill();
+            
+            // Halteres
+            ctx.fillStyle = coresPONDOT.secundaria;
+            ctx.beginPath();
+            ctx.arc(width/2 - width*0.2, height*(0.35 + angulo), 5, 0, Math.PI * 2);
+            ctx.arc(width/2 + width*0.2, height*(0.35 + angulo), 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function desenharPuxada(ctx, width, height, fase) {
+            const altura = 0.25 + (fase % 2 === 0 ? 0.1 : 0);
+            
+            // Braços puxando
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.1, height*0.35);
+            ctx.lineTo(width/2 - width*0.15, altura*height);
+            ctx.lineTo(width/2 - width*0.05, (altura+0.05)*height);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.1, height*0.35);
+            ctx.lineTo(width/2 + width*0.15, altura*height);
+            ctx.lineTo(width/2 + width*0.05, (altura+0.05)*height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Barra sendo puxada
+            ctx.fillStyle = coresPONDOT.secundaria;
+            ctx.fillRect(width/2 - width*0.2, altura*height - 3, width*0.4, 6);
+        }
+
+        function toggleAvatar() {
+            const container = document.getElementById('avatar-fixo-container');
+            const toggleBtn = document.getElementById('avatar-toggle');
+            
+            if (container.style.display === 'none') {
+                container.style.display = 'flex';
+                toggleBtn.textContent = '▲';
+            } else {
+                container.style.display = 'none';
+                toggleBtn.textContent = '▼';
+            }
+        }
+
+        function mudarNome() {
+            nomeAtualIndex = (nomeAtualIndex + 1) % nomesPONDOT.length;
+            document.getElementById('avatar-title').textContent = nomesPONDOT[nomeAtualIndex];
+            atualizarStatus("IDENTIDADE: " + nomesPONDOT[nomeAtualIndex]);
+            
+            // Efeito visual de mudança
+            const title = document.getElementById('avatar-title');
+            title.style.transform = 'scale(1.2)';
+            title.style.color = coresPONDOT.secundaria;
+            setTimeout(() => {
+                title.style.transform = 'scale(1)';
+                title.style.color = '';
+            }, 300);
+        }
+
+        function atualizarStatus(status) {
+            document.getElementById('avatar-status').textContent = status;
+        }
+
+        function mostrarDemonstracao() {
+            const textoPergunta = document.getElementById('exercicioPergunta').value.trim();
+            if (!textoPergunta) {
+                atualizarStatus("PERGUNTA NÃO ENCONTRADA");
+                setTimeout(() => atualizarStatus("PRONTO"), 2000);
+                return;
+            }
+            
+            const pergunta = textoPergunta.toLowerCase();
+            let exercicioDetectado = null;
+            
+            // Detectar exercício baseado na pergunta
+            if (pergunta.includes('agachamento') || pergunta.includes('agacha')) {
+                exercicioDetectado = 'agachamento';
+            } else if (pergunta.includes('supino')) {
+                exercicioDetectado = 'supino';
+            } else if (pergunta.includes('rosca') || pergunta.includes('bíceps') || pergunta.includes('biceps')) {
+                exercicioDetectado = 'rosca';
+            } else if (pergunta.includes('puxada') || pergunta.includes('costas')) {
+                exercicioDetectado = 'puxada';
+            } else if (pergunta.includes('elevação') || pergunta.includes('elevacao') || pergunta.includes('glúteo')) {
+                exercicioDetectado = 'elevacao';
+            } else if (pergunta.includes('tríceps') || pergunta.includes('triceps')) {
+                exercicioDetectado = 'triceps';
+            } else if (pergunta.includes('desenvolvimento') || pergunta.includes('ombro')) {
+                exercicioDetectado = 'desenvolvimento';
+            } else if (pergunta.includes('extensora') || pergunta.includes('perna')) {
+                exercicioDetectado = 'extensora';
+            }
+            
+            if (exercicioDetectado) {
+                exercicioDemonstracao = exercicioDetectado;
+                abrirDemonstracao();
+                atualizarStatus("DEMONSTRANDO: " + exercicioDetectado.toUpperCase());
+            } else {
+                atualizarStatus("EXERCÍCIO NÃO IDENTIFICADO");
+                setTimeout(() => atualizarStatus("PRONTO"), 2000);
+            }
+        }
+
+        function abrirDemonstracao() {
+            if (!exercicioDemonstracao) return;
+            
+            const titulo = document.getElementById('demonstracao-titulo');
+            const descricao = document.getElementById('demonstracao-descricao');
+            
+            // Encontrar informações do exercício
+            let exercicioInfo = null;
+            for (const key in bancoDeExercicios) {
+                if (bancoDeExercicios[key].nome.toLowerCase().includes(exercicioDemonstracao)) {
+                    exercicioInfo = bancoDeExercicios[key];
+                    break;
+                }
+            }
+            
+            if (exercicioInfo) {
+                titulo.textContent = exercicioInfo.nome.toUpperCase();
+                descricao.innerHTML = `
+                    <strong>MÚSCULOS TRABALHADOS:</strong><br>
+                    ${exercicioInfo.musculos}<br><br>
+                    <strong>EXECUÇÃO:</strong><br>
+                    ${exercicioInfo.execucao}<br><br>
+                    <strong>DICA:</strong><br>
+                    ${exercicioInfo.dica}
+                `;
+            } else {
+                titulo.textContent = exercicioDemonstracao.toUpperCase();
+                descricao.textContent = "Observa atentamente a demonstração do movimento.";
+            }
+            
+            // Mostrar modal
+            document.getElementById('demonstracao-modal').style.display = 'flex';
+            
+            // Iniciar animação
+            reproduzirMovimento();
+        }
+
+        function fecharDemonstracao() {
+            document.getElementById('demonstracao-modal').style.display = 'none';
+            avatarAnimacaoAtiva = false;
+            faseAnimacao = 0;
+            exercicioDemonstracao = null;
+            desenharAvatarPONDOT();
+            atualizarStatus("PRONTO");
+        }
+
+        function reproduzirMovimento() {
+            if (!exercicioDemonstracao) return;
+            
+            avatarAnimacaoAtiva = true;
+            faseAnimacao = 0;
+            
+            const animar = () => {
+                if (!avatarAnimacaoAtiva) return;
+                
+                faseAnimacao++;
+                
+                // Atualizar canvas de demonstração
+                const demoCanvas = document.getElementById('demonstracao-canvas');
+                const demoCtx = demoCanvas.getContext('2d');
+                demoCtx.clearRect(0, 0, demoCanvas.width, demoCanvas.height);
+                desenharSilhuetaPONDOT(demoCtx, demoCanvas.width, demoCanvas.height, faseAnimacao);
+                
+                // Atualizar avatar fixo
+                desenharAvatarPONDOT();
+                
+                if (faseAnimacao < 8) {
+                    setTimeout(animar, 500); // 0.5 segundos entre fases
+                } else {
+                    setTimeout(() => {
+                        avatarAnimacaoAtiva = false;
+                        faseAnimacao = 0;
+                        desenharAvatarPONDOT();
+                        
+                        // Resetar canvas de demonstração
+                        demoCtx.clearRect(0, 0, demoCanvas.width, demoCanvas.height);
+                        desenharSilhuetaPONDOT(demoCtx, demoCanvas.width, demoCanvas.height, 0);
+                    }, 1000);
+                }
+            };
+            
+            animar();
+        }
+
+        function demonstrarExercicioIA() {
+            mostrarDemonstracao();
+        }
+
+        // Modificar a função simularPesquisaIA para mostrar botão de demonstração
+        async function simularPesquisaIA() {
+            const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
+            const perguntaNormalizada = normalize(pergunta);
+            const respostaDiv = document.getElementById('ai-resposta');
+            const botao = document.querySelector('#ai-search-card .btn-primary');
+            const botaoDemonstrar = document.getElementById('btn-demonstrar-avatar');
+            
+            if (pergunta.length < 3) {
+                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+                botaoDemonstrar.style.display = 'none';
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = 'Pesquisando no Banco de Dados...';
+            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            let respostaTexto = '';
+            let exercicioEncontrado = null;
+
+            const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
+            let maxPontos = 0;
+
+            for (const key in bancoDeExercicios) {
+                const ex = bancoDeExercicios[key];
+                let pontos = 0;
+
+                if (perguntaNormalizada.includes(normalize(ex.nome))) {
+                    pontos += 100;
+                }
+
+                palavrasDaPergunta.forEach(palavra => {
+                    if (ex.termos.includes(palavra)) {
+                        pontos += 1;
                     }
                 });
 
-                const ctx = document.getElementById('pesoChart').getContext('2d');
-                if (pesoChart) pesoChart.destroy();
+                if (pontos > 0 && pontos > maxPontos) {
+                    maxPontos = pontos;
+                    exercicioEncontrado = ex;
+                }
+            }
+
+            if (exercicioEncontrado) {
+                const nomeEx = exercicioEncontrado.nome;
                 
-                if (datas.length > 0) {
-                    pesoChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: datas,
-                            datasets: [{
-                                label: `Carga (kg)`,
-                                data: pesos,
-                                borderColor: '#ff8c00',
-                                backgroundColor: 'rgba(255,140,0,0.2)',
-                                tension: 0.2,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    grid: { color: '#333' },
-                                    ticks: { color: '#f0f0f0' }
-                                },
-                                x: {
-                                    grid: { color: '#333' },
-                                    ticks: { color: '#f0f0f0' }
-                                }
-                            },
-                            plugins: {
-                                legend: { labels: { color: '#f0f0f0' } }
-                            }
-                        }
-                    });
+                // Mostrar botão de demonstração para perguntas sobre execução
+                if (perguntaNormalizada.includes("forma correta") || 
+                    perguntaNormalizada.includes("fazer") || 
+                    perguntaNormalizada.includes("execução") ||
+                    perguntaNormalizada.includes("tecnica") ||
+                    perguntaNormalizada.includes("como")) {
+                    botaoDemonstrar.style.display = 'block';
                 } else {
-                    // Se não houver dados, mostra mensagem
-                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                    ctx.fillStyle = '#ccc';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('Nenhum dado registrado ainda', ctx.canvas.width/2, ctx.canvas.height/2);
-                }
-            });
-        }
-
-        // Função para adicionar peso
-        function adicionarPeso() {
-            const p = document.getElementById('pesoInput').value;
-            if (!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
-                alert('Por favor, insira uma carga válida e positiva.');
-                return;
-            }
-            const ex = document.getElementById('seletorExercicio').value;
-            const agora = new Date();
-            const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
-                ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            
-            database.ref(getPath(`cargas/${ex}`)).push({
-                data: dataLegivel,
-                peso: parseFloat(p),
-                timestamp: Date.now()
-            }).then(() => {
-                document.getElementById('pesoInput').value = '';
-                console.log('Carga registrada com sucesso!');
-            }).catch(error => {
-                console.error("Erro ao adicionar peso:", error);
-                alert("Erro ao registrar carga: " + error.message);
-            });
-        }
-
-        // Função para registrar medidas
-        function registrarMedidas() {
-            const peso = document.getElementById('pesoCorporalInput').value;
-            if (!peso) {
-                alert('O peso é obrigatório!');
-                return;
-            }
-
-            const m = {
-                data: new Date().toLocaleDateString('pt-BR'),
-                timestamp: Date.now(),
-                peso: peso,
-                cintura: document.getElementById('cinturaInput').value || null,
-                braco: document.getElementById('bracoInput').value || null,
-                torax: document.getElementById('toraxInput').value || null,
-                abdomen: document.getElementById('abdomenInput').value || null,
-                coxa: document.getElementById('coxaInput').value || null,
-                panturrilha: document.getElementById('panturrilhaInput').value || null,
-                antebraco: document.getElementById('antebracoInput').value || null
-            };
-            
-            database.ref(getPath('medidas')).push(m)
-                .then(() => {
-                    alert('Medidas Salvas!');
-                    // Limpa os campos
-                    document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
-                    carregarUltimasMedidas();
-                    
-                    // Atualizar avatar com as novas medidas
-                    atualizarMedidasAvatar();
-                })
-                .catch(error => {
-                    console.error("Erro ao salvar medidas:", error);
-                    alert("Erro ao salvar medidas: " + error.message);
-                });
-        }
-
-        // Função para carregar últimas medidas
-        function carregarUltimasMedidas() {
-            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
-                const div = document.getElementById('ultimasMedidas');
-                if (!snap.exists()) {
-                    div.innerHTML = 'Nenhum registro encontrado.';
-                    return;
+                    botaoDemonstrar.style.display = 'none';
                 }
                 
-                snap.forEach(c => {
-                    const d = c.val();
-                    let html = `<strong>${d.data}</strong>: ${d.peso}kg`;
-                    if (d.cintura) html += ` | Cintura: ${d.cintura}`;
-                    if (d.braco) html += ` | Braço: ${d.braco}`;
-                    div.innerHTML = html;
-                });
-            }).catch(error => {
-                console.error("Erro ao carregar medidas:", error);
-                document.getElementById('ultimasMedidas').innerHTML = 'Erro ao carregar medidas';
-            });
+                if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
+                    respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
+                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
+                    respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
+                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
+                    respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
+                } else {
+                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
+                    botaoDemonstrar.style.display = 'block';
+                }
+
+            } else {
+                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").`;
+                botaoDemonstrar.style.display = 'none';
+            }
+
+            let respostaFormatada = respostaTexto
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
+            
+            botao.disabled = false;
+            botao.textContent = 'Perguntar à IA';
         }
 
-        // Função para carregar dias de treino
+        // Carregar os dias de treino dinamicamente
         function carregarDiasTreino() {
             const select = document.getElementById('seletorTreino');
+            
+            // Limpa opções atuais
             select.innerHTML = '<option value="">Carregando...</option>';
             
+            // Busca os dias de treino disponíveis no Firebase
             database.ref(getPath('treinoModel')).once('value', snapshot => {
-                select.innerHTML = '';
-                
-                if (!snapshot.exists() || Object.keys(snapshot.val()).length === 0) {
+                if (!snapshot.exists()) {
                     select.innerHTML = '<option value="">Nenhum treino disponível</option>';
                     return;
                 }
+                
+                // Limpa as opções
+                select.innerHTML = '';
                 
                 // Adiciona cada dia encontrado
                 snapshot.forEach(childSnapshot => {
@@ -993,111 +1658,10 @@
                     select.value = select.options[0].value;
                     carregarTreinoDoProfessor(select.value);
                 }
-            }).catch(error => {
-                console.error("Erro ao carregar dias de treino:", error);
-                select.innerHTML = '<option value="">Erro ao carregar</option>';
             });
         }
 
-        // Função para carregar treino específico
-        function carregarTreinoDoProfessor(dia) {
-            const treinoContainer = document.getElementById('treino-dinamico-container');
-            
-            // Atualiza o conteúdo do container
-            treinoContainer.innerHTML = `
-                <h3 style="color:#ff9933;">${dia}</h3>
-                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                        Carregando treino...
-                    </li>
-                </ul>
-                <div style="margin-top:10px;">
-                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
-                </div>
-            `;
-            
-            // Busca os exercícios do dia específico
-            database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
-                const ul = document.getElementById('lista-treino-dinamico');
-                ul.innerHTML = '';
-                
-                if (!snap.exists() || !Array.isArray(snap.val())) {
-                    ul.innerHTML = `
-                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                            Treino não encontrado para ${dia}
-                        </li>
-                    `;
-                    return;
-                }
-                
-                const exercicios = snap.val();
-                let contador = 0;
-                
-                exercicios.forEach(t => {
-                    contador++;
-                    if (t && t.nome) {
-                        const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
-                        const li = document.createElement('li');
-                        li.className = 'exercicio-item';
-                        li.setAttribute('data-exercicio', id);
-                        li.innerHTML = `
-                            <div class="exercicio-info">
-                                <strong>${t.nome}</strong>
-                                <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
-                                ${t.nota ? `<br><small style="color:#ccc;">${t.nota}</small>` : ''}
-                            </div>
-                            <div class="checkbox-container">
-                                <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
-                            </div>
-                        `;
-                        ul.appendChild(li);
-                    }
-                });
-                
-                // Carrega status dos checkboxes
-                carregarCheckboxes(dia);
-                
-                // Detectar exercício para o avatar
-                detectarExercicioNoTreino();
-            }).catch(error => {
-                console.error("Erro ao carregar treino:", error);
-                document.getElementById('treino-dinamico-container').innerHTML = 
-                    `<p style="color: #dc3545; text-align: center;">Erro ao carregar treino: ${error.message}</p>`;
-            });
-        }
-
-        // Função para marcar exercício como concluído
-        function marcarConcluido(chk, dia, id) {
-            const li = chk.closest('li');
-            if (chk.checked) {
-                li.classList.add('concluido');
-            } else {
-                li.classList.remove('concluido');
-            }
-            
-            // Salva o status no Firebase
-            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked)
-                .catch(error => {
-                    console.error("Erro ao salvar status:", error);
-                });
-        }
-
-        // Função para carregar checkboxes salvos
-        function carregarCheckboxes(dia) {
-            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
-                const status = snap.val() || {};
-                document.querySelectorAll(`#lista-treino-dinamico li`).forEach(li => {
-                    const id = li.getAttribute('data-exercicio');
-                    const chk = li.querySelector('input[type="checkbox"]');
-                    if (chk && status[id]) {
-                        chk.checked = true;
-                        li.classList.add('concluido');
-                    }
-                });
-            });
-        }
-
-        // Função para finalizar treino
+        // Função: finalizarTreino (salva treino finalizado com Firebase SDK)
         function finalizarTreino() {
             try {
                 const select = document.getElementById('seletorTreino');
@@ -1130,8 +1694,8 @@
                 }
                 
                 const payload = {
-                    dia: treinoComTipo,
-                    tipo: tipoTreino || extrairTipoTreinoManual(),
+                    dia: treinoComTipo, // Salva com tipo incluído
+                    tipo: tipoTreino || extrairTipoTreinoManual(), // Tipo extraído
                     data: dataLegivel,
                     hora: horaLegivel,
                     timestamp: Date.now(),
@@ -1140,7 +1704,7 @@
                     exerciciosConcluidos: concluidos
                 };
                 
-                console.log('Salvando treino finalizado:', payload);
+                console.log('Salvando treino:', payload);
                 
                 const ref = database.ref(getPath('treinosFinalizados')).push();
                 ref.set(payload)
@@ -1162,25 +1726,30 @@
             }
         }
 
-        // Função para extrair tipo de treino
+        // Função auxiliar para extrair tipo de treino - VERSÃO CORRIGIDA
         function extrairTipoTreino(diaString) {
             if (!diaString) return null;
             
+            // Converte para string
             const str = diaString.toString();
+            
+            // Procura por padrões como "Treino A", "Dia A", "Treino: A", etc.
             const patterns = [
-                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,
-                /\(([ABCDEFG])\)/i,
-                /[:\-]\s*([ABCDEFG])/i,
-                /\b([ABCDEFG])\b(?!\w)/i
+                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,  // "Treino A", "Dia: B"
+                /\(([ABCDEFG])\)/i,                          // Entre parênteses "(A)"
+                /[:\-]\s*([ABCDEFG])/i,                      // Após dois pontos ou hífen
+                /\b([ABCDEFG])\b(?!\w)/i                     // Letra isolada
             ];
             
             for (const pattern of patterns) {
                 const match = str.match(pattern);
                 if (match && match[1]) {
-                    return match[1].toUpperCase();
+                    const tipo = match[1].toUpperCase();
+                    return tipo;
                 }
             }
             
+            // Verifica se o nome termina com letra
             const ultimoChar = str.trim().slice(-1);
             if (ultimoChar.match(/[ABCDEFG]/i)) {
                 return ultimoChar.toUpperCase();
@@ -1189,8 +1758,9 @@
             return null;
         }
 
-        // Função alternativa para determinar tipo
+        // Função alternativa para determinar tipo quando não encontrado
         function extrairTipoTreinoManual() {
+            // Lógica de rotação: A → B → C → D → A...
             const ultimoTipo = localStorage.getItem('ultimoTipoTreino') || 'D';
             const tipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const indexAtual = tipos.indexOf(ultimoTipo);
@@ -1201,45 +1771,30 @@
             return novoTipo;
         }
 
-        // Função para carregar último treino
         function carregarUltimoTreino() {
             try {
                 const ref = database.ref(getPath('treinosFinalizados'));
-                ref.orderByChild('timestamp').limitToLast(1).once('value', snap => {
+                ref.orderByChild('timestamp').limitToLast(1).on('value', snap => {
                     const p = document.getElementById('ultimo-treino');
                     if (!p) return;
-                    
                     if (!snap.exists()) {
                         p.textContent = 'Nenhum treino registrado ainda.';
                         return;
                     }
-                    
                     snap.forEach(child => {
                         const t = child.val();
                         p.textContent = `Último treino: ${t.dia} — ${t.data} às ${t.hora}`;
                     });
-                }).catch(err => {
-                    console.warn('Erro ao carregar último treino:', err);
                 });
-            } catch (err) {
-                console.warn('Erro em carregarUltimoTreino:', err);
-            }
+            } catch (err) { console.warn('carregarUltimoTreino erro', err); }
         }
 
-        // Função para contar treinos do mês
         function contarTreinosDoMes() {
             try {
                 const mesAtual = new Date().getMonth() + 1;
                 const anoAtual = new Date().getFullYear();
                 let total = 0;
-                
                 database.ref(getPath('treinosFinalizados')).once('value').then(snap => {
-                    if (!snap.exists()) {
-                        const el = document.getElementById('contador-treinos');
-                        if (el) el.textContent = `Treinos no mês: 0`;
-                        return;
-                    }
-                    
                     snap.forEach(c => {
                         const t = c.val();
                         if (!t || !t.data) return;
@@ -1250,49 +1805,36 @@
                             if (mesT === mesAtual && anoT === anoAtual) total++;
                         }
                     });
-                    
                     const el = document.getElementById('contador-treinos');
                     if (el) el.textContent = `Treinos no mês: ${total}`;
-                }).catch(err => {
-                    console.warn('Erro ao contar treinos do mês:', err);
-                });
-            } catch (err) {
-                console.warn('Erro em contarTreinosDoMes:', err);
-            }
+                }).catch(err => console.warn('contarTreinosDoMes erro', err));
+            } catch (err) { console.warn('contarTreinosDoMes erro', err); }
         }
 
-        // Função para carregar treinos finalizados
         function carregarTreinosFinalizados() {
             try {
                 const ref = database.ref(getPath('treinosFinalizados'));
                 ref.orderByChild('timestamp').once('value').then(snap => {
                     const lista = [];
-                    if (snap.exists()) {
-                        snap.forEach(c => {
-                            const treino = c.val();
-                            treino.id = c.key;
-                            lista.push(treino);
-                        });
-                    }
-                    
-                    console.log('Treinos carregados:', lista.length);
+                    snap.forEach(c => {
+                        const treino = c.val();
+                        treino.id = c.key;
+                        lista.push(treino);
+                    });
                     
                     // Renderiza o gráfico
                     renderTreinosBarChart(lista);
-                }).catch(err => {
-                    console.warn('Erro ao carregar treinos finalizados:', err);
-                });
-            } catch (err) {
-                console.warn('Erro em carregarTreinosFinalizados:', err);
-            }
+                }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
+            } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
-        // Função para renderizar gráfico de barras
+        // FUNÇÃO PRINCIPAL: Renderiza gráfico de barras com cores por tipo de treino
         function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
                 if (!canvas) return;
                 
+                // Se não houver treinos, limpa o gráfico
                 if (!treinosLista || treinosLista.length === 0) {
                     if (chartTreinos) chartTreinos.destroy();
                     chartTreinos = null;
@@ -1303,7 +1845,7 @@
                 
                 canvas.style.display = 'block';
                 
-                // Ordena por timestamp
+                // Ordena por timestamp (mais antigo primeiro)
                 const treinosOrdenados = treinosLista.slice().sort((a, b) => {
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
@@ -1314,19 +1856,21 @@
                 // Dados: exercícios concluídos
                 const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
                 
-                // Cores baseadas no tipo de treino
+                // Cores baseadas no tipo de treino - LÓGICA CORRIGIDA
                 const cores = treinosOrdenados.map(t => {
                     const tipo = t.tipo || extrairTipoTreino(t.dia);
+                    
                     if (tipo && coresPorTreino[tipo]) {
                         return coresPorTreino[tipo];
                     }
                     return coresPorTreino.default;
                 });
 
-                // Atualiza a legenda
+                // Atualiza a legenda com os tipos presentes
                 atualizarLegendaCores(treinosOrdenados, coresPorTreino);
 
                 if (typeof Chart === 'undefined') { 
+                    console.warn('Chart.js não carregado, tentando novamente...');
                     setTimeout(() => renderTreinosBarChart(treinosLista), 1000);
                     return;
                 }
@@ -1395,6 +1939,13 @@
                                         if (treino.data) label += ` | Data: ${treino.data}`;
                                         if (treino.hora) label += ` ${treino.hora}`;
                                         return label;
+                                    },
+                                    afterLabel: function(context) {
+                                        const treino = treinosOrdenados[context.dataIndex];
+                                        if (treino.exerciciosConcluidos && treino.exerciciosConcluidos.length > 0) {
+                                            return `Exercícios: ${treino.exerciciosConcluidos.slice(0, 3).join(', ')}${treino.exerciciosConcluidos.length > 3 ? '...' : ''}`;
+                                        }
+                                        return '';
                                     }
                                 },
                                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -1407,17 +1958,18 @@
                     }
                 });
             } catch(err) { 
-                console.warn('Erro em renderTreinosBarChart:', err);
+                console.warn('renderTreinosBarChart erro:', err);
                 setTimeout(() => {
                     if (treinosLista) renderTreinosBarChart(treinosLista);
                 }, 2000);
             }
         }
         
-        // Função para atualizar legenda de cores
+        // Função para atualizar a legenda baseada nos treinos reais
         function atualizarLegendaCores(treinosOrdenados, coresPorTreino) {
             const tiposPresentes = new Set();
             
+            // Identifica quais tipos de treino estão presentes
             treinosOrdenados.forEach(t => {
                 const tipo = t.tipo || extrairTipoTreino(t.dia);
                 if (tipo) {
@@ -1425,14 +1977,19 @@
                 }
             });
             
+            // Verifica se há treinos sem tipo específico
             const temOutros = treinosOrdenados.some(t => !(t.tipo || extrairTipoTreino(t.dia)));
+            
+            // Ordena os tipos para consistência
             const todosTipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const tiposFiltrados = todosTipos.filter(t => tiposPresentes.has(t));
             
+            // Atualiza a legenda
             const legendaContainer = document.getElementById('legenda-cores');
             if (legendaContainer) {
                 let html = '';
                 
+                // Adiciona cada tipo presente
                 tiposFiltrados.forEach(tipo => {
                     if (coresPorTreino[tipo]) {
                         html += `
@@ -1444,6 +2001,7 @@
                     }
                 });
                 
+                // Adiciona "Outros" se houver treinos sem tipo específico
                 if (temOutros) {
                     html += `
                         <div class="legenda-item">
@@ -1453,6 +2011,7 @@
                     `;
                 }
                 
+                // Se não houver nenhum tipo, mostra mensagem
                 if (tiposFiltrados.length === 0 && !temOutros) {
                     html = '<div style="color: #ccc; font-size: 0.8em;">Nenhum treino registrado</div>';
                 }
@@ -1461,21 +2020,235 @@
             }
         }
 
-        // Função para marcar treino no calendário
         function marcarTreinoNoCalendario(dataObj) {
             try {
                 const dia = String(dataObj.getDate()).padStart(2,'0');
                 const mes = String(dataObj.getMonth()+1).padStart(2,'0');
                 const ano = dataObj.getFullYear();
                 const chave = `${dia}-${mes}-${ano}`;
-                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() })
-                    .catch(e => console.warn('Erro ao marcar no calendário:', e));
-            } catch(e) {
-                console.warn('Erro em marcarTreinoNoCalendario:', e);
+                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
+            } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
+        }
+
+        function start() {
+            document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
+            document.getElementById('nome-aluno').textContent = alunoNome;
+            document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
+        
+            inicializarGrafico();
+            carregarUltimasMedidas();
+            gerarCalendario();
+            
+            // Carrega os dias de treino dinamicamente
+            carregarDiasTreino();
+        
+            carregarUltimoTreino();
+            contarTreinosDoMes();
+            
+            // Inicializar avatar PONDOT
+            inicializarAvatarPONDOT();
+            
+            // Atualizar avatar periodicamente para efeitos visuais
+            setInterval(desenharAvatarPONDOT, 100);
+            
+            // Aguarda Chart.js carregar e então renderiza os treinos
+            if (typeof Chart !== 'undefined') {
+                carregarTreinosFinalizados();
+            } else {
+                setTimeout(() => {
+                    carregarTreinosFinalizados();
+                }, 1000);
             }
         }
 
-        // Função para gerar calendário
+        function inicializarGrafico() {
+            const ex = document.getElementById('seletorExercicio').value;
+            database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
+                const datas = [];
+                const pesos = [];
+                snap.forEach(c => {
+                    const v = c.val();
+                    datas.push(v.data);
+                    pesos.push(v.peso);
+                });
+
+                const ctx = document.getElementById('pesoChart').getContext('2d');
+                if (pesoChart) pesoChart.destroy();
+                pesoChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: datas,
+                        datasets: [{
+                            label: `Carga (kg)`,
+                            data: pesos,
+                            borderColor: '#ff8c00',
+                            backgroundColor: 'rgba(255,140,0,0.2)',
+                            tension: 0.2,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' }
+                            },
+                            x: {
+                                grid: { color: '#333' },
+                                ticks: { color: '#f0f0f0' }
+                            }
+                        },
+                        plugins: {
+                            legend: { labels: { color: '#f0f0f0' } }
+                        }
+                    }
+                });
+            });
+        }
+
+        function adicionarPeso() {
+            const p = document.getElementById('pesoInput').value;
+            if (!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
+                alert('Por favor, insira uma carga válida e positiva.');
+                return;
+            }
+            const ex = document.getElementById('seletorExercicio').value;
+            const agora = new Date();
+            const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
+                ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            database.ref(getPath(`cargas/${ex}`)).push({
+                data: dataLegivel,
+                peso: parseFloat(p),
+                timestamp: Date.now()
+            }).then(() => {
+                document.getElementById('pesoInput').value = '';
+            }).catch(error => {
+                console.error("Erro ao adicionar peso:", error);
+                alert("Erro ao registrar carga.");
+            });
+        }
+
+        function registrarMedidas() {
+            const peso = document.getElementById('pesoCorporalInput').value;
+            if (!peso) return alert('O peso é obrigatório!');
+
+            const m = {
+                data: new Date().toLocaleDateString('pt-BR'),
+                timestamp: Date.now(),
+                peso: peso,
+                cintura: document.getElementById('cinturaInput').value,
+                braco: document.getElementById('bracoInput').value,
+                torax: document.getElementById('toraxInput').value,
+                abdomen: document.getElementById('abdomenInput').value,
+                coxa: document.getElementById('coxaInput').value,
+                panturrilha: document.getElementById('panturrilhaInput').value,
+                antebraco: document.getElementById('antebracoInput').value
+            };
+            database.ref(getPath('medidas')).push(m);
+            alert('Medidas Salvas!');
+            document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
+            carregarUltimasMedidas();
+        }
+
+        function carregarUltimasMedidas() {
+            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
+                const div = document.getElementById('ultimasMedidas');
+                div.innerHTML = 'Nenhum registro encontrado.';
+                snap.forEach(c => {
+                    const d = c.val();
+                    div.innerHTML =
+                        `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura||'-'} | Braço: ${d.braco||'-'}`;
+                });
+            });
+        }
+
+        function carregarTreinoDoProfessor(dia) {
+            const treinoContainer = document.getElementById('treino-dinamico-container');
+            
+            // Atualiza o conteúdo do container
+            treinoContainer.innerHTML = `
+                <h3 style="color:#ff9933;">${dia}</h3>
+                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                        Carregando treino...
+                    </li>
+                </ul>
+                <div style="margin-top:10px;">
+                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
+                </div>
+            `;
+            
+            // Busca os exercícios do dia específico
+            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
+                const ul = document.getElementById('lista-treino-dinamico');
+                ul.innerHTML = '';
+                
+                if (!snap.exists()) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Treino não encontrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
+                
+                let contador = 0;
+                snap.forEach(childSnapshot => {
+                    contador++;
+                    const t = childSnapshot.val();
+                    if (t && t.nome) {
+                        const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
+                        const li = document.createElement('li');
+                        li.className = 'exercicio-item';
+                        li.setAttribute('data-exercicio', id);
+                        li.innerHTML = `
+                            <div class="exercicio-info">
+                                <strong>${t.nome}</strong>
+                                <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
+                                ${t.nota ? `<br><small style="color:#ccc;">${t.nota}</small>` : ''}
+                            </div>
+                            <div class="checkbox-container">
+                                <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
+                            </div>
+                        `;
+                        ul.appendChild(li);
+                    }
+                });
+                
+                // Carrega status dos checkboxes
+                carregarCheckboxes(dia);
+            });
+        }
+
+        function marcarConcluido(chk, dia, id) {
+            const li = chk.closest('li');
+            if (chk.checked) {
+                li.classList.add('concluido');
+            } else {
+                li.classList.remove('concluido');
+            }
+            
+            // Salva o status no Firebase
+            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
+        }
+
+        function carregarCheckboxes(dia) {
+            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
+                const status = snap.val() || {};
+                document.querySelectorAll(`#lista-treino-dinamico li`).forEach(li => {
+                    const id = li.getAttribute('data-exercicio');
+                    const chk = li.querySelector('input[type="checkbox"]');
+                    if (chk && status[id]) {
+                        chk.checked = true;
+                        li.classList.add('concluido');
+                    }
+                });
+            });
+        }
+
         function gerarCalendario() {
             const hoje = new Date();
             const mesAtual = hoje.getMonth();
@@ -1505,30 +2278,18 @@
             carregarPresencas();
         }
 
-        // Função para alternar presença
         function togglePresenca(key) {
             const td = document.getElementById(`dia-${key}`);
             const status = td.classList.contains('presente');
             if (status) {
-                database.ref(getPath(`presenca/${key}`)).remove()
-                    .then(() => {
-                        td.classList.remove('presente');
-                    })
-                    .catch(error => {
-                        console.error("Erro ao remover presença:", error);
-                    });
+                database.ref(getPath(`presenca/${key}`)).remove();
+                td.classList.remove('presente');
             } else {
-                database.ref(getPath(`presenca/${key}`)).set(true)
-                    .then(() => {
-                        td.classList.add('presente');
-                    })
-                    .catch(error => {
-                        console.error("Erro ao adicionar presença:", error);
-                    });
+                database.ref(getPath(`presenca/${key}`)).set(true);
+                td.classList.add('presente');
             }
         }
 
-        // Função para carregar presenças
         function carregarPresencas() {
             database.ref(getPath('presenca')).on('value', snap => {
                 const p = snap.val() || {};
@@ -1540,106 +2301,6 @@
             });
         }
 
-        // Banco de dados de exercícios para IA
-        const rawData = [
-            "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco, pés firmes no chão. Segure a barra na largura dos ombros. Desça-a controladamente até o peito. Empurre a barra para cima, estendendo os braços. | Mantenha as escápulas retraídas (ombros para trás e para baixo) para estabilizar e proteger a articulação do ombro.",
-            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Gluteo Máximo, Isquiotibiais | Com a barra nas costas, desça o quadril como se fosse sentar em uma cadeira, mantendo o peito alto e a coluna neutra. Os joelhos devem seguir a direção dos pés. | A profundidade ideal é abaixo de 90 graus (se a mobilidade permitir). Distribua o peso nos calcanhares e evite que os joelhos 'caiam' para dentro.",
-            "Rosca Direta | Musculação | Braços | Bíceps Braquial, Braquial | Em pé, segure halteres ou barra com as palmas voltadas para cima. Mantenha os cotovelos fixos ao lado do corpo. Flexione os antebraços levando o peso em direção aos ombros. | Evite balançar o corpo para ajudar no movimento. Contraia o abdômen para estabilização.",
-            "Puxada Frontal | Musculação | Costas | Grande Dorsal, Bíceps, Romboides | Sentado no aparelho, segure a barra com as mãos afastadas na largura dos ombros. Puxe a barra em direção ao peito, mantendo o tronco reto. Retorne lentamente à posição inicial. | Contraia as escápulas no momento da puxada para melhor ativação muscular.",
-            "Elevação Pélvica | Musculação | Glúteos | Glúteo Máximo, Isquiotibiais | Deitado de costas com os joelhos flexionados e pés apoiados no chão. Eleve o quadril até formar uma linha reta entre joelhos, quadril e ombros. | Contraia os glúteos no topo do movimento por 1-2 segundos.",
-            "Tríceps Testa | Musculação | Braços | Tríceps Braquial | Deitado no banco, segure a barra ou halteres com os braços estendidos acima do peito. Flexione os cotovelos levando o peso em direção à testa. | Mantenha os cotovelos apontando para cima durante todo o movimento."
-        ];
-
-        const bancoDeExercicios = {};
-
-        rawData.forEach(item => {
-            const parts = item.split(' | ');
-            if (parts.length === 6) {
-                const [nome, modalidade, categoria, musculos, execucao, dica] = parts;
-                const key = nome.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-                
-                bancoDeExercicios[key] = {
-                    nome: nome,
-                    modalidade: modalidade,
-                    categoria: categoria,
-                    musculos: musculos,
-                    execucao: execucao,
-                    dica: dica
-                };
-            }
-        });
-
-        function normalize(str) {
-            return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
-        }
-
-        // Função de pesquisa IA
-        async function simularPesquisaIA() {
-            const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
-            const perguntaNormalizada = normalize(pergunta);
-            const respostaDiv = document.getElementById('ai-resposta');
-            const botao = document.querySelector('#ai-search-card .btn-primary');
-            
-            if (pergunta.length < 3) {
-                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
-                return;
-            }
-
-            botao.disabled = true;
-            botao.textContent = 'Pesquisando no Banco de Dados...';
-            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
-            
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            let respostaTexto = '';
-            let exercicioEncontrado = null;
-
-            for (const key in bancoDeExercicios) {
-                const ex = bancoDeExercicios[key];
-                const nomeNormalizado = normalize(ex.nome);
-                
-                if (perguntaNormalizada.includes(nomeNormalizado)) {
-                    exercicioEncontrado = ex;
-                    break;
-                }
-                
-                if (ex.musculos.toLowerCase().includes(perguntaNormalizada)) {
-                    exercicioEncontrado = ex;
-                    break;
-                }
-                
-                if (ex.categoria.toLowerCase().includes(perguntaNormalizada)) {
-                    exercicioEncontrado = ex;
-                    break;
-                }
-            }
-
-            if (exercicioEncontrado) {
-                const nomeEx = exercicioEncontrado.nome;
-                if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
-                    respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
-                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
-                    respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
-                    respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
-                } else {
-                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                }
-            } else {
-                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").`;
-            }
-
-            let respostaFormatada = respostaTexto
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
-
-            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
-            
-            botao.disabled = false;
-            botao.textContent = 'Perguntar à IA';
-        }
-
-        // Função para resetar dados
         function resetarDados(tipo) {
             let path;
             let msg;
@@ -1671,9 +2332,7 @@
                         alert('Histórico apagado com sucesso!');
                         if (tipo === 'presenca') gerarCalendario();
                         if (tipo === 'cargas') inicializarGrafico();
-                        if (tipo === 'medidas') {
-                            document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
-                        }
+                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
                         if (tipo === 'treinos') {
                             carregarUltimoTreino();
                             contarTreinosDoMes();
@@ -1685,314 +2344,6 @@
                         alert("Erro ao apagar dados.");
                     });
             }
-        }
-
-        // Funções do avatar
-        function atualizarMedidasAvatar() {
-            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
-                if (snap.exists()) {
-                    snap.forEach(c => {
-                        const m = c.val();
-                        if (m.torax) avatarMedidas.torax = parseInt(m.torax);
-                        if (m.braco) avatarMedidas.braco = parseInt(m.braco);
-                        if (m.coxa) avatarMedidas.coxa = parseInt(m.coxa);
-                        if (m.cintura) avatarMedidas.cintura = parseInt(m.cintura);
-                        if (m.peso) {
-                            const peso = parseFloat(m.peso);
-                            if (avatarGenero === 'M') {
-                                avatarMedidas.altura = 165 + (peso - 60) * 0.3;
-                            } else {
-                                avatarMedidas.altura = 155 + (peso - 50) * 0.4;
-                            }
-                            avatarMedidas.altura = Math.max(150, Math.min(200, avatarMedidas.altura));
-                        }
-                    });
-                }
-                desenharAvatar();
-            });
-        }
-
-        function desenharAvatar() {
-            const canvas = document.getElementById('avatar-fixo');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            
-            ctx.clearRect(0, 0, width, height);
-            
-            const corPele = avatarGenero === 'M' ? '#e0ac69' : '#f1c27d';
-            const corCabelo = avatarGenero === 'M' ? '#3d2b1f' : '#8b4513';
-            const corRoupa = avatarExercicioAtual === 'repouso' ? '#4a90e2' : '#ff8c00';
-            
-            const escala = avatarMedidas.altura / 170;
-            const larguraTorso = (avatarMedidas.torax / 100) * 20 * escala;
-            const larguraBraco = (avatarMedidas.braco / 35) * 15 * escala;
-            const larguraPerna = (avatarMedidas.coxa / 55) * 15 * escala;
-            const cinturaRelativa = (avatarMedidas.cintura / 85) * 18 * escala;
-            
-            const centroX = width / 2;
-            const baseY = height * 0.9;
-            
-            switch(avatarExercicioAtual) {
-                case 'agachamento':
-                    desenharAgachamento(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
-                    break;
-                case 'supino':
-                    desenharSupino(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
-                    break;
-                case 'rosca':
-                    desenharRosca(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
-                    break;
-                case 'puxada':
-                    desenharPuxada(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
-                    break;
-                default:
-                    desenharRepouso(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
-            }
-        }
-
-        function desenharRepouso(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 110 * escala, 15 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Cabelo
-            ctx.fillStyle = cabelo;
-            ctx.beginPath();
-            if (avatarGenero === 'F') {
-                ctx.ellipse(x, y - 120 * escala, 18 * escala, 20 * escala, 0, 0, Math.PI * 2);
-            } else {
-                ctx.rect(x - 15 * escala, y - 125 * escala, 30 * escala, 15 * escala);
-            }
-            ctx.fill();
-            
-            // Torso
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 90 * escala, torsoW, 50 * escala);
-            
-            // Braços
-            ctx.fillStyle = pele;
-            ctx.fillRect(x - torsoW/2 - bracoW, y - 90 * escala, bracoW, 40 * escala);
-            ctx.fillRect(x + torsoW/2, y - 90 * escala, bracoW, 40 * escala);
-            
-            // Pernas
-            ctx.fillStyle = '#333';
-            ctx.fillRect(x - pernaW/2, y - 40 * escala, pernaW, 40 * escala);
-            ctx.fillRect(x - pernaW/2, y - 40 * escala, pernaW, 40 * escala);
-        }
-
-        function desenharAgachamento(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 70 * escala, 12 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Cabelo
-            ctx.fillStyle = cabelo;
-            ctx.beginPath();
-            ctx.arc(x, y - 70 * escala, 14 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso inclinado
-            ctx.fillStyle = roupa;
-            ctx.save();
-            ctx.translate(x, y - 50 * escala);
-            ctx.rotate(Math.PI * 0.2);
-            ctx.fillRect(-torsoW/2, 0, torsoW, 40 * escala);
-            ctx.restore();
-            
-            // Pernas flexionadas
-            ctx.fillStyle = '#333';
-            // Perna esquerda
-            ctx.beginPath();
-            ctx.moveTo(x - pernaW/2, y - 10 * escala);
-            ctx.lineTo(x - pernaW, y + 20 * escala);
-            ctx.lineTo(x - pernaW + 10 * escala, y + 25 * escala);
-            ctx.lineTo(x - pernaW/2 + 5 * escala, y - 5 * escala);
-            ctx.fill();
-            
-            // Perna direita
-            ctx.beginPath();
-            ctx.moveTo(x + pernaW/2, y - 10 * escala);
-            ctx.lineTo(x + pernaW, y + 20 * escala);
-            ctx.lineTo(x + pernaW - 10 * escala, y + 25 * escala);
-            ctx.lineTo(x + pernaW/2 - 5 * escala, y - 5 * escala);
-            ctx.fill();
-        }
-
-        function desenharSupino(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 80 * escala, 12 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 65 * escala, torsoW, 25 * escala);
-            
-            // Braços levantados
-            ctx.fillStyle = pele;
-            // Braço esquerdo
-            ctx.beginPath();
-            ctx.moveTo(x - torsoW/2, y - 65 * escala);
-            ctx.lineTo(x - torsoW/2 - bracoW, y - 85 * escala);
-            ctx.lineTo(x - torsoW/2 - bracoW + 5 * escala, y - 80 * escala);
-            ctx.lineTo(x - torsoW/2 + 5 * escala, y - 60 * escala);
-            ctx.fill();
-            
-            // Braço direito
-            ctx.beginPath();
-            ctx.moveTo(x + torsoW/2, y - 65 * escala);
-            ctx.lineTo(x + torsoW/2 + bracoW, y - 85 * escala);
-            ctx.lineTo(x + torsoW/2 + bracoW - 5 * escala, y - 80 * escala);
-            ctx.lineTo(x + torsoW/2 - 5 * escala, y - 60 * escala);
-            ctx.fill();
-            
-            // Barra
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(x - torsoW/2 - bracoW, y - 90 * escala, torsoW + 2 * bracoW, 5 * escala);
-        }
-
-        function desenharRosca(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 100 * escala, 15 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 80 * escala, torsoW, 40 * escala);
-            
-            // Braços flexionados
-            ctx.fillStyle = pele;
-            const bracoFlexY = y - 85 * escala;
-            
-            // Braço esquerdo
-            ctx.beginPath();
-            ctx.moveTo(x - torsoW/2, y - 80 * escala);
-            ctx.lineTo(x - torsoW/2 - bracoW, bracoFlexY);
-            ctx.lineTo(x - torsoW/2 - bracoW + 8 * escala, bracoFlexY + 5 * escala);
-            ctx.lineTo(x - torsoW/2 + 5 * escala, y - 75 * escala);
-            ctx.fill();
-            
-            // Braço direito
-            ctx.beginPath();
-            ctx.moveTo(x + torsoW/2, y - 80 * escala);
-            ctx.lineTo(x + torsoW/2 + bracoW, bracoFlexY);
-            ctx.lineTo(x + torsoW/2 + bracoW - 8 * escala, bracoFlexY + 5 * escala);
-            ctx.lineTo(x + torsoW/2 - 5 * escala, y - 75 * escala);
-            ctx.fill();
-            
-            // Halteres
-            ctx.fillStyle = '#ffd700';
-            // Esquerdo
-            ctx.beginPath();
-            ctx.arc(x - torsoW/2 - bracoW, bracoFlexY, 6 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            // Direito
-            ctx.beginPath();
-            ctx.arc(x + torsoW/2 + bracoW, bracoFlexY, 6 * escala, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function desenharPuxada(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 90 * escala, 14 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 70 * escala, torsoW, 35 * escala);
-            
-            // Braços estendidos
-            ctx.fillStyle = pele;
-            ctx.fillRect(x - torsoW/2 - bracoW, y - 105 * escala, bracoW, 40 * escala);
-            ctx.fillRect(x + torsoW/2, y - 105 * escala, bracoW, 40 * escala);
-            
-            // Barra de puxada
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(x - torsoW/2 - bracoW - 10 * escala, y - 110 * escala, torsoW + 2 * bracoW + 20 * escala, 5 * escala);
-            
-            // Pernas
-            ctx.fillStyle = '#333';
-            ctx.fillRect(x - pernaW/2, y - 35 * escala, pernaW, 25 * escala);
-            ctx.fillRect(x - pernaW/2, y - 35 * escala, pernaW, 25 * escala);
-        }
-
-        function toggleAvatar() {
-            const container = document.getElementById('avatar-fixo-container');
-            const toggleBtn = document.getElementById('avatar-toggle');
-            
-            if (container.style.display === 'none') {
-                container.style.display = 'block';
-                toggleBtn.textContent = '▲';
-            } else {
-                container.style.display = 'none';
-                toggleBtn.textContent = '▼';
-            }
-        }
-
-        function mudarGeneroAvatar() {
-            const select = document.getElementById('avatar-gender-select');
-            avatarGenero = select.value;
-            atualizarMedidasAvatar();
-        }
-
-        function detectarExercicioNoTreino() {
-            const selectTreino = document.getElementById('seletorTreino');
-            if (!selectTreino || !selectTreino.value) return;
-            
-            const exercicios = document.querySelectorAll('#lista-treino-dinamico .exercicio-item');
-            let exercicioAtual = 'repouso';
-            let nomeExercicio = 'Em repouso';
-            
-            exercicios.forEach(item => {
-                const nomeElement = item.querySelector('.exercicio-info strong');
-                if (nomeElement) {
-                    const nome = nomeElement.textContent.toLowerCase();
-                    if (nome.includes('agachamento')) {
-                        exercicioAtual = 'agachamento';
-                        nomeExercicio = nomeElement.textContent;
-                    } else if (nome.includes('supino')) {
-                        exercicioAtual = 'supino';
-                        nomeExercicio = nomeElement.textContent;
-                    } else if (nome.includes('rosca')) {
-                        exercicioAtual = 'rosca';
-                        nomeExercicio = nomeElement.textContent;
-                    } else if (nome.includes('puxada')) {
-                        exercicioAtual = 'puxada';
-                        nomeExercicio = nomeElement.textContent;
-                    }
-                }
-            });
-            
-            if (exercicioAtual !== avatarExercicioAtual) {
-                avatarExercicioAtual = exercicioAtual;
-                document.getElementById('avatar-exercise-name').textContent = nomeExercicio;
-                desenharAvatar();
-            }
-        }
-
-        // Registro do Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registrado:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Falha ao registrar Service Worker:', error);
-                    });
-            });
         }
     </script>
 </body>
