@@ -1148,33 +1148,25 @@
             const selTreino = document.getElementById('selectAluno');
             const selGraficos = document.getElementById('selectAlunoGraficos');
             const selMedidas = document.getElementById('selectAlunoMedidas');
-            
-            const atualizarAlunoGlobal = (nome, chave) => {
+
+            // ✅ FIX: value dos selects será a CHAVE do aluno no Firebase
+            const atualizarAlunoGlobal = (chave) => {
+                const optTreino = selTreino.querySelector(`option[value="${CSS.escape(chave)}"]`);
+                const nome = optTreino ? optTreino.textContent : chave;
+
                 alunoSelecionadoNome = nome;
                 alunoSelecionadoChave = chave;
-                selTreino.value = nome;
-                selGraficos.value = nome;
-                selMedidas.value = nome;
+
+                selTreino.value = chave;
+                selGraficos.value = chave;
+                selMedidas.value = chave;
+
                 carregarTudo();
             };
             
-            selTreino.onchange = (e) => {
-                const nomeSelecionado = e.target.value;
-                // Encontrar a chave correspondente ao nome selecionado
-                database.ref('alunos/').once('value', snap => {
-                    const alunos = snap.val();
-                    for(const chave in alunos) {
-                        const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' ');
-                        if(nomeLegivel === nomeSelecionado) {
-                            atualizarAlunoGlobal(nomeLegivel, chave);
-                            break;
-                        }
-                    }
-                });
-            };
-            
-            selGraficos.onchange = selTreino.onchange;
-            selMedidas.onchange = selTreino.onchange;
+            selTreino.onchange = (e) => atualizarAlunoGlobal(e.target.value);
+            selGraficos.onchange = (e) => atualizarAlunoGlobal(e.target.value);
+            selMedidas.onchange = (e) => atualizarAlunoGlobal(e.target.value);
             
             carregarListaAlunos();
         }
@@ -1187,58 +1179,57 @@
             ];
             
             selects.forEach(sel => {
-                sel.innerHTML = '<option>Carregando alunos...</option>';
+                sel.innerHTML = '<option value="">Carregando alunos...</option>';
             });
             
             database.ref('alunos/').once('value', snap => {
                 const alunos = snap.val();
-                
+
+                if(!alunos) { 
+                    selects.forEach(sel => sel.innerHTML = '<option value="">Nenhum aluno cadastrado</option>');
+                    alunoSelecionadoNome = '';
+                    alunoSelecionadoChave = '';
+                    return; 
+                }
+
+                const lista = [];
+                for(const chave in alunos) {
+                    const nomeLegivel = (alunos[chave].info && alunos[chave].info.nome)
+                        ? alunos[chave].info.nome
+                        : chave.replace(/_/g, ' ');
+
+                    lista.push({ chave, nomeLegivel });
+                }
+
+                lista.sort((a, b) => a.nomeLegivel.localeCompare(b.nomeLegivel));
+
                 selects.forEach(sel => {
                     sel.innerHTML = '';
-                    if(!alunos) { 
-                        sel.innerHTML = '<option>Nenhum aluno cadastrado</option>'; 
-                        return; 
-                    }
-                    
-                    let primeiro = null;
-                    let primeiroChave = null;
-                    const nomesParaSelect = [];
-
-                    for(const chave in alunos) {
-                        const nomeLegivel = alunos[chave].info && alunos[chave].info.nome ? alunos[chave].info.nome : chave.replace(/_/g, ' '); 
-                        nomesParaSelect.push({ chave, nomeLegivel });
-                        if(!primeiro) {
-                            primeiro = nomeLegivel;
-                            primeiroChave = chave;
-                        }
-                    }
-                  
-                    nomesParaSelect.sort((a, b) => a.nomeLegivel.localeCompare(b.nomeLegivel));
-
-                    nomesParaSelect.forEach(aluno => {
+                    lista.forEach(item => {
                         const opt = document.createElement('option');
-                        opt.value = aluno.nomeLegivel;
-                        opt.textContent = aluno.nomeLegivel;
+                        // ✅ FIX: value = chave REAL do Firebase (pode ter maiúscula)
+                        opt.value = item.chave;
+                        opt.textContent = item.nomeLegivel;
                         sel.appendChild(opt);
                     });
-
-                    if(alunoSelecionadoNome && sel.querySelector(`option[value="${alunoSelecionadoNome}"]`)) {
-                        sel.value = alunoSelecionadoNome;
-                    } else if(primeiro) {
-                        sel.value = primeiro;
-                        alunoSelecionadoNome = primeiro;
-                        alunoSelecionadoChave = primeiroChave;
-                    }
                 });
 
-                if(alunoSelecionadoNome) {
-                    carregarTudo();
-                }
+                // Selecionar aluno atual (se ainda existir) senão o primeiro
+                const chaveInicial = (alunoSelecionadoChave && alunos[alunoSelecionadoChave])
+                    ? alunoSelecionadoChave
+                    : lista[0].chave;
+
+                alunoSelecionadoChave = chaveInicial;
+                alunoSelecionadoNome = lista.find(x => x.chave === chaveInicial)?.nomeLegivel || chaveInicial;
+
+                selects.forEach(sel => sel.value = chaveInicial);
+
+                carregarTudo();
             });
         }
 
         function carregarTudo() {
-            if(!alunoSelecionadoNome) return;
+            if(!alunoSelecionadoChave) return;
             
             carregarDiasTreinoDoAluno();
             carregarGraficosAluno();
@@ -1307,7 +1298,7 @@
             container.innerHTML = '<p style="color: #777; text-align: center; padding: 30px;">Carregando treino...</p>';
 
             database.ref(getPath(`treinoModel/${dia}`)).once('value', snap => {
-                const treino = snap.val();
+                const treinoRaw = snap.val();
                 container.innerHTML = '';
                 
                 if (editorSortable) {
@@ -1318,9 +1309,14 @@
                 const treinoContainer = document.createElement('div');
                 treinoContainer.className = 'treino-tabelas-container';
                 treinoContainer.id = 'treino-sortable';
+
+                // ✅ FIX: compatibilidade com formato antigo (array) e novo (obj.exercicios)
+                const exercicios = Array.isArray(treinoRaw)
+                    ? treinoRaw
+                    : (treinoRaw && Array.isArray(treinoRaw.exercicios) ? treinoRaw.exercicios : []);
                 
-                if(Array.isArray(treino) && treino.length > 0) {
-                    treino.forEach(t => addLinhaTabelaMelhorada(t.nome, t.series, t.reps, treinoContainer));
+                if(exercicios.length > 0) {
+                    exercicios.forEach(t => addLinhaTabelaMelhorada(t.nome, t.series, t.reps, treinoContainer));
                 } else {
                     // Se não houver exercícios, adiciona uma linha vazia
                     addLinhaTabelaMelhorada('', '', '', treinoContainer);
@@ -1462,7 +1458,12 @@
             
             mostrarMensagem('Salvando treino...', 'sucesso');
             
-            database.ref(getPath(`treinoModel/${dia}`)).set(dados)
+            // ✅ FIX: salvar no formato novo (visível e consistente)
+            const treinoRef = database.ref(getPath(`treinoModel/${dia}`));
+            treinoRef.update({
+                atualizadoEm: Date.now(),
+                exercicios: dados
+            })
                 .then(() => {
                     mostrarMensagem('✅ Treino salvo com sucesso!', 'sucesso');
                     console.log(`Treino "${dia}" salvo com ${dados.length} exercícios`);
@@ -1505,8 +1506,11 @@
                     return;
                 }
 
-                // Cria o novo dia com array vazio
-                database.ref(getPath(`treinoModel/${nomeDia}`)).set([])
+                // ✅ FIX: cria como objeto visível (não mais [])
+                database.ref(getPath(`treinoModel/${nomeDia}`)).set({
+                    criadoEm: Date.now(),
+                    exercicios: []
+                })
                     .then(() => {
                         alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
                         document.getElementById('modalDia').style.display = 'none';
@@ -1518,11 +1522,10 @@
                         setTimeout(() => {
                             const selectDia = document.getElementById('selectDia');
                             selectDia.value = nomeDia;
-                            // Aguarda um pouco e carrega o treino
                             setTimeout(() => {
                                 carregarTreinoDia();
-                            }, 500);
-                        }, 300);
+                            }, 300);
+                        }, 200);
                     })
                     .catch(e => {
                         console.error("Erro ao criar dia:", e);
