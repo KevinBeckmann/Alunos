@@ -617,8 +617,7 @@
         }
 
         // Your web app's Firebase configuration
-       // Your web app's Firebase configuration
-const firebaseConfig = {
+        const firebaseConfig = {
   apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
   authDomain: "ptf03-26fdb.firebaseapp.com",
   databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
@@ -1273,20 +1272,11 @@ const firebaseConfig = {
                     return;
                 }
                 
-                const treinoData = snap.val();
-                if (!treinoData || !treinoData.exercicios || !Array.isArray(treinoData.exercicios)) {
-                    ul.innerHTML = `
-                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                            Treino não encontrado para ${dia}
-                        </li>
-                    `;
-                    return;
-                }
-                
-                const exercicios = treinoData.exercicios;
-                exercicios.forEach((t, index) => {
+                let contador = 0;
+                snap.forEach(childSnapshot => {
+                    contador++;
+                    const t = childSnapshot.val();
                     if (t && t.nome) {
-                        const contador = index + 1;
                         const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
                         const li = document.createElement('li');
                         li.className = 'exercicio-item';
