@@ -421,18 +421,18 @@
             <h3>Bem-vindo(a)!</h3>
             <p>Por favor, insira seu nome:</p>
             <input type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva"
-    style="
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 12px;
-        background-color: rgba(255,255,255,0.08);
-        color: #f0f0f0;
-        text-align: center;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 6px;
-        display: block;
-        box-sizing: border-box;
-    ">
+                   style="
+                       width: 100%;
+                       padding: 12px;
+                       margin-bottom: 12px;
+                       background-color: rgba(255,255,255,0.08);
+                       color: #f0f0f0;
+                       text-align: center;
+                       border: 1px solid rgba(255,255,255,0.3);
+                       border-radius: 6px;
+                       display: block;
+                       box-sizing: border-box;
+                   ">
 
             <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
         </div>
@@ -472,34 +472,23 @@
 
         <div id="medidas-card" class="card">
             <h2> Registro de Medidas</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.
-            </p>
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.</p>
 
             <div class="input-container">
-                <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput"
-                        placeholder="Ex: 75.5" step="0.1"></div>
-                <div class="input-group"><label>Cintura</label><input type="number" id="cinturaInput" placeholder="cm"
-                        step="1"></div>
-                <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm"
-                        step="0.5"></div>
-                <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm"
-                        step="1">
-                </div>
-                <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm"
-                        step="1"></div>
-                <div class="input-group"><label>Coxa D.</label><input type="number" id="coxaInput" placeholder="cm"
-                        step="0.5"></div>
-                <div class="input-group"><label>Panturrilha</label><input type="number" id="panturrilhaInput"
-                        placeholder="cm" step="0.5"></div>
-                <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput"
-                        placeholder="cm" step="0.5"></div>
+                <div class="input-group"><label>Peso (kg)</label><input type="number" id="pesoCorporalInput" placeholder="Ex: 75.5" step="0.1"></div>
+                <div class="input-group"><label>Cintura</label><input type="number" id="cinturaInput" placeholder="cm" step="1"></div>
+                <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm" step="0.5"></div>
+                <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm" step="1"></div>
+                <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm" step="1"></div>
+                <div class="input-group"><label>Coxa D.</label><input type="number" id="coxaInput" placeholder="cm" step="0.5"></div>
+                <div class="input-group"><label>Panturrilha</label><input type="number" id="panturrilhaInput" placeholder="cm" step="0.5"></div>
+                <div class="input-group"><label>Antebraço</label><input type="number" id="antebracoInput" placeholder="cm" step="0.5"></div>
             </div>
 
             <button class="btn-primary" onclick="registrarMedidas()">Registrar Medidas</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Últimos Registros</h3>
-            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro
-                encontrado.</div>
+            <div id="ultimasMedidas" style="font-size: 0.9em; color: #ccc; text-align: center;">Nenhum registro encontrado.</div>
             <button class="reset-btn" onclick="resetarDados('medidas')">Resetar Medidas</button>
         </div>
 
@@ -529,14 +518,12 @@
             <h2> IA PTF3</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta" placeholder= "Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'" ></textarea>
+            <textarea id="exercicioPergunta" placeholder="Ex: 'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'"></textarea>
 
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
-            <div id="ai-resposta">
-                
-            </div>
+            <div id="ai-resposta"></div>
         </div>
         
         <div id="presenca-card" class="card">
@@ -604,6 +591,7 @@
     </div>
 
     <script>
+        // Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -616,16 +604,16 @@
             });
         }
 
-        // Your web app's Firebase configuration
+        // Firebase config
         const firebaseConfig = {
-  apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
-  authDomain: "ptf03-26fdb.firebaseapp.com",
-  databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
-  projectId: "ptf03-26fdb",
-  storageBucket: "ptf03-26fdb.firebasestorage.app",
-  messagingSenderId: "1020981883676",
-  appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
-};
+          apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
+          authDomain: "ptf03-26fdb.firebaseapp.com",
+          databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+          projectId: "ptf03-26fdb",
+          storageBucket: "ptf03-26fdb.firebasestorage.app",
+          messagingSenderId: "1020981883676",
+          appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+        };
 
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -633,19 +621,29 @@
         let alunoNome = '';
         let pesoChart;
         let chartTreinos = null;
-        let coresPorTreino = {
-            'A': '#ff6b6b', // Vermelho alaranjado
-            'B': '#4ecdc4', // Turquesa
-            'C': '#ffd166', // Amarelo
-            'D': '#06d6a0', // Verde
-            'E': '#118ab2', // Azul
-            'F': '#ef476f', // Rosa
-            'G': '#073b4c', // Azul escuro
-            'default': '#6c757d' // Cinza para outros
+        const coresPorTreino = {
+            'A': '#ff6b6b',
+            'B': '#4ecdc4',
+            'C': '#ffd166',
+            'D': '#06d6a0',
+            'E': '#118ab2',
+            'F': '#ef476f',
+            'G': '#073b4c',
+            'default': '#6c757d'
         };
 
+        // FORMATAÇÃO DE CHAVE IGUAL AO PAINEL DO PROFESSOR
+        function formatarNomeParaChave(nome) {
+            return String(nome || '').trim()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-zA-Z0-9\s]/g, '')
+                .replace(/\s+/g, '_')
+                .toLowerCase();
+        }
+
         function getPath(sub) {
-            return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
+            const chave = formatarNomeParaChave(alunoNome);
+            return `alunos/${chave}/${sub}`;
         }
 
         const rawData = [
@@ -654,6 +652,9 @@
         ];
 
         const bancoDeExercicios = {};
+        function normalize(str) {
+            return String(str || '').toLowerCase().replace(/[^a-z0-9\s]/g, '');
+        }
 
         rawData.forEach(item => {
             const parts = item.split(' | ');
@@ -668,20 +669,11 @@
                 ];
 
                 bancoDeExercicios[key] = {
-                    nome: nome,
-                    modalidade: modalidade,
-                    categoria: categoria,
-                    musculos: musculos,
-                    execucao: execucao,
-                    dica: dica,
+                    nome, modalidade, categoria, musculos, execucao, dica,
                     termos: [...new Set(searchTerms.filter(t => t))]
                 };
             }
         });
-
-        function normalize(str) {
-            return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
-        }
 
         function obterNomeAluno() {
             const nomeLocal = localStorage.getItem('nomeAluno');
@@ -702,24 +694,21 @@
             start();
         }
 
-        // Função para carregar os dias de treino dinamicamente
+        // Carrega dias de treino (nomes dos dias) do Firebase
         function carregarDiasTreino() {
             const select = document.getElementById('seletorTreino');
-            
-            // Limpa opções atuais
             select.innerHTML = '<option value="">Carregando...</option>';
-            
-            // Busca os dias de treino disponíveis no Firebase
-            database.ref(getPath('treinoModel')).once('value', snapshot => {
+
+            const path = getPath('treinoModel');
+            console.log('carregarDiasTreino path:', path);
+
+            database.ref(path).once('value', snapshot => {
                 if (!snapshot.exists()) {
                     select.innerHTML = '<option value="">Nenhum treino disponível</option>';
                     return;
                 }
-                
-                // Limpa as opções
+
                 select.innerHTML = '';
-                
-                // Adiciona cada dia encontrado
                 snapshot.forEach(childSnapshot => {
                     const dia = childSnapshot.key;
                     const option = document.createElement('option');
@@ -727,8 +716,7 @@
                     option.textContent = dia;
                     select.appendChild(option);
                 });
-                
-                // Carrega o primeiro treino por padrão
+
                 if (select.options.length > 0) {
                     select.value = select.options[0].value;
                     carregarTreinoDoProfessor(select.value);
@@ -736,7 +724,111 @@
             });
         }
 
-        // Função: finalizarTreino (salva treino finalizado com Firebase SDK)
+        // Lê treino do dia, compatível com formato do painel do professor
+        function carregarTreinoDoProfessor(dia) {
+            const treinoContainer = document.getElementById('treino-dinamico-container');
+
+            treinoContainer.innerHTML = `
+                <h3 style="color:#ff9933;">${dia}</h3>
+                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
+                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                        Carregando treino...
+                    </li>
+                </ul>
+                <div style="margin-top:10px;">
+                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
+                </div>
+            `;
+
+            const path = getPath(`treinoModel/${dia}`);
+            console.log('carregarTreinoDoProfessor path:', path);
+
+            database.ref(path).on('value', snap => {
+                const ul = document.getElementById('lista-treino-dinamico');
+                ul.innerHTML = '';
+
+                if (!snap.exists()) {
+                    console.log('Treino não encontrado para', dia);
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Treino não encontrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
+
+                const raw = snap.val();
+                console.log('Treino raw:', raw);
+
+                let exercicios = [];
+                if (Array.isArray(raw)) {
+                    exercicios = raw;
+                } else if (raw && Array.isArray(raw.exercicios)) {
+                    exercicios = raw.exercicios;
+                } else {
+                    const tmp = [];
+                    snap.forEach(child => {
+                        const v = child.val();
+                        if (v && v.nome) tmp.push(v);
+                    });
+                    exercicios = tmp;
+                }
+
+                if (!exercicios || exercicios.length === 0) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Nenhum exercício cadastrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
+
+                exercicios.forEach((t, idx) => {
+                    if (!t || !t.nome) return;
+                    const id = `ex-${dia.replace(/\s/g, '')}-${idx + 1}`;
+                    const li = document.createElement('li');
+                    li.className = 'exercicio-item';
+                    li.setAttribute('data-exercicio', id);
+                    li.innerHTML = `
+                        <div class="exercicio-info">
+                            <strong>${t.nome}</strong>
+                            <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
+                            ${t.nota ? `<br><small style="color:#ccc;">${t.nota}</small>` : ''}
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
+                        </div>
+                    `;
+                    ul.appendChild(li);
+                });
+
+                carregarCheckboxes(dia);
+            });
+        }
+
+        function marcarConcluido(chk, dia, id) {
+            const li = chk.closest('li');
+            if (chk.checked) li.classList.add('concluido');
+            else li.classList.remove('concluido');
+
+            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
+        }
+
+        function carregarCheckboxes(dia) {
+            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
+                const status = snap.val() || {};
+                document.querySelectorAll('#lista-treino-dinamico li').forEach(li => {
+                    const id = li.getAttribute('data-exercicio');
+                    const chk = li.querySelector('input[type="checkbox"]');
+                    if (chk && status[id]) {
+                        chk.checked = true;
+                        li.classList.add('concluido');
+                    }
+                });
+            });
+        }
+
+        // Finalizar treino (registra em treinosFinalizados)
         function finalizarTreino() {
             try {
                 const select = document.getElementById('seletorTreino');
@@ -747,7 +839,6 @@
                     return;
                 }
                 
-                // Extrai o tipo do treino automaticamente
                 const tipoTreino = extrairTipoTreino(dia);
                 const treinoComTipo = tipoTreino ? `${dia} (Treino ${tipoTreino})` : dia;
                 
@@ -769,8 +860,8 @@
                 }
                 
                 const payload = {
-                    dia: treinoComTipo, // Salva com tipo incluído
-                    tipo: tipoTreino || extrairTipoTreinoManual(), // Tipo extraído
+                    dia: treinoComTipo,
+                    tipo: tipoTreino || extrairTipoTreinoManual(),
                     data: dataLegivel,
                     hora: horaLegivel,
                     timestamp: Date.now(),
@@ -785,7 +876,6 @@
                 ref.set(payload)
                     .then(() => {
                         alert(`Treino ${treinoComTipo} registrado com sucesso!`);
-                        // Recarrega as estatísticas
                         carregarUltimoTreino();
                         contarTreinosDoMes();
                         marcarTreinoNoCalendario(new Date());
@@ -801,21 +891,15 @@
             }
         }
 
-        // Função auxiliar para extrair tipo de treino - VERSÃO CORRIGIDA
         function extrairTipoTreino(diaString) {
             if (!diaString) return null;
-            
-            // Converte para string
             const str = diaString.toString();
-            
-            // Procura por padrões como "Treino A", "Dia A", "Treino: A", etc.
             const patterns = [
-                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,  // "Treino A", "Dia: B"
-                /\(([ABCDEFG])\)/i,                          // Entre parênteses "(A)"
-                /[:\-]\s*([ABCDEFG])/i,                      // Após dois pontos ou hífen
-                /\b([ABCDEFG])\b(?!\w)/i                     // Letra isolada
+                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,
+                /\(([ABCDEFG])\)/i,
+                /[:\-]\s*([ABCDEFG])/i,
+                /\b([ABCDEFG])\b(?!\w)/i
             ];
-            
             for (const pattern of patterns) {
                 const match = str.match(pattern);
                 if (match && match[1]) {
@@ -824,27 +908,21 @@
                     return tipo;
                 }
             }
-            
-            // Verifica se o nome termina com letra
             const ultimoChar = str.trim().slice(-1);
             if (ultimoChar.match(/[ABCDEFG]/i)) {
                 console.log(`Extraído (último char) de "${diaString}": ${ultimoChar.toUpperCase()}`);
                 return ultimoChar.toUpperCase();
             }
-            
             console.log(`Nenhum tipo encontrado em: "${diaString}"`);
             return null;
         }
 
-        // Função alternativa para determinar tipo quando não encontrado
         function extrairTipoTreinoManual() {
-            // Lógica de rotação: A → B → C → D → A...
             const ultimoTipo = localStorage.getItem('ultimoTipoTreino') || 'D';
             const tipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const indexAtual = tipos.indexOf(ultimoTipo);
             const proximoIndex = (indexAtual + 1) % tipos.length;
             const novoTipo = tipos[proximoIndex];
-            
             localStorage.setItem('ultimoTipoTreino', novoTipo);
             return novoTipo;
         }
@@ -899,22 +977,17 @@
                         treino.id = c.key;
                         lista.push(treino);
                     });
-                    
                     console.log('Treinos carregados:', lista.length);
-                    
-                    // Renderiza o gráfico
                     renderTreinosBarChart(lista);
                 }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
-        // FUNÇÃO PRINCIPAL: Renderiza gráfico de barras com cores por tipo de treino
         function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
                 if (!canvas) return;
                 
-                // Se não houver treinos, limpa o gráfico
                 if (!treinosLista || treinosLista.length === 0) {
                     if (chartTreinos) chartTreinos.destroy();
                     chartTreinos = null;
@@ -925,31 +998,24 @@
                 
                 canvas.style.display = 'block';
                 
-                // Ordena por timestamp (mais antigo primeiro)
                 const treinosOrdenados = treinosLista.slice().sort((a, b) => {
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
 
                 console.log('Treinos ordenados para gráfico:', treinosOrdenados);
 
-                // Labels com números sequenciais
                 const labels = treinosOrdenados.map((t, index) => `${index + 1}`);
-                
-                // Dados: exercícios concluídos
                 const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
                 
-                // Cores baseadas no tipo de treino - LÓGICA CORRIGIDA
                 const cores = treinosOrdenados.map(t => {
                     const tipo = t.tipo || extrairTipoTreino(t.dia);
                     console.log(`Treino: "${t.dia}" -> Tipo: ${tipo} -> Cor: ${coresPorTreino[tipo] || coresPorTreino.default}`);
-                    
                     if (tipo && coresPorTreino[tipo]) {
                         return coresPorTreino[tipo];
                     }
                     return coresPorTreino.default;
                 });
 
-                // Atualiza a legenda com os tipos presentes
                 atualizarLegendaCores(treinosOrdenados, coresPorTreino);
 
                 if (typeof Chart === 'undefined') { 
@@ -987,9 +1053,7 @@
                                     maxRotation: 0,
                                     minRotation: 0
                                 },
-                                grid: { 
-                                    display: false
-                                }
+                                grid: { display: false }
                             },
                             y: { 
                                 beginAtZero: true, 
@@ -999,15 +1063,11 @@
                                     precision: 0
                                 },
                                 grid: { color: 'rgba(255,255,255,0.1)' },
-                                title: {
-                                    display: false
-                                }
+                                title: { display: false }
                             }
                         },
                         plugins: {
-                            legend: { 
-                                display: false
-                            },
+                            legend: { display: false },
                             tooltip: {
                                 callbacks: {
                                     title: function(context) {
@@ -1048,31 +1108,18 @@
             }
         }
         
-        // Função para atualizar a legenda baseada nos treinos reais
         function atualizarLegendaCores(treinosOrdenados, coresPorTreino) {
             const tiposPresentes = new Set();
-            
-            // Identifica quais tipos de treino estão presentes
             treinosOrdenados.forEach(t => {
                 const tipo = t.tipo || extrairTipoTreino(t.dia);
-                if (tipo) {
-                    tiposPresentes.add(tipo.toUpperCase());
-                }
+                if (tipo) tiposPresentes.add(tipo.toUpperCase());
             });
-            
-            // Verifica se há treinos sem tipo específico
             const temOutros = treinosOrdenados.some(t => !(t.tipo || extrairTipoTreino(t.dia)));
-            
-            // Ordena os tipos para consistência
             const todosTipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const tiposFiltrados = todosTipos.filter(t => tiposPresentes.has(t));
-            
-            // Atualiza a legenda
             const legendaContainer = document.getElementById('legenda-cores');
             if (legendaContainer) {
                 let html = '';
-                
-                // Adiciona cada tipo presente
                 tiposFiltrados.forEach(tipo => {
                     if (coresPorTreino[tipo]) {
                         html += `
@@ -1083,8 +1130,6 @@
                         `;
                     }
                 });
-                
-                // Adiciona "Outros" se houver treinos sem tipo específico
                 if (temOutros) {
                     html += `
                         <div class="legenda-item">
@@ -1093,12 +1138,9 @@
                         </div>
                     `;
                 }
-                
-                // Se não houver nenhum tipo, mostra mensagem
                 if (tiposFiltrados.length === 0 && !temOutros) {
                     html = '<div style="color: #ccc; font-size: 0.8em;">Nenhum treino registrado</div>';
                 }
-                
                 legendaContainer.innerHTML = html;
             }
         }
@@ -1109,7 +1151,8 @@
                 const mes = String(dataObj.getMonth()+1).padStart(2,'0');
                 const ano = dataObj.getFullYear();
                 const chave = `${dia}-${mes}-${ano}`;
-                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() }).catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
+                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() })
+                    .catch(e=>console.warn('marcarTreinoNoCalendario erro', e));
             } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
         }
 
@@ -1121,14 +1164,10 @@
             inicializarGrafico();
             carregarUltimasMedidas();
             gerarCalendario();
-            
-            // Carrega os dias de treino dinamicamente
             carregarDiasTreino();
-        
             carregarUltimoTreino();
             contarTreinosDoMes();
             
-            // Aguarda Chart.js carregar e então renderiza os treinos
             if (typeof Chart !== 'undefined') {
                 carregarTreinosFinalizados();
             } else {
@@ -1242,90 +1281,6 @@
             });
         }
 
-        function carregarTreinoDoProfessor(dia) {
-            const treinoContainer = document.getElementById('treino-dinamico-container');
-            
-            // Atualiza o conteúdo do container
-            treinoContainer.innerHTML = `
-                <h3 style="color:#ff9933;">${dia}</h3>
-                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                        Carregando treino...
-                    </li>
-                </ul>
-                <div style="margin-top:10px;">
-                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
-                </div>
-            `;
-            
-            // Busca os exercícios do dia específico
-            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
-                const ul = document.getElementById('lista-treino-dinamico');
-                ul.innerHTML = '';
-                
-                if (!snap.exists()) {
-                    ul.innerHTML = `
-                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
-                            Treino não encontrado para ${dia}
-                        </li>
-                    `;
-                    return;
-                }
-                
-                let contador = 0;
-                snap.forEach(childSnapshot => {
-                    contador++;
-                    const t = childSnapshot.val();
-                    if (t && t.nome) {
-                        const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
-                        const li = document.createElement('li');
-                        li.className = 'exercicio-item';
-                        li.setAttribute('data-exercicio', id);
-                        li.innerHTML = `
-                            <div class="exercicio-info">
-                                <strong>${t.nome}</strong>
-                                <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
-                                ${t.nota ? `<br><small style="color:#ccc;">${t.nota}</small>` : ''}
-                            </div>
-                            <div class="checkbox-container">
-                                <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
-                            </div>
-                        `;
-                        ul.appendChild(li);
-                    }
-                });
-                
-                // Carrega status dos checkboxes
-                carregarCheckboxes(dia);
-            });
-        }
-
-        function marcarConcluido(chk, dia, id) {
-            const li = chk.closest('li');
-            if (chk.checked) {
-                li.classList.add('concluido');
-            } else {
-                li.classList.remove('concluido');
-            }
-            
-            // Salva o status no Firebase
-            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
-        }
-
-        function carregarCheckboxes(dia) {
-            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
-                const status = snap.val() || {};
-                document.querySelectorAll(`#lista-treino-dinamico li`).forEach(li => {
-                    const id = li.getAttribute('data-exercicio');
-                    const chk = li.querySelector('input[type="checkbox"]');
-                    if (chk && status[id]) {
-                        chk.checked = true;
-                        li.classList.add('concluido');
-                    }
-                });
-            });
-        }
-
         function gerarCalendario() {
             const hoje = new Date();
             const mesAtual = hoje.getMonth();
@@ -1429,8 +1384,7 @@
                     respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
                 } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
                     respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
-                }
-                else {
+                } else {
                     respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
                 }
 
