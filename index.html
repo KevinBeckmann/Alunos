@@ -52,50 +52,29 @@
             font-size: 0.9em;
         }
 
-        /* HEADER aprimorado */
+        /* HEADER */
         .header-content {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             flex-wrap: wrap;
-            margin-bottom: 25px;
-            gap: 12px;
-            width: 100%;
-            max-width: 1200px;
+            margin-bottom: 30px;
+            gap: 20px;
+            text-align: center;
+            max-width: 100%;
         }
 
         .header-content img {
-            max-width: 64px;
+            max-width: 80px;
             height: auto;
-            border-radius: 12px;
-        }
-
-        .header-text {
-            flex: 1;
-            min-width: 200px;
+            border-radius: 10px;
         }
 
         .header-content h1 {
             color: #ff8c00;
             margin: 0;
-            font-size: 1.7em;
-            line-height: 1.3;
-        }
-
-        .header-subtitle {
-            margin-top: 4px;
-            font-size: 0.9em;
-            color: #cccccc;
-        }
-
-        @media (max-width: 600px) {
-            .header-content {
-                justify-content: center;
-                text-align: center;
-            }
-            .header-text {
-                text-align: center;
-            }
+            font-size: 2.2em;
+            line-height: 1.2;
         }
 
         /* LAYOUT RESPONSIVO (GRID) */
@@ -121,38 +100,27 @@
 
         @media (min-width: 1024px) {
             .container {
-                grid-template-columns: 2fr 1.5fr 1.5fr;
-                align-items: flex-start;
+                grid-template-columns: 1fr 1fr 1fr;
             }
-
-            /* Organização em 3 colunas no desktop */
-            #treino-card { grid-column: 1 / 2; }
-            #medidas-card { grid-column: 1 / 2; }
-            #chart-card { grid-column: 2 / 4; }
-            #presenca-card { grid-column: 2 / 3; }
-            #ai-search-card { grid-column: 3 / 4; }
+            #chart-card {
+                grid-column: auto;
+                order: initial;
+            }
         }
 
-        /* CARDS com destaque suave */
+        /* CARDS */
         .card {
-            background-color: rgba(255, 255, 255, 0.06);
-            padding: 22px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Destacar o card de treino */
-        #treino-card {
-            border-color: #ff8c00;
-            box-shadow: 0 0 25px rgba(255, 140, 0, 0.35);
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         #medidas-card {
             order: 2;
         }
 
-        /* FORMULÁRIOS E INPUTS aprimorados */
+        /* FORMULÁRIOS E INPUTS */
         .input-group {
             display: flex;
             gap: 10px;
@@ -180,22 +148,13 @@
         .input-group input,
         select {
             flex-grow: 1;
-            padding: 10px 12px;
-            background-color: rgba(15, 15, 15, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #f0f0f0;
-            border-radius: 8px;
+            border-radius: 4px;
             width: 100%;
             box-sizing: border-box;
-            font-size: 0.95em;
-        }
-
-        .input-group input:focus,
-        select:focus,
-        #ai-search-card textarea:focus {
-            outline: none;
-            border-color: #ff8c00;
-            box-shadow: 0 0 0 1px rgba(255, 140, 0, 0.4);
         }
 
         select {
@@ -219,38 +178,31 @@
 
         .chart-container {
             position: relative;
-            height: 280px;
+            height: 300px;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        /* LISTA DE TREINO aprimorada */
+        /* LISTA DE TREINO */
         .exercicio-item {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            padding: 14px;
-            margin-bottom: 8px;
-            background-color: rgba(255, 255, 255, 0.04);
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: background-color 0.3s, transform 0.1s;
+            transition: background-color 0.3s;
         }
 
         .exercicio-item:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            transform: translateY(-1px);
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .exercicio-info strong {
-            font-size: 1.05em;
+            font-size: 1.1em;
             display: block;
-            margin-bottom: 3px;
-        }
-
-        .exercicio-info span {
-            font-size: 0.85em;
-            color: #bbbbbb;
+            margin-bottom: 5px;
         }
 
         .checkbox-container input[type="checkbox"] {
@@ -260,7 +212,7 @@
 
         .concluido {
             background-color: #387038;
-            opacity: 0.8;
+            opacity: 0.7;
             text-decoration: line-through;
             color: #a0a0a0;
         }
@@ -289,16 +241,15 @@
             color: white;
         }
 
-        /* BOTÕES com leve melhoria */
+        /* BOTÕES */
         button {
             padding: 10px 15px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             width: 100%;
             font-weight: bold;
-            transition: 0.2s;
-            font-size: 0.95em;
+            transition: 0.3s;
         }
 
         .btn-primary {
@@ -308,7 +259,6 @@
 
         .btn-primary:hover {
             background-color: #e0a800;
-            transform: translateY(-1px);
         }
 
         .reset-btn {
@@ -319,7 +269,6 @@
 
         .reset-btn:hover {
             background-color: #c9302c;
-            transform: translateY(-1px);
         }
 
         /* MODAL */
@@ -357,7 +306,7 @@
             margin-top: 10px;
         }
 
-        /* IA card */
+        /* --- CAMPO DE PESQUISA IA --- */
         #ai-search-card {
             order: 3;
             background-color: #1a1a1a;
@@ -369,13 +318,12 @@
             min-height: 100px;
             padding: 10px;
             margin-bottom: 10px;
-            border-radius: 8px;
+            border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             background-color: #000000;
             color: #f0f0f0;
             resize: vertical;
             box-sizing: border-box;
-            font-size: 0.95em;
         }
 
         #ai-resposta {
@@ -458,22 +406,6 @@
             border-radius: 4px;
             background: rgba(255, 255, 255, 0.05);
         }
-
-        /* Toast simples para feedback (pode usar depois) */
-        #toast {
-            position: fixed;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: none;
-            z-index: 2000;
-        }
     </style>
 </head>
 
@@ -508,10 +440,7 @@
 
     <div class="header-content">
         <img src="logotipo.png" alt="Logo PTF3" onerror="this.style.display='none'">
-        <div class="header-text">
-            <h1 id="main-title">Seu painel de treino</h1>
-            <div class="header-subtitle" id="header-subtitle">Carregando dados do aluno...</div>
-        </div>
+        <h1 id="main-title">Seja bem-vindo ao seu Espaço.</h1>
     </div>
 
     <div class="container">
@@ -536,17 +465,14 @@
 
             <div class="input-group">
                 <input type="number" id="pesoInput" placeholder="Carga (kg)" step="0.5">
-                <button class="btn-primary" onclick="adicionarPeso()">
-                    <span style="margin-right:6px;">➕</span>Registrar Carga
-                </button>
+                <button class="btn-primary" onclick="adicionarPeso()">Registrar Carga</button>
             </div>
             <button class="reset-btn" onclick="resetarDados('cargas')">Resetar Histórico</button>
         </div>
 
         <div id="medidas-card" class="card">
             <h2> Registro de Medidas</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">
-                Acompanhe sua evolução corporal.
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #ccc; text-align: center;">Acompanhe sua evolução.
             </p>
 
             <div class="input-container">
@@ -557,7 +483,8 @@
                 <div class="input-group"><label>Braço D.</label><input type="number" id="bracoInput" placeholder="cm"
                         step="0.5"></div>
                 <div class="input-group"><label>Tórax</label><input type="number" id="toraxInput" placeholder="cm"
-                        step="1"></div>
+                        step="1">
+                </div>
                 <div class="input-group"><label>Abdômen</label><input type="number" id="abdomenInput" placeholder="cm"
                         step="1"></div>
                 <div class="input-group"><label>Coxa D.</label><input type="number" id="coxaInput" placeholder="cm"
@@ -602,12 +529,14 @@
             <h2> IA PTF3</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta" placeholder="Ex: 'Qual a forma correta de fazer agachamento livre?' ou 'Quais os músculos ativados no supino?'"></textarea>
+            <textarea id="exercicioPergunta" placeholder="Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'"></textarea>
 
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
-            <div id="ai-resposta"></div>
+            <div id="ai-resposta">
+                
+            </div>
         </div>
         
         <div id="presenca-card" class="card">
@@ -674,10 +603,8 @@
 
     </div>
 
-    <!-- Toast para mensagens rápidas (opcionalmente usado) -->
-    <div id="toast"></div>
-
     <script>
+        // Service worker PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -690,6 +617,7 @@
             });
         }
 
+        // Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
             authDomain: "ptf03-26fdb.firebaseapp.com",
@@ -741,12 +669,12 @@
                 ];
 
                 bancoDeExercicios[key] = {
-                    nome,
-                    modalidade,
-                    categoria,
-                    musculos,
-                    execucao,
-                    dica,
+                    nome: nome,
+                    modalidade: modalidade,
+                    categoria: categoria,
+                    musculos: musculos,
+                    execucao: execucao,
+                    dica: dica,
                     termos: [...new Set(searchTerms.filter(t => t))]
                 };
             }
@@ -775,15 +703,7 @@
             start();
         }
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            if (!t) return;
-            t.textContent = msg;
-            t.style.display = 'block';
-            setTimeout(() => { t.style.display = 'none'; }, 2500);
-        }
-
-        // Carregar dias de treino
+        // Carrega dias de treino do aluno
         function carregarDiasTreino() {
             const select = document.getElementById('seletorTreino');
             select.innerHTML = '<option value="">Carregando...</option>';
@@ -811,7 +731,7 @@
             });
         }
 
-        // Finalizar treino
+        // Finalizar treino (registra em treinosFinalizados)
         function finalizarTreino() {
             try {
                 const select = document.getElementById('seletorTreino');
@@ -853,6 +773,8 @@
                     exerciciosConcluidos: concluidos
                 };
                 
+                console.log('Salvando treino:', payload);
+                
                 const ref = database.ref(getPath('treinosFinalizados')).push();
                 ref.set(payload)
                     .then(() => {
@@ -872,6 +794,7 @@
             }
         }
 
+        // Extrai tipo de treino (A, B, C...)
         function extrairTipoTreino(diaString) {
             if (!diaString) return null;
             const str = diaString.toString();
@@ -886,13 +809,18 @@
                 const match = str.match(pattern);
                 if (match && match[1]) {
                     const tipo = match[1].toUpperCase();
+                    console.log(`Extraído de "${diaString}": ${tipo} (padrão: ${pattern})`);
                     return tipo;
                 }
             }
+            
             const ultimoChar = str.trim().slice(-1);
             if (ultimoChar.match(/[ABCDEFG]/i)) {
+                console.log(`Extraído (último char) de "${diaString}": ${ultimoChar.toUpperCase()}`);
                 return ultimoChar.toUpperCase();
             }
+            
+            console.log(`Nenhum tipo encontrado em: "${diaString}"`);
             return null;
         }
 
@@ -956,11 +884,14 @@
                         treino.id = c.key;
                         lista.push(treino);
                     });
+                    
+                    console.log('Treinos carregados:', lista.length);
                     renderTreinosBarChart(lista);
                 }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
+        // Gráfico de barras de treinos
         function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
@@ -975,15 +906,22 @@
                 }
                 
                 canvas.style.display = 'block';
+                
                 const treinosOrdenados = treinosLista.slice().sort((a, b) => {
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
 
+                console.log('Treinos ordenados para gráfico:', treinosOrdenados);
+
                 const labels = treinosOrdenados.map((t, index) => `${index + 1}`);
                 const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
+                
                 const cores = treinosOrdenados.map(t => {
                     const tipo = t.tipo || extrairTipoTreino(t.dia);
-                    if (tipo && coresPorTreino[tipo]) return coresPorTreino[tipo];
+                    console.log(`Treino: "${t.dia}" -> Tipo: ${tipo} -> Cor: ${coresPorTreino[tipo] || coresPorTreino.default}`);
+                    if (tipo && coresPorTreino[tipo]) {
+                        return coresPorTreino[tipo];
+                    }
                     return coresPorTreino.default;
                 });
 
@@ -1001,7 +939,7 @@
                 chartTreinos = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels,
+                        labels: labels,
                         datasets: [{
                             label: 'Exercícios Concluídos',
                             data: dados,
@@ -1024,7 +962,9 @@
                                     maxRotation: 0,
                                     minRotation: 0
                                 },
-                                grid: { display: false }
+                                grid: { 
+                                    display: false
+                                }
                             },
                             y: { 
                                 beginAtZero: true, 
@@ -1034,11 +974,15 @@
                                     precision: 0
                                 },
                                 grid: { color: 'rgba(255,255,255,0.1)' },
-                                title: { display: false }
+                                title: {
+                                    display: false
+                                }
                             }
                         },
                         plugins: {
-                            legend: { display: false },
+                            legend: { 
+                                display: false
+                            },
                             tooltip: {
                                 callbacks: {
                                     title: function(context) {
@@ -1083,15 +1027,19 @@
             const tiposPresentes = new Set();
             treinosOrdenados.forEach(t => {
                 const tipo = t.tipo || extrairTipoTreino(t.dia);
-                if (tipo) tiposPresentes.add(tipo.toUpperCase());
+                if (tipo) {
+                    tiposPresentes.add(tipo.toUpperCase());
+                }
             });
             
             const temOutros = treinosOrdenados.some(t => !(t.tipo || extrairTipoTreino(t.dia)));
             const todosTipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const tiposFiltrados = todosTipos.filter(t => tiposPresentes.has(t));
+            
             const legendaContainer = document.getElementById('legenda-cores');
             if (legendaContainer) {
                 let html = '';
+                
                 tiposFiltrados.forEach(tipo => {
                     if (coresPorTreino[tipo]) {
                         html += `
@@ -1102,6 +1050,7 @@
                         `;
                     }
                 });
+                
                 if (temOutros) {
                     html += `
                         <div class="legenda-item">
@@ -1110,9 +1059,11 @@
                         </div>
                     `;
                 }
+                
                 if (tiposFiltrados.length === 0 && !temOutros) {
                     html = '<div style="color: #ccc; font-size: 0.8em;">Nenhum treino registrado</div>';
                 }
+                
                 legendaContainer.innerHTML = html;
             }
         }
@@ -1128,8 +1079,7 @@
         }
 
         function start() {
-            document.getElementById('main-title').textContent = 'Seu painel de treino';
-            document.getElementById('header-subtitle').textContent = `Olá, ${alunoNome}`;
+            document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
             document.getElementById('nome-aluno').textContent = alunoNome;
             document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
         
@@ -1253,8 +1203,10 @@
             });
         }
 
+        // *** FUNÇÃO CORRIGIDA: lê o formato salvo pelo painel do professor ***
         function carregarTreinoDoProfessor(dia) {
             const treinoContainer = document.getElementById('treino-dinamico-container');
+            
             treinoContainer.innerHTML = `
                 <h3 style="color:#ff9933;">${dia}</h3>
                 <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
@@ -1263,7 +1215,7 @@
                     </li>
                 </ul>
                 <div style="margin-top:10px;">
-                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">✅ Finalizar Treino</button>
+                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
                 </div>
             `;
             
@@ -1279,12 +1231,29 @@
                     `;
                     return;
                 }
+
+                const treinoRaw = snap.val();
+
+                // compatível com:
+                // - formato novo: { atualizadoEm, criadoEm, exercicios: [...] }
+                // - formato antigo: [ {nome, series, reps}, ... ]
+                const exercicios = Array.isArray(treinoRaw)
+                    ? treinoRaw
+                    : (treinoRaw && Array.isArray(treinoRaw.exercicios) ? treinoRaw.exercicios : []);
+
+                if (!exercicios || exercicios.length === 0) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Nenhum exercício cadastrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
                 
                 let contador = 0;
-                snap.forEach(childSnapshot => {
-                    contador++;
-                    const t = childSnapshot.val();
+                exercicios.forEach(t => {
                     if (t && t.nome) {
+                        contador++;
                         const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
                         const li = document.createElement('li');
                         li.className = 'exercicio-item';
