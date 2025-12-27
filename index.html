@@ -407,75 +407,181 @@
             background: rgba(255, 255, 255, 0.05);
         }
         
-        /* AVATAR FIXO */
+        /* AVATAR FIXO COM ASPECTO DA IMAGEM ANEXADA */
         #avatar-fixo-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
             z-index: 100;
-            background-color: rgba(26, 26, 26, 0.9);
-            border: 2px solid #ff8c00;
-            border-radius: 10px;
-            padding: 10px;
-            width: 120px;
+            background: radial-gradient(circle, #2a2a2a 0%, #000 100%);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 15px;
+            width: 180px;
             transition: all 0.3s ease;
             backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
         
         #avatar-fixo-container:hover {
             transform: scale(1.05);
-            background-color: rgba(40, 40, 40, 0.95);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
         }
         
         #avatar-toggle {
             position: absolute;
             top: -10px;
             left: -10px;
-            width: 25px;
-            height: 25px;
-            background-color: #ff8c00;
+            width: 30px;
+            height: 30px;
+            background-color: #00d4ff;
             color: #000;
             border: none;
             border-radius: 50%;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 101;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
         }
         
         .avatar-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
         
-        #avatar-gender-select {
+        .avatar-title {
+            font-size: 1em;
+            color: #00d4ff;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+        }
+        
+        #avatar-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .avatar-btn {
             background-color: rgba(255, 255, 255, 0.1);
-            color: #f0f0f0;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
             border-radius: 4px;
-            padding: 2px 5px;
+            padding: 3px 8px;
             font-size: 0.8em;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .avatar-btn:hover {
+            background-color: #00d4ff;
+            color: #000;
         }
         
         #avatar-fixo {
-            width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-top: 5px;
+            width: 150px;
+            height: 200px;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+            background-color: transparent;
         }
         
         .avatar-exercise-name {
-            font-size: 0.8em;
+            font-size: 0.85em;
             text-align: center;
-            color: #ff9933;
-            margin-top: 5px;
+            color: #00d4ff;
+            margin-top: 10px;
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.8);
+            min-height: 20px;
+        }
+        
+        .avatar-instruction {
+            font-size: 0.75em;
+            text-align: center;
+            color: #aaa;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        /* MODAL DE DEMONSTRAÇÃO */
+        #demonstracao-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .demonstracao-content {
+            background: radial-gradient(circle, #2a2a2a 0%, #000 100%);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.8);
+        }
+        
+        #demonstracao-canvas {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background-color: transparent;
+        }
+        
+        .demonstracao-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .demonstracao-btn {
+            background-color: #00d4ff;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .demonstracao-btn:hover {
+            background-color: #00b8e6;
+            transform: scale(1.05);
+        }
+        
+        /* Botão na IA para demonstrar exercício */
+        #btn-demonstrar-avatar {
+            background-color: #00d4ff;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 15px;
+            margin-top: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+        }
+        
+        #btn-demonstrar-avatar:hover {
+            background-color: #00b8e6;
         }
         
         /* Responsividade do avatar */
@@ -483,8 +589,13 @@
             #avatar-fixo-container {
                 bottom: 10px;
                 right: 10px;
-                width: 100px;
-                padding: 8px;
+                width: 160px;
+                padding: 12px;
+            }
+            
+            #avatar-fixo {
+                width: 130px;
+                height: 170px;
             }
         }
         
@@ -492,7 +603,16 @@
             #avatar-fixo-container {
                 bottom: 5px;
                 right: 5px;
-                width: 90px;
+                width: 140px;
+            }
+            
+            #avatar-fixo {
+                width: 110px;
+                height: 150px;
+            }
+            
+            .avatar-title {
+                font-size: 0.9em;
             }
         }
     </style>
@@ -618,9 +738,11 @@
             <h2> IA PTF3</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta" placeholder= "Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'" ></textarea>
+            <textarea id="exercicioPergunta" placeholder="Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'"></textarea>
 
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
+            
+            <button id="btn-demonstrar-avatar" onclick="demonstrarExercicioIA()">Ver Demonstração</button>
 
             <h3 style="margin-top: 15px; color: #ff9933; text-align: center;">Resposta da IA</h3>
             <div id="ai-resposta">
@@ -692,18 +814,33 @@
 
     </div>
     
+    <!-- MODAL DE DEMONSTRAÇÃO -->
+    <div id="demonstracao-modal" class="modal-overlay">
+        <div class="demonstracao-content">
+            <h3 style="color: #00d4ff; margin-top: 0;">Demonstração do Exercício</h3>
+            <p id="demonstracao-titulo" style="color: #f0f0f0;">Demonstrando movimento</p>
+            <canvas id="demonstracao-canvas" width="400" height="300"></canvas>
+            <p id="demonstracao-descricao" style="color: #ccc; text-align: left; font-size: 0.9em; margin-top: 10px;"></p>
+            <div class="demonstracao-controls">
+                <button class="demonstracao-btn" onclick="reproduzirMovimento()">Reproduzir Movimento</button>
+                <button class="demonstracao-btn" onclick="fecharDemonstracao()">Fechar</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- AVATAR FIXO NO CANTO DA TELA -->
     <div id="avatar-fixo-container">
         <button id="avatar-toggle" onclick="toggleAvatar()">▲</button>
         <div class="avatar-header">
-            <span style="font-size: 0.9em; color: #ff8c00; font-weight: bold;">Meu Avatar</span>
-            <select id="avatar-gender-select" onchange="mudarGeneroAvatar()">
-                <option value="M">♂</option>
-                <option value="F">♀</option>
-            </select>
+            <span class="avatar-title">PONDOT</span>
+            <div id="avatar-controls">
+                <button class="avatar-btn" onclick="mudarPosicao()">↻</button>
+                <button class="avatar-btn" onclick="mostrarDemonstracao()">▶</button>
+            </div>
         </div>
-        <canvas id="avatar-fixo" width="100" height="150"></canvas>
-        <div class="avatar-exercise-name" id="avatar-exercise-name">Em repouso</div>
+        <canvas id="avatar-fixo" width="150" height="200"></canvas>
+        <div class="avatar-exercise-name" id="avatar-exercise-name">PONDOT</div>
+        <div class="avatar-instruction">Clique em ▶ para demonstração</div>
     </div>
 
     <script>
@@ -748,14 +885,22 @@
         };
         
         // Variáveis do avatar
-        let avatarGenero = 'M'; // 'M' para masculino, 'F' para feminino
         let avatarExercicioAtual = 'repouso';
-        let avatarMedidas = {
-            torax: 100,
-            braco: 35,
-            coxa: 55,
-            cintura: 85,
-            altura: 170
+        let avatarPosicao = 0; // 0: repouso, 1-4: fases do movimento
+        let avatarAnimacaoAtiva = false;
+        let exercicioDemonstracao = null;
+        let avatarImagemBase = null;
+        let ultimoExercicioPerguntado = '';
+        
+        // Cores da imagem anexada
+        const avatarCores = {
+            fundo: '#2a2a2a',
+            borda: '#00d4ff',
+            pele: '#f0d0a0',
+            cabelo: '#3d2915',
+            roupa: '#2a6b9c',
+            roupa2: '#1e4d6b',
+            detalhe: '#00d4ff'
         };
 
         function getPath(sub) {
@@ -768,7 +913,9 @@
             "Rosca Direta | Musculação | Braços | Bíceps Braquial, Braquial | Em pé, segure halteres ou barra com as palmas voltadas para cima. Mantenha os cotovelos fixos ao lado do corpo. Flexione os antebraços levando o peso em direção aos ombros. | Evite balançar o corpo para ajudar no movimento. Contraia o abdômen para estabilização.",
             "Puxada Frontal | Musculação | Costas | Grande Dorsal, Bíceps, Romboides | Sentado no aparelho, segure a barra com as mãos afastadas na largura dos ombros. Puxe a barra em direção ao peito, mantendo o tronco reto. Retorne lentamente à posição inicial. | Contraia as escápulas no momento da puxada para melhor ativação muscular.",
             "Elevação Pélvica | Musculação | Glúteos | Glúteo Máximo, Isquiotibiais | Deitado de costas com os joelhos flexionados e pés apoiados no chão. Eleve o quadril até formar uma linha reta entre joelhos, quadril e ombros. | Contraia os glúteos no topo do movimento por 1-2 segundos.",
-            "Tríceps Testa | Musculação | Braços | Tríceps Braquial | Deitado no banco, segure a barra ou halteres com os braços estendidos acima do peito. Flexione os cotovelos levando o peso em direção à testa. | Mantenha os cotovelos apontando para cima durante todo o movimento."
+            "Tríceps Testa | Musculação | Braços | Tríceps Braquial | Deitado no banco, segure a barra ou halteres com os braços estendidos acima do peito. Flexione os cotovelos levando o peso em direção à testa. | Mantenha os cotovelos apontando para cima durante todo o movimento.",
+            "Desenvolvimento Militar | Musculação | Ombros | Deltóide Anterior, Médio, Posterior | Em pé ou sentado, segure halteres ou barra na altura dos ombros. Empurre os pesos para cima até estender os braços. Retorne controladamente. | Evite arquear as costas excessivamente durante o movimento.",
+            "Cadeira Extensora | Musculação | Pernas | Quadríceps | Sentado no aparelho, ajuste o apoio para a altura dos tornozelos. Estenda as pernas contra a resistência até joelhos totalmente estendidos. | Controle o retorno para maximizar a contração excêntrica."
         ];
 
         const bancoDeExercicios = {};
@@ -820,254 +967,393 @@
             start();
         }
 
-        // FUNÇÕES DO AVATAR
-        function atualizarMedidasAvatar() {
-            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
-                if (snap.exists()) {
-                    snap.forEach(c => {
-                        const m = c.val();
-                        if (m.torax) avatarMedidas.torax = parseInt(m.torax);
-                        if (m.braco) avatarMedidas.braco = parseInt(m.braco);
-                        if (m.coxa) avatarMedidas.coxa = parseInt(m.coxa);
-                        if (m.cintura) avatarMedidas.cintura = parseInt(m.cintura);
-                        if (m.peso) {
-                            // Estimativa de altura baseada no peso (simplificado)
-                            const peso = parseFloat(m.peso);
-                            if (avatarGenero === 'M') {
-                                avatarMedidas.altura = 165 + (peso - 60) * 0.3;
-                            } else {
-                                avatarMedidas.altura = 155 + (peso - 50) * 0.4;
-                            }
-                            avatarMedidas.altura = Math.max(150, Math.min(200, avatarMedidas.altura));
-                        }
-                    });
-                }
-                desenharAvatar();
-            });
+        // FUNÇÕES DO AVATAR - Baseado na imagem anexada
+        function carregarAvatar() {
+            desenharAvatarBase();
+            document.getElementById('avatar-exercise-name').textContent = "PONDOT - Personal Trainer";
         }
 
-        function desenharAvatar() {
+        function desenharAvatarBase() {
             const canvas = document.getElementById('avatar-fixo');
+            const demoCanvas = document.getElementById('demonstracao-canvas');
             if (!canvas) return;
             
             const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
+            const demoCtx = demoCanvas ? demoCanvas.getContext('2d') : null;
             
             // Limpar canvas
-            ctx.clearRect(0, 0, width, height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Cores baseadas no gênero
-            const corPele = avatarGenero === 'M' ? '#e0ac69' : '#f1c27d';
-            const corCabelo = avatarGenero === 'M' ? '#3d2b1f' : '#8b4513';
-            const corRoupa = avatarExercicioAtual === 'repouso' ? '#4a90e2' : '#ff8c00';
+            // Desenhar baseado na imagem anexada (estilo futurista)
+            desenharSilhuetaFuturista(ctx, canvas.width, canvas.height);
             
-            // Calcular proporções baseadas nas medidas
-            const escala = avatarMedidas.altura / 170;
-            const larguraTorso = (avatarMedidas.torax / 100) * 20 * escala;
-            const larguraBraco = (avatarMedidas.braco / 35) * 15 * escala;
-            const larguraPerna = (avatarMedidas.coxa / 55) * 15 * escala;
-            const cinturaRelativa = (avatarMedidas.cintura / 85) * 18 * escala;
+            // Atualizar também no canvas de demonstração
+            if (demoCtx && exercicioDemonstracao) {
+                demoCtx.clearRect(0, 0, demoCanvas.width, demoCanvas.height);
+                desenharSilhuetaFuturista(demoCtx, demoCanvas.width, demoCanvas.height);
+            }
+        }
+
+        function desenharSilhuetaFuturista(ctx, width, height) {
+            // Cabeça - formato oval alongado
+            ctx.fillStyle = avatarCores.pele;
+            ctx.beginPath();
+            ctx.ellipse(width/2, height * 0.2, width * 0.15, width * 0.2, 0, 0, Math.PI * 2);
+            ctx.fill();
             
-            // Posições base
-            const centroX = width / 2;
-            const baseY = height * 0.9;
+            // Cabelo - estilo futurista (como na imagem)
+            ctx.fillStyle = avatarCores.cabelo;
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.18, height*0.2);
+            ctx.bezierCurveTo(width/2 - width*0.15, height*0.1, width/2 + width*0.15, height*0.1, width/2 + width*0.18, height*0.2);
+            ctx.lineTo(width/2 + width*0.16, height*0.25);
+            ctx.bezierCurveTo(width/2, height*0.28, width/2, height*0.28, width/2 - width*0.16, height*0.25);
+            ctx.closePath();
+            ctx.fill();
             
-            // Desenhar baseado no exercício
-            switch(avatarExercicioAtual) {
-                case 'agachamento':
-                    desenharAgachamento(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
-                    break;
+            // Olhos - pontos brilhantes
+            ctx.fillStyle = avatarCores.detalhe;
+            ctx.beginPath();
+            ctx.arc(width/2 - width*0.06, height*0.19, 3, 0, Math.PI * 2);
+            ctx.arc(width/2 + width*0.06, height*0.19, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Torso - estilo musculado futurista
+            ctx.fillStyle = avatarCores.roupa;
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.bezierCurveTo(width/2 - width*0.18, height*0.4, width/2 - width*0.18, height*0.55, width/2 - width*0.1, height*0.65);
+            ctx.lineTo(width/2 + width*0.1, height*0.65);
+            ctx.bezierCurveTo(width/2 + width*0.18, height*0.55, width/2 + width*0.18, height*0.4, width/2 + width*0.12, height*0.28);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Detalhes do torso
+            ctx.strokeStyle = avatarCores.detalhe;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(width/2, height*0.3);
+            ctx.lineTo(width/2, height*0.6);
+            ctx.stroke();
+            
+            // Braços - posição base
+            desenharBracos(ctx, width, height, avatarExercicioAtual, avatarPosicao);
+            
+            // Pernas - estilo futurista
+            ctx.fillStyle = avatarCores.roupa2;
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.08, height*0.65);
+            ctx.lineTo(width/2 - width*0.06, height*0.85);
+            ctx.lineTo(width/2 - width*0.02, height*0.85);
+            ctx.lineTo(width/2 - width*0.04, height*0.65);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.08, height*0.65);
+            ctx.lineTo(width/2 + width*0.06, height*0.85);
+            ctx.lineTo(width/2 + width*0.02, height*0.85);
+            ctx.lineTo(width/2 + width*0.04, height*0.65);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Aura/brilho futurista
+            ctx.strokeStyle = avatarCores.detalhe;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.arc(width/2, height/2, width*0.25, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(width/2, height/2, width*0.28, 0, Math.PI * 2);
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function desenharBracos(ctx, width, height, exercicio, posicao) {
+            ctx.fillStyle = avatarCores.roupa;
+            ctx.strokeStyle = avatarCores.detalhe;
+            ctx.lineWidth = 1;
+            
+            switch(exercicio) {
                 case 'supino':
-                    desenharSupino(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
+                    desenharBracosSupino(ctx, width, height, posicao);
+                    break;
+                case 'agachamento':
+                    desenharBracosAgachamento(ctx, width, height, posicao);
                     break;
                 case 'rosca':
-                    desenharRosca(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
+                    desenharBracosRosca(ctx, width, height, posicao);
                     break;
                 case 'puxada':
-                    desenharPuxada(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
+                    desenharBracosPuxada(ctx, width, height, posicao);
+                    break;
+                case 'elevacao':
+                    desenharBracosElevacao(ctx, width, height, posicao);
+                    break;
+                case 'triceps':
+                    desenharBracosTriceps(ctx, width, height, posicao);
+                    break;
+                case 'desenvolvimento':
+                    desenharBracosDesenvolvimento(ctx, width, height, posicao);
+                    break;
+                case 'extensora':
+                    desenharPernasExtensora(ctx, width, height, posicao);
                     break;
                 default:
-                    desenharRepouso(ctx, centroX, baseY, corPele, corCabelo, corRoupa, larguraTorso, larguraBraco, larguraPerna, cinturaRelativa, escala);
+                    desenharBracosRepouso(ctx, width, height);
             }
         }
 
-        function desenharRepouso(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 110 * escala, 15 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Cabelo
-            ctx.fillStyle = cabelo;
-            ctx.beginPath();
-            if (avatarGenero === 'F') {
-                // Cabelo feminino (mais comprido)
-                ctx.ellipse(x, y - 120 * escala, 18 * escala, 20 * escala, 0, 0, Math.PI * 2);
-            } else {
-                // Cabelo masculino (curto)
-                ctx.rect(x - 15 * escala, y - 125 * escala, 30 * escala, 15 * escala);
-            }
-            ctx.fill();
-            
-            // Torso
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 90 * escala, torsoW, 50 * escala);
-            
-            // Braços
-            ctx.fillStyle = pele;
-            ctx.fillRect(x - torsoW/2 - bracoW, y - 90 * escala, bracoW, 40 * escala); // Esquerdo
-            ctx.fillRect(x + torsoW/2, y - 90 * escala, bracoW, 40 * escala); // Direito
-            
-            // Pernas
-            ctx.fillStyle = '#333';
-            ctx.fillRect(x - pernaW/2, y - 40 * escala, pernaW, 40 * escala); // Esquerda
-            ctx.fillRect(x - pernaW/2, y - 40 * escala, pernaW, 40 * escala); // Direita
-        }
-
-        function desenharAgachamento(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça (mais baixa)
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 70 * escala, 12 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Cabelo
-            ctx.fillStyle = cabelo;
-            ctx.beginPath();
-            ctx.arc(x, y - 70 * escala, 14 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso (inclinado)
-            ctx.fillStyle = roupa;
-            ctx.save();
-            ctx.translate(x, y - 50 * escala);
-            ctx.rotate(Math.PI * 0.2);
-            ctx.fillRect(-torsoW/2, 0, torsoW, 40 * escala);
-            ctx.restore();
-            
-            // Pernas flexionadas
-            ctx.fillStyle = '#333';
-            // Perna esquerda
-            ctx.beginPath();
-            ctx.moveTo(x - pernaW/2, y - 10 * escala);
-            ctx.lineTo(x - pernaW, y + 20 * escala);
-            ctx.lineTo(x - pernaW + 10 * escala, y + 25 * escala);
-            ctx.lineTo(x - pernaW/2 + 5 * escala, y - 5 * escala);
-            ctx.fill();
-            
-            // Perna direita
-            ctx.beginPath();
-            ctx.moveTo(x + pernaW/2, y - 10 * escala);
-            ctx.lineTo(x + pernaW, y + 20 * escala);
-            ctx.lineTo(x + pernaW - 10 * escala, y + 25 * escala);
-            ctx.lineTo(x + pernaW/2 - 5 * escala, y - 5 * escala);
-            ctx.fill();
-        }
-
-        function desenharSupino(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 80 * escala, 12 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso (deitado)
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 65 * escala, torsoW, 25 * escala);
-            
-            // Braços levantados
-            ctx.fillStyle = pele;
+        function desenharBracosRepouso(ctx, width, height) {
             // Braço esquerdo
             ctx.beginPath();
-            ctx.moveTo(x - torsoW/2, y - 65 * escala);
-            ctx.lineTo(x - torsoW/2 - bracoW, y - 85 * escala);
-            ctx.lineTo(x - torsoW/2 - bracoW + 5 * escala, y - 80 * escala);
-            ctx.lineTo(x - torsoW/2 + 5 * escala, y - 60 * escala);
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*0.22, height*0.4);
+            ctx.lineTo(width/2 - width*0.18, height*0.45);
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
             ctx.fill();
             
             // Braço direito
             ctx.beginPath();
-            ctx.moveTo(x + torsoW/2, y - 65 * escala);
-            ctx.lineTo(x + torsoW/2 + bracoW, y - 85 * escala);
-            ctx.lineTo(x + torsoW/2 + bracoW - 5 * escala, y - 80 * escala);
-            ctx.lineTo(x + torsoW/2 - 5 * escala, y - 60 * escala);
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*0.22, height*0.4);
+            ctx.lineTo(width/2 + width*0.18, height*0.45);
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
             ctx.fill();
-            
-            // Barra
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(x - torsoW/2 - bracoW, y - 90 * escala, torsoW + 2 * bracoW, 5 * escala);
         }
 
-        function desenharRosca(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 100 * escala, 15 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 80 * escala, torsoW, 40 * escala);
-            
-            // Braços flexionados (bíceps)
-            ctx.fillStyle = pele;
-            const bracoFlexY = y - 85 * escala;
+        function desenharBracosSupino(ctx, width, height, fase) {
+            const faseY = 0.3 + (fase * 0.1);
+            const faseX = 0.22 - (fase * 0.05);
             
             // Braço esquerdo (flexionado)
             ctx.beginPath();
-            ctx.moveTo(x - torsoW/2, y - 80 * escala);
-            ctx.lineTo(x - torsoW/2 - bracoW, bracoFlexY);
-            ctx.lineTo(x - torsoW/2 - bracoW + 8 * escala, bracoFlexY + 5 * escala);
-            ctx.lineTo(x - torsoW/2 + 5 * escala, y - 75 * escala);
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*faseX, height*faseY);
+            ctx.lineTo(width/2 - width*(faseX-0.04), height*(faseY+0.05));
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
             ctx.fill();
             
-            // Braço direito (flexionado)
+            // Braço direito
             ctx.beginPath();
-            ctx.moveTo(x + torsoW/2, y - 80 * escala);
-            ctx.lineTo(x + torsoW/2 + bracoW, bracoFlexY);
-            ctx.lineTo(x + torsoW/2 + bracoW - 8 * escala, bracoFlexY + 5 * escala);
-            ctx.lineTo(x + torsoW/2 - 5 * escala, y - 75 * escala);
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*faseX, height*faseY);
+            ctx.lineTo(width/2 + width*(faseX-0.04), height*(faseY+0.05));
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Barra
+            if (fase > 0) {
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(width/2 - width*0.3, height*faseY - 5, width*0.6, 8);
+            }
+        }
+
+        function desenharBracosAgachamento(ctx, width, height, fase) {
+            const faseY = 0.4 + (fase * 0.05);
+            
+            // Braços levantados segurando barra
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*0.18, height*faseY);
+            ctx.lineTo(width/2 - width*0.14, height*(faseY+0.05));
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*0.18, height*faseY);
+            ctx.lineTo(width/2 + width*0.14, height*(faseY+0.05));
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Barra nas costas
+            if (fase > 0) {
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(width/2 - width*0.2, height*faseY, width*0.4, 6);
+            }
+        }
+
+        function desenharBracosRosca(ctx, width, height, fase) {
+            const faseAngle = (fase * Math.PI/6);
+            const xOffset = Math.sin(faseAngle) * 0.1;
+            const yOffset = Math.cos(faseAngle) * 0.1;
+            
+            // Braço esquerdo flexionado
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*(0.22 - xOffset), height*(0.3 + yOffset));
+            ctx.lineTo(width/2 - width*(0.18 - xOffset), height*(0.35 + yOffset));
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Braço direito flexionado
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*(0.22 - xOffset), height*(0.3 + yOffset));
+            ctx.lineTo(width/2 + width*(0.18 - xOffset), height*(0.35 + yOffset));
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
             ctx.fill();
             
             // Halteres
-            ctx.fillStyle = '#ffd700';
-            // Esquerdo
-            ctx.beginPath();
-            ctx.arc(x - torsoW/2 - bracoW, bracoFlexY, 6 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            // Direito
-            ctx.beginPath();
-            ctx.arc(x + torsoW/2 + bracoW, bracoFlexY, 6 * escala, 0, Math.PI * 2);
-            ctx.fill();
+            if (fase > 0) {
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(width/2 - width*(0.22 - xOffset), height*(0.3 + yOffset), 6, 0, Math.PI * 2);
+                ctx.arc(width/2 + width*(0.22 - xOffset), height*(0.3 + yOffset), 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
-        function desenharPuxada(ctx, x, y, pele, cabelo, roupa, torsoW, bracoW, pernaW, cinturaW, escala) {
-            // Cabeça
-            ctx.fillStyle = pele;
-            ctx.beginPath();
-            ctx.arc(x, y - 90 * escala, 14 * escala, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso (esticado)
-            ctx.fillStyle = roupa;
-            ctx.fillRect(x - torsoW/2, y - 70 * escala, torsoW, 35 * escala);
+        function desenharBracosPuxada(ctx, width, height, fase) {
+            const faseY = 0.25 + (fase * 0.08);
             
             // Braços estendidos para cima
-            ctx.fillStyle = pele;
-            // Braços
-            ctx.fillRect(x - torsoW/2 - bracoW, y - 105 * escala, bracoW, 40 * escala); // Esquerdo
-            ctx.fillRect(x + torsoW/2, y - 105 * escala, bracoW, 40 * escala); // Direito
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*0.14, height*faseY);
+            ctx.lineTo(width/2 - width*0.10, height*faseY);
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*0.14, height*faseY);
+            ctx.lineTo(width/2 + width*0.10, height*faseY);
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
             
             // Barra de puxada
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(x - torsoW/2 - bracoW - 10 * escala, y - 110 * escala, torsoW + 2 * bracoW + 20 * escala, 5 * escala);
+            if (fase > 0) {
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(width/2 - width*0.25, height*faseY - 5, width*0.5, 6);
+            }
+        }
+
+        function desenharBracosElevacao(ctx, width, height, fase) {
+            const faseY = 0.65 - (fase * 0.15);
             
-            // Pernas (sentado)
-            ctx.fillStyle = '#333';
-            ctx.fillRect(x - pernaW/2, y - 35 * escala, pernaW, 25 * escala); // Esquerda
-            ctx.fillRect(x - pernaW/2, y - 35 * escala, pernaW, 25 * escala); // Direita
+            // Corpo deitado, braços ao lado
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*0.15, height*0.5);
+            ctx.lineTo(width/2 - width*0.11, height*0.5);
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*0.15, height*0.5);
+            ctx.lineTo(width/2 + width*0.11, height*0.5);
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Pernas flexionadas para elevação pélvica
+            if (fase > 0) {
+                ctx.fillStyle = avatarCores.roupa2;
+                const pernaY = faseY + 0.1;
+                ctx.beginPath();
+                ctx.moveTo(width/2 - width*0.08, height*faseY);
+                ctx.lineTo(width/2 - width*0.12, height*pernaY);
+                ctx.lineTo(width/2 - width*0.04, height*pernaY);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.moveTo(width/2 + width*0.08, height*faseY);
+                ctx.lineTo(width/2 + width*0.12, height*pernaY);
+                ctx.lineTo(width/2 + width*0.04, height*pernaY);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function desenharBracosTriceps(ctx, width, height, fase) {
+            const faseY = 0.25 + (fase * 0.1);
+            
+            // Braços flexionados acima da cabeça
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*0.08, height*faseY);
+            ctx.lineTo(width/2 - width*0.04, height*faseY);
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*0.08, height*faseY);
+            ctx.lineTo(width/2 + width*0.04, height*faseY);
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Peso (barra/haltere)
+            if (fase > 0) {
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(width/2 - width*0.1, height*faseY - 5, width*0.2, 8);
+            }
+        }
+
+        function desenharBracosDesenvolvimento(ctx, width, height, fase) {
+            const faseY = 0.2 + (fase * 0.12);
+            
+            // Braços empurrando peso para cima
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.12, height*0.28);
+            ctx.lineTo(width/2 - width*0.14, height*faseY);
+            ctx.lineTo(width/2 - width*0.10, height*faseY);
+            ctx.lineTo(width/2 - width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(width/2 + width*0.12, height*0.28);
+            ctx.lineTo(width/2 + width*0.14, height*faseY);
+            ctx.lineTo(width/2 + width*0.10, height*faseY);
+            ctx.lineTo(width/2 + width*0.08, height*0.33);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Barra/halteres
+            if (fase > 0) {
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(width/2 - width*0.16, height*faseY - 5, width*0.32, 8);
+            }
+        }
+
+        function desenharPernasExtensora(ctx, width, height, fase) {
+            const faseY = 0.85 - (fase * 0.15);
+            
+            // Pernas estendidas (cadeira extensora)
+            ctx.fillStyle = avatarCores.roupa2;
+            ctx.beginPath();
+            ctx.moveTo(width/2 - width*0.04, height*0.65);
+            ctx.lineTo(width/2 - width*0.02, height*faseY);
+            ctx.lineTo(width/2 + width*0.02, height*faseY);
+            ctx.lineTo(width/2 + width*0.04, height*0.65);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Apoio do aparelho
+            if (fase > 0) {
+                ctx.fillStyle = '#888';
+                ctx.fillRect(width/2 - width*0.06, height*faseY, width*0.12, 6);
+            }
         }
 
         function toggleAvatar() {
@@ -1083,47 +1369,205 @@
             }
         }
 
-        function mudarGeneroAvatar() {
-            const select = document.getElementById('avatar-gender-select');
-            avatarGenero = select.value;
-            atualizarMedidasAvatar();
+        function mudarPosicao() {
+            avatarPosicao = (avatarPosicao + 1) % 5;
+            desenharAvatarBase();
+            atualizarNomePosicao();
         }
 
-        function detectarExercicioNoTreino() {
-            const selectTreino = document.getElementById('seletorTreino');
-            if (!selectTreino || !selectTreino.value) return;
-            
-            const exercicios = document.querySelectorAll('#lista-treino-dinamico .exercicio-item');
-            let exercicioAtual = 'repouso';
-            let nomeExercicio = 'Em repouso';
-            
-            // Verificar se há exercícios visíveis
-            exercicios.forEach(item => {
-                const nomeElement = item.querySelector('.exercicio-info strong');
-                if (nomeElement) {
-                    const nome = nomeElement.textContent.toLowerCase();
-                    if (nome.includes('agachamento')) {
-                        exercicioAtual = 'agachamento';
-                        nomeExercicio = nomeElement.textContent;
-                    } else if (nome.includes('supino')) {
-                        exercicioAtual = 'supino';
-                        nomeExercicio = nomeElement.textContent;
-                    } else if (nome.includes('rosca')) {
-                        exercicioAtual = 'rosca';
-                        nomeExercicio = nomeElement.textContent;
-                    } else if (nome.includes('puxada')) {
-                        exercicioAtual = 'puxada';
-                        nomeExercicio = nomeElement.textContent;
-                    }
-                }
-            });
-            
-            // Atualizar avatar se o exercício mudou
-            if (exercicioAtual !== avatarExercicioAtual) {
-                avatarExercicioAtual = exercicioAtual;
-                document.getElementById('avatar-exercise-name').textContent = nomeExercicio;
-                desenharAvatar();
+        function atualizarNomePosicao() {
+            const nomes = ["PONDOT", "Vientatas", "Loners", "Dotion", "Sinert", "Rengreo"];
+            const nomeAtual = nomes[avatarPosicao % nomes.length];
+            document.getElementById('avatar-exercise-name').textContent = nomeAtual;
+        }
+
+        function mostrarDemonstracao() {
+            const textoPergunta = document.getElementById('exercicioPergunta').value;
+            if (textoPergunta.trim().length < 2) {
+                alert("Digite uma pergunta sobre um exercício primeiro!");
+                return;
             }
+            
+            // Detectar qual exercício foi perguntado
+            const pergunta = textoPergunta.toLowerCase();
+            let exercicioDetectado = null;
+            
+            // Mapear perguntas para exercícios
+            if (pergunta.includes('agachamento') || pergunta.includes('agacha')) {
+                exercicioDetectado = 'agachamento';
+            } else if (pergunta.includes('supino')) {
+                exercicioDetectado = 'supino';
+            } else if (pergunta.includes('rosca') || pergunta.includes('bíceps') || pergunta.includes('biceps')) {
+                exercicioDetectado = 'rosca';
+            } else if (pergunta.includes('puxada') || pergunta.includes('costas')) {
+                exercicioDetectado = 'puxada';
+            } else if (pergunta.includes('elevação') || pergunta.includes('elevacao') || pergunta.includes('glúteo') || pergunta.includes('gluteo')) {
+                exercicioDetectado = 'elevacao';
+            } else if (pergunta.includes('tríceps') || pergunta.includes('triceps') || pergunta.includes('testa')) {
+                exercicioDetectado = 'triceps';
+            } else if (pergunta.includes('desenvolvimento') || pergunta.includes('ombro') || pergunta.includes('ombros')) {
+                exercicioDetectado = 'desenvolvimento';
+            } else if (pergunta.includes('extensora') || pergunta.includes('perna') || pergunta.includes('pernas')) {
+                exercicioDetectado = 'extensora';
+            }
+            
+            if (exercicioDetectado) {
+                exercicioDemonstracao = exercicioDetectado;
+                abrirDemonstracao();
+            } else {
+                alert("Não consegui identificar qual exercício você quer ver. Tente ser mais específico!");
+            }
+        }
+
+        function abrirDemonstracao() {
+            if (!exercicioDemonstracao) return;
+            
+            // Atualizar informações do modal
+            const titulo = document.getElementById('demonstracao-titulo');
+            const descricao = document.getElementById('demonstracao-descricao');
+            
+            const exercicioInfo = bancoDeExercicios[Object.keys(bancoDeExercicios).find(key => 
+                bancoDeExercicios[key].nome.toLowerCase().includes(exercicioDemonstracao)
+            )];
+            
+            if (exercicioInfo) {
+                titulo.textContent = `Demonstração: ${exercicioInfo.nome}`;
+                descricao.innerHTML = `
+                    <strong>Músculos trabalhados:</strong> ${exercicioInfo.musculos}<br><br>
+                    <strong>Execução:</strong> ${exercicioInfo.execucao}<br><br>
+                    <strong>Dica importante:</strong> ${exercicioInfo.dica}
+                `;
+            } else {
+                titulo.textContent = `Demonstração: ${exercicioDemonstracao}`;
+                descricao.textContent = "Observa o movimento atentamente!";
+            }
+            
+            // Mostrar modal
+            document.getElementById('demonstracao-modal').style.display = 'flex';
+            
+            // Iniciar animação
+            reproduzirMovimento();
+        }
+
+        function fecharDemonstracao() {
+            document.getElementById('demonstracao-modal').style.display = 'none';
+            avatarAnimacaoAtiva = false;
+            avatarPosicao = 0;
+            desenharAvatarBase();
+        }
+
+        function reproduzirMovimento() {
+            if (!exercicioDemonstracao) return;
+            
+            avatarAnimacaoAtiva = true;
+            avatarPosicao = 0;
+            
+            const animacao = () => {
+                if (!avatarAnimacaoAtiva) return;
+                
+                avatarPosicao = (avatarPosicao + 1) % 5;
+                
+                const canvas = document.getElementById('demonstracao-canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                desenharSilhuetaFuturista(ctx, canvas.width, canvas.height);
+                
+                if (avatarPosicao < 4) {
+                    setTimeout(animacao, 500); // 0.5 segundos entre fases
+                } else {
+                    setTimeout(() => {
+                        avatarAnimacaoAtiva = false;
+                        avatarPosicao = 0;
+                        desenharSilhuetaFuturista(ctx, canvas.width, canvas.height);
+                    }, 1000);
+                }
+            };
+            
+            animacao();
+        }
+
+        function demonstrarExercicioIA() {
+            mostrarDemonstracao();
+        }
+
+        // Modificar a função simularPesquisaIA para mostrar botão de demonstração
+        async function simularPesquisaIA() {
+            const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
+            const perguntaNormalizada = normalize(pergunta);
+            const respostaDiv = document.getElementById('ai-resposta');
+            const botao = document.querySelector('#ai-search-card .btn-primary');
+            const botaoDemonstrar = document.getElementById('btn-demonstrar-avatar');
+            
+            if (pergunta.length < 3) {
+                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+                botaoDemonstrar.style.display = 'none';
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = 'Pesquisando no Banco de Dados...';
+            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
+            
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            let respostaTexto = '';
+            let exercicioEncontrado = null;
+
+            const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
+            let maxPontos = 0;
+
+            for (const key in bancoDeExercicios) {
+                const ex = bancoDeExercicios[key];
+                let pontos = 0;
+
+                if (perguntaNormalizada.includes(normalize(ex.nome))) {
+                    pontos += 100;
+                }
+
+                palavrasDaPergunta.forEach(palavra => {
+                    if (ex.termos.includes(palavra)) {
+                        pontos += 1;
+                    }
+                });
+
+                if (pontos > 0 && pontos > maxPontos) {
+                    maxPontos = pontos;
+                    exercicioEncontrado = ex;
+                }
+            }
+
+            if (exercicioEncontrado) {
+                const nomeEx = exercicioEncontrado.nome;
+                ultimoExercicioPerguntado = nomeEx;
+                
+                if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
+                    respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
+                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
+                    respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
+                    // Mostrar botão de demonstração para execução
+                    botaoDemonstrar.style.display = 'block';
+                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
+                    respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
+                    botaoDemonstrar.style.display = 'block';
+                } else {
+                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
+                    botaoDemonstrar.style.display = 'block';
+                }
+
+            } else {
+                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").`;
+                botaoDemonstrar.style.display = 'none';
+            }
+
+            let respostaFormatada = respostaTexto
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
+            
+            botao.disabled = false;
+            botao.textContent = 'Perguntar à IA';
         }
 
         // Carregar os dias de treino dinamicamente
@@ -1553,10 +1997,7 @@
             contarTreinosDoMes();
             
             // Inicializar avatar
-            atualizarMedidasAvatar();
-            
-            // Verificar avatar a cada 2 segundos (para detectar mudanças de exercício)
-            setInterval(detectarExercicioNoTreino, 2000);
+            carregarAvatar();
             
             // Aguarda Chart.js carregar e então renderiza os treinos
             if (typeof Chart !== 'undefined') {
@@ -1658,9 +2099,6 @@
             alert('Medidas Salvas!');
             document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
             carregarUltimasMedidas();
-            
-            // Atualizar avatar com as novas medidas
-            atualizarMedidasAvatar();
         }
 
         function carregarUltimasMedidas() {
@@ -1730,9 +2168,6 @@
                 
                 // Carrega status dos checkboxes
                 carregarCheckboxes(dia);
-                
-                // Detectar exercício para o avatar
-                detectarExercicioNoTreino();
             });
         }
 
@@ -1812,76 +2247,6 @@
                     if (td) td.classList.add('presente');
                 });
             });
-        }
-
-        async function simularPesquisaIA() {
-            const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
-            const perguntaNormalizada = normalize(pergunta);
-            const respostaDiv = document.getElementById('ai-resposta');
-            const botao = document.querySelector('#ai-search-card .btn-primary');
-            
-            if (pergunta.length < 3) {
-                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
-                return;
-            }
-
-            botao.disabled = true;
-            botao.textContent = 'Pesquisando no Banco de Dados...';
-            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
-            
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            let respostaTexto = '';
-            let exercicioEncontrado = null;
-
-            const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
-            let maxPontos = 0;
-
-            for (const key in bancoDeExercicios) {
-                const ex = bancoDeExercicios[key];
-                let pontos = 0;
-
-                if (perguntaNormalizada.includes(normalize(ex.nome))) {
-                    pontos += 100;
-                }
-
-                palavrasDaPergunta.forEach(palavra => {
-                    if (ex.termos.includes(palavra)) {
-                        pontos += 1;
-                    }
-                });
-
-                if (pontos > 0 && pontos > maxPontos) {
-                    maxPontos = pontos;
-                    exercicioEncontrado = ex;
-                }
-            }
-
-            if (exercicioEncontrado) {
-                const nomeEx = exercicioEncontrado.nome;
-                if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
-                    respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
-                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
-                    respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
-                    respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
-                }
-                else {
-                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                }
-
-            } else {
-                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").`;
-            }
-
-            let respostaFormatada = respostaTexto
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
-
-            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
-            
-            botao.disabled = false;
-            botao.textContent = 'Perguntar à IA';
         }
 
         function resetarDados(tipo) {
