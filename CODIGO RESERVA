@@ -110,14 +110,28 @@
 
         /* CARDS */
         .card {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
             padding: 25px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         #medidas-card {
             order: 2;
+        }
+
+        /* CARD DE TREINO COM BORDA IGUAL AO PRINT */
+        #treino-card {
+            border: 2px solid #ff8c00;
+            box-shadow: 0 0 12px rgba(255, 140, 0, 0.7);
+            border-radius: 14px;
+            background-color: #111;
+        }
+
+        #treino-card h2 {
+            color: #ffb733;
+            text-align: center;
+            margin-top: 0;
         }
 
         /* FORMULÁRIOS E INPUTS */
@@ -649,9 +663,60 @@
             return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
         }
 
+        /* -------- BANCO DE DADOS DA IA (AMPLIADO) -------- */
         const rawData = [
-            "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco, pés firmes no chão. Segure a barra na largura dos ombros. Desça-a controladamente até o peito. Empurre a barra para cima, estendendo os braços. | Mantenha as escápulas retraídas (ombros para trás e para baixo) para estabilizar e proteger a articulação do ombro.",
-            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Com a barra nas costas, desça o quadril como se fosse sentar em uma cadeira, mantendo o peito alto e a coluna neutra. Os joelhos devem seguir a direção dos pés. | A profundidade ideal é abaixo de 90 graus (se a mobilidade permitir). Distribua o peso nos calcanhares e evite que os joelhos 'caiam' para dentro."
+            // --- MUSCULAÇÃO PEITO ---
+            "Supino Reto | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco com os pés firmes no chão. Segure a barra um pouco mais aberto que a largura dos ombros. Desça a barra de forma controlada até a linha do peito, mantendo os cotovelos levemente abaixo da linha dos ombros. Empurre a barra para cima estendendo os braços sem travar totalmente os cotovelos. | Mantenha as escápulas retraídas (ombros para trás e para baixo) e o peito aberto. Evite bater a barra no peito ou estender demais os cotovelos para não sobrecarregar as articulações.",
+            "Supino Inclinado com Barra | Musculação | Peito | Peitoral Superior, Deltóide Anterior, Tríceps | Ajuste o banco em cerca de 30–45°. Deite-se, posicione as mãos um pouco mais abertas que os ombros e retire a barra do suporte. Desça-a em direção à parte alta do peito, controlando o movimento, e empurre a barra para cima até quase estender os cotovelos. | Não exagere na inclinação do banco para não transferir demais a carga para os ombros. Mantenha os pés firmes no chão e o glúteo encostado no banco durante todo o movimento.",
+            "Supino Declinado | Musculação | Peito | Peitoral Inferior, Tríceps, Deltóide Anterior | Deite no banco declinado com o corpo bem preso. Segure a barra em pegada um pouco maior que a largura dos ombros. Desça a barra em direção à parte baixa do peito/esterno e empurre para cima estendendo os braços. | Use um parceiro ou segurança ao manusear cargas mais altas. Mantenha o controle da barra em todo o trajeto, evitando que desça muito rápido.",
+            "Supino com Halteres | Musculação | Peito | Peitoral Maior, Deltóide Anterior, Tríceps | Deite no banco com um halter em cada mão na linha do peito, cotovelos levemente para fora. Empurre os halteres para cima até quase estender os cotovelos, aproximando levemente os halteres no topo, e desça de forma controlada. | Não junte demais os halteres no topo para não perder a estabilidade. Mantenha o punho neutro, alinhado com o antebraço, sem deixá-lo dobrar para trás.",
+            "Crucifixo com Halteres | Musculação | Peito | Peitoral Maior, Peitoral Menor | Deite no banco com um halter em cada mão, braços semi-estendidos acima do peito. Abra os braços em arco lateral até sentir alongamento no peitoral, mantendo uma leve flexão nos cotovelos, e retorne ao topo aproximando as mãos. | Não desça além da sua mobilidade para evitar estresse no ombro. Pense em abraçar um barril, não em esticar o braço totalmente reto.",
+
+            // --- MUSCULAÇÃO COSTAS ---
+            "Puxada Frontal na Barra | Musculação | Costas | Latíssimo do Dorso, Trapézio, Bíceps | Sentado na máquina, segure a barra com pegada aberta, palma para frente. Puxe a barra em direção à parte superior do peito, trazendo o peito levemente para frente, e retorne os braços à posição inicial de forma controlada. | Evite puxar a barra atrás da cabeça para proteger a cervical e os ombros. Concentre-se em aproximar as escápulas em vez de só dobrar os cotovelos.",
+            "Remada Curvada com Barra | Musculação | Costas | Latíssimo do Dorso, Trapézio, Eretor da Coluna, Bíceps | Em pé, flexione ligeiramente os joelhos e incline o tronco à frente mantendo a coluna neutra. Segure a barra em pronação e puxe-a em direção ao abdômen, aproximando as escápulas. Desça a barra de forma controlada. | Não arredonde a lombar. Mantenha o abdômen contraído e escolha uma carga que permita manter a postura o tempo todo.",
+            "Remada Baixa na Polia | Musculação | Costas | Latíssimo do Dorso, Trapézio, Romboides, Bíceps | Sentado, com os pés apoiados, segure a barra ou triangulo e puxe em direção ao abdômen, mantendo o tronco relativamente estável. Contraia bem as costas e retorne de forma controlada. | Evite balançar o tronco para usar impulso. Foque em puxar com as costas, não apenas com os braços.",
+            "Levantamento Terra | Musculação | Corpo Inteiro | Isquiotibiais, Glúteos, Eretor da Coluna, Trapézio, Antebraços | Em pé, com os pés na largura dos ombros, segure a barra próxima às pernas. Flexione quadril e joelhos mantendo a coluna neutra, pegue a barra e estenda quadris e joelhos levantando o peso até ficar em pé. Retorne abaixando a barra próxima ao corpo. | Mantenha a barra sempre próxima às pernas, peito aberto e lombar neutra. Comece com cargas leves até dominar a técnica.",
+
+            // --- MUSCULAÇÃO PERNAS / GLÚTEOS ---
+            "Agachamento Livre | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Com a barra apoiada nas costas (trapézio), posicione os pés na largura dos ombros. Flexione quadris e joelhos como se fosse sentar, mantendo o peito alto e joelhos alinhados com os pés. Desça até a profundidade segura e suba estendendo quadris e joelhos. | Distribua o peso entre meio do pé e calcanhar. Evite que os joelhos colapsem para dentro e não arredonde a lombar no fundo do movimento.",
+            "Leg Press 45° | Musculação | Pernas/Glúteos | Quadríceps, Glúteo Máximo, Isquiotibiais | Sentado na máquina, posicione os pés na plataforma na largura dos ombros. Destrave o aparelho, flexione os joelhos controlando a descida e empurre a plataforma até quase estender as pernas, sem travar completamente. | Não desça além da sua mobilidade, evitando que a lombar arredonde. Mantenha sempre a lombar em contato com o encosto.",
+            "Cadeira Extensora | Musculação | Quadríceps | Quadríceps | Sente-se na máquina com o joelho alinhado ao eixo do equipamento. Comece com os joelhos flexionados a cerca de 90°. Estenda as pernas contra a resistência e retorne de forma controlada. | Ajuste o encosto para que as costas fiquem apoiadas. Evite chutar o peso de forma explosiva; use movimento controlado.",
+            "Mesa Flexora | Musculação | Posterior de Coxa | Isquiotibiais | Deitado de barriga para baixo na máquina, encaixe os calcanhares no rolo. Flexione os joelhos trazendo o rolo em direção aos glúteos e retorne lento à posição inicial. | Mantenha o quadril apoiado no banco, evitando erguer o quadril para roubar carga.",
+            "Elevação Pélvica com Barra | Musculação | Glúteos | Glúteo Máximo, Isquiotibiais | Sente-se no chão apoiando as costas em um banco. Posicione a barra sobre o quadril com acolchoamento. Flexione os joelhos, pés apoiados no chão. Eleve o quadril até formar uma linha ombro–quadril–joelho e desça de forma controlada. | Mantenha o queixo levemente recolhido e a costela fechada para não hiperextender a lombar. Foque em contrair o glúteo no topo.",
+
+            // --- MUSCULAÇÃO OMBROS / BRAÇOS ---
+            "Desenvolvimento Militar com Barra | Musculação | Ombros | Deltóide Anterior, Deltóide Médio, Tríceps | Em pé, segure a barra na altura do queixo, mãos um pouco mais abertas que os ombros. Empurre a barra acima da cabeça estendendo os cotovelos e retorne até próximo ao queixo. | Não incline muito a lombar para trás. Aperte o abdômen e glúteos para estabilizar a coluna.",
+            "Elevação Lateral com Halteres | Musculação | Ombros | Deltóide Médio, Trapézio Superior | Em pé, segure um halter em cada mão ao lado do corpo. Com leve flexão nos cotovelos, eleve os braços lateralmente até a altura dos ombros e retorne devagar. | Não use impulso excessivo com o tronco. Mantenha os ombros longe das orelhas e controle a descida.",
+            "Rosca Direta com Barra | Musculação | Bíceps | Bíceps Braquial, Braquial, Braquiorradial | Em pé, segure a barra com pegada supinada na largura dos ombros. Flexione os cotovelos trazendo a barra em direção ao peito, mantendo os braços próximos ao tronco, e desça de forma controlada. | Evite balançar o tronco ou usar impulso do quadril. Concentre-se em manter os cotovelos fixos.",
+            "Rosca Alternada com Halteres | Musculação | Bíceps | Bíceps Braquial, Braquiorradial | Em pé, um halter em cada mão. Gire a palma da mão para frente e flexione o cotovelo de um lado por vez, levando o halter em direção ao ombro. Desça controlando o movimento. | Não gire excessivamente o tronco. Mantenha o abdômen firme e execute o movimento de forma fluida.",
+            "Tríceps Testa com Barra | Musculação | Tríceps | Tríceps Braquial | Deitado no banco, segure a barra com pegada fechada, braços estendidos acima do peito. Flexione os cotovelos trazendo a barra em direção à testa (ou um pouco acima dela) e estenda novamente. | Mantenha os cotovelos apontando para cima, sem abrir demais para os lados. Use carga que permita controle total do movimento.",
+            "Tríceps Pulley (Corda ou Barra) | Musculação | Tríceps | Tríceps Braquial | Em pé, de frente para a polia alta, segure a barra ou corda. Com os cotovelos junto ao tronco, estenda os cotovelos empurrando a alça para baixo até alongar completamente o tríceps. Retorne devagar. | Evite balançar o tronco. Mantenha o ombro estável e foque na extensão completa do cotovelo.",
+
+            // --- MUSCULAÇÃO CORE / ABDÔMEN ---
+            "Prancha Ventral | Musculação | Core | Reto Abdominal, Oblíquos, Transverso do Abdome, Estabilizadores da Coluna | Apoie os antebraços e a ponta dos pés no chão, alinhando ombros, quadris e tornozelos. Mantenha o corpo em linha reta, contraindo abdômen e glúteos, respirando normalmente. | Não deixe o quadril subir demais nem despencar. Pense em empurrar o chão com os cotovelos e manter o pescoço neutro.",
+            "Abdominal Crunch | Musculação | Abdômen | Reto Abdominal | Deitado de costas, joelhos flexionados, pés apoiados. Mãos atrás da cabeça ou cruzadas no peito. Eleve a parte superior do tronco em direção aos joelhos, focando em aproximar costelas do quadril, e retorne devagar. | Não puxe o pescoço com as mãos. O movimento é curto e controlado, sem “sentar” completamente.",
+
+            // --- ALONGAMENTOS ---
+            "Alongamento de Isquiotibiais em Pé | Alongamento | Pernas | Isquiotibiais, Panturrilhas | Em pé, apoie o calcanhar de uma perna em um banco baixo. Mantenha o joelho levemente flexionado e incline o tronco à frente em direção ao pé, mantendo a coluna neutra, até sentir alongamento atrás da coxa. | Não force além do desconforto leve. Mantenha a respiração calma e sustente o alongamento por 20–30 segundos.",
+            "Alongamento de Peitoral na Parede | Alongamento | Peito/Ombros | Peitoral Maior, Peitoral Menor, Deltóide Anterior | De pé, coloque a palma da mão e o antebraço na parede, com o cotovelo na altura do ombro. Gire suavemente o tronco para o lado oposto até sentir alongar o peito. | Evite girar excessivamente a lombar. Foque na sensação de abertura no peito e ombro, sem dor aguda.",
+            "Alongamento de Quadríceps em Pé | Alongamento | Pernas | Quadríceps | Em pé, segure o tornozelo de uma perna atrás do corpo, aproximando o calcanhar do glúteo. Mantenha os joelhos alinhados e o tronco ereto. | Não deixe o joelho abrir para o lado. Contraia levemente o glúteo da perna alongada para aumentar a eficiência do alongamento.",
+
+            // --- CROSSFIT / FUNCIONAL ---
+            "Burpee | CrossFit | Corpo Inteiro | Peito, Ombros, Tríceps, Quadríceps, Glúteos, Core | Em pé, agache e apoie as mãos no chão. Jogue os pés para trás caindo em posição de prancha, faça uma flexão (opcional), retorne os pés próximo às mãos e salte estendendo braços acima da cabeça. | Comece devagar para aprender a coordenação. Se necessário, retire a flexão ou o salto até ganhar condicionamento.",
+            "Kettlebell Swing | CrossFit | Pernas/Glúteos/Core | Glúteos, Isquiotibiais, Lombar, Ombros | Com os pés na largura dos ombros, segure o kettlebell com as duas mãos. Flexione levemente os joelhos e projete o quadril para trás, balançando o kettlebell entre as pernas. Estenda o quadril com força para projetar o kettlebell até a altura do peito. | O movimento é de quadril, não de braço. Mantenha a coluna neutra e o peso próximo ao corpo.",
+            "Box Jump | CrossFit | Pernas | Quadríceps, Glúteos, Panturrilhas | Em frente ao box/caixa, agache levemente e salte para cima, pousando com os dois pés sobre o box, joelhos flexionados para amortecer. Desça com cuidado, step-by-step se necessário. | Use altura de box adequada à sua capacidade. Foque em pousar silenciosamente, com controle.",
+            "Wall Ball | CrossFit | Corpo Inteiro | Quadríceps, Glúteos, Ombros, Tríceps, Core | Segure a bola medicinal na frente do peito, agache até a coxa ficar paralela ao chão e, subindo, arremesse a bola em direção ao alvo na parede. Receba a bola flexionando novamente o quadril e joelhos. | Não deixe a lombar arredondar no agachamento. Sincronize agachar e arremessar, usando potência de pernas + braços.",
+
+            // --- GINÁSTICA / CALISTENIA ---
+            "Barra Fixa Pegada Pronada | Ginástica | Costas/Braços | Latíssimo do Dorso, Bíceps, Trapézio | Segure a barra com as palmas voltadas para frente, mãos um pouco mais abertas que os ombros. Inicie pendurado e puxe o corpo até o queixo ultrapassar a barra, depois desça de forma controlada. | Evite balançar em excesso. Comece com variações assistidas (elástico, máquina) se ainda não consegue executar completo.",
+            "Flexão de Braços no Solo | Ginástica | Peito/Braços | Peitoral Maior, Deltóide Anterior, Tríceps, Core | Em posição de prancha alta, mãos na largura dos ombros. Flexione os cotovelos levando o peito em direção ao chão e estenda de volta, mantendo o corpo alinhado. | Se necessário, apoie os joelhos para reduzir a carga. Não deixe o quadril descer ou subir demais.",
+            "Parada de Mãos na Parede (Handstand) | Ginástica | Ombros/Core | Deltóides, Trapézio, Core | De costas para a parede, coloque as mãos no chão à frente e chute as pernas até apoiar os pés na parede. Mantenha braços estendidos e corpo alinhado. | Comece com supervisão e local seguro. Não force a cervical; a maior parte do peso deve ser suportada pelos ombros e mãos.",
+
+            // --- PILATES / ESTABILIZAÇÃO ---
+            "Hundred Pilates | Pilates | Core | Reto Abdominal, Oblíquos, Flexores de Quadril | Deitado de costas, eleve as pernas em ângulo de 90° (ou estendidas a 45°) e a cabeça e ombros do chão. Estenda os braços ao lado do corpo e pulse para cima e para baixo enquanto inspira por 5 tempos e expira por 5 tempos, até contar 100 pulsos. | Se for iniciante, mantenha os pés apoiados no chão ou pernas mais altas. Não force o pescoço; pense em alongar a nuca.",
+            "Ponte de Ombros (Shoulder Bridge) | Pilates | Glúteos/Core | Glúteo Máximo, Isquiotibiais, Paravertebrais | Deitado de costas, joelhos flexionados, pés apoiados. Eleve a pelve enrolando a coluna vértebra por vértebra até formar uma linha ombro–quadril–joelho, depois desenrole voltando ao solo. | Mantenha o peso distribuído entre ombros e pés, evitando pressionar o pescoço. Controle a subida e descida sem “quebras” bruscas.",
+            "Swimming Pilates | Pilates | Coluna/Costas | Paravertebrais, Glúteos, Ombros | Deitado de barriga para baixo, braços estendidos à frente. Eleve braço direito e perna esquerda e depois alterne com braço esquerdo e perna direita em movimento rápido e controlado, como se estivesse nadando. | Mantenha o abdômen levemente contraído para proteger a lombar. O movimento é pequeno; não exagere na amplitude."
         ];
 
         const bancoDeExercicios = {};
@@ -1078,11 +1143,51 @@
             } catch(e){ console.warn('marcarTreinoNoCalendario erro', e); }
         }
 
-        function start() {
+        // Escolhe automaticamente exercício com mais de 2 pontos
+        function escolherExercicioInicial() {
+            return new Promise((resolve) => {
+                const MIN_PONTOS = 3;
+                
+                database.ref(getPath('cargas')).once('value')
+                    .then((snap) => {
+                        if (!snap.exists()) {
+                            return resolve(null);
+                        }
+
+                        let melhorExercicio = null;
+
+                        snap.forEach((child) => {
+                            const nomeExercicio = child.key;
+                            const qtdRegistros = child.numChildren();
+
+                            if (!melhorExercicio && qtdRegistros >= MIN_PONTOS) {
+                                melhorExercicio = nomeExercicio;
+                            }
+                        });
+
+                        resolve(melhorExercicio);
+                    })
+                    .catch((e) => {
+                        console.warn('Erro ao buscar cargas para exercício inicial:', e);
+                        resolve(null);
+                    });
+            });
+        }
+
+        async function start() {
             document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
             document.getElementById('nome-aluno').textContent = alunoNome;
             document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
-        
+
+            const exercicioInicial = await escolherExercicioInicial();
+
+            if (exercicioInicial) {
+                const seletor = document.getElementById('seletorExercicio');
+                if (seletor) {
+                    seletor.value = exercicioInicial;
+                }
+            }
+
             inicializarGrafico();
             carregarUltimasMedidas();
             gerarCalendario();
@@ -1203,7 +1308,7 @@
             });
         }
 
-        // *** FUNÇÃO CORRIGIDA: lê o formato salvo pelo painel do professor ***
+        // Lê o formato salvo pelo painel do professor
         function carregarTreinoDoProfessor(dia) {
             const treinoContainer = document.getElementById('treino-dinamico-container');
             
@@ -1234,9 +1339,6 @@
 
                 const treinoRaw = snap.val();
 
-                // compatível com:
-                // - formato novo: { atualizadoEm, criadoEm, exercicios: [...] }
-                // - formato antigo: [ {nome, series, reps}, ... ]
                 const exercicios = Array.isArray(treinoRaw)
                     ? treinoRaw
                     : (treinoRaw && Array.isArray(treinoRaw.exercicios) ? treinoRaw.exercicios : []);
