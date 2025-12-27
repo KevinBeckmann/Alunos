@@ -421,18 +421,18 @@
             <h3>Bem-vindo(a)!</h3>
             <p>Por favor, insira seu nome:</p>
             <input type="text" id="nomeModalInput" placeholder="Ex: Maria da Silva"
-    style="
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 12px;
-        background-color: rgba(255,255,255,0.08);
-        color: #f0f0f0;
-        text-align: center;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 6px;
-        display: block;
-        box-sizing: border-box;
-    ">
+                style="
+                    width: 100%;
+                    padding: 12px;
+                    margin-bottom: 12px;
+                    background-color: rgba(255,255,255,0.08);
+                    color: #f0f0f0;
+                    text-align: center;
+                    border: 1px solid rgba(255,255,255,0.3);
+                    border-radius: 6px;
+                    display: block;
+                    box-sizing: border-box;
+                ">
 
             <button id="botaoSalvarNome" onclick="salvarNomeModal()">Entrar</button>
         </div>
@@ -529,7 +529,7 @@
             <h2> IA PTF3</h2>
 
             <label for="exercicioPergunta">O que você gostaria de saber sobre o exercício?</label>
-            <textarea id="exercicioPergunta" placeholder= "Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'" ></textarea>
+            <textarea id="exercicioPergunta" placeholder="Ex:'Qual a forma correta de fazer agachamento livre?' Ou 'Quais os músculos ativados no supino?'"></textarea>
 
             <button class="btn-primary" onclick="simularPesquisaIA()">Perguntar à IA</button>
 
@@ -604,6 +604,7 @@
     </div>
 
     <script>
+        // Service worker PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -616,16 +617,16 @@
             });
         }
 
-        // Your web app's Firebase configuration
+        // Firebase config
         const firebaseConfig = {
-  apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
-  authDomain: "ptf03-26fdb.firebaseapp.com",
-  databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
-  projectId: "ptf03-26fdb",
-  storageBucket: "ptf03-26fdb.firebasestorage.app",
-  messagingSenderId: "1020981883676",
-  appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
-};
+            apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
+            authDomain: "ptf03-26fdb.firebaseapp.com",
+            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+            projectId: "ptf03-26fdb",
+            storageBucket: "ptf03-26fdb.firebasestorage.app",
+            messagingSenderId: "1020981883676",
+            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+        };
 
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -634,14 +635,14 @@
         let pesoChart;
         let chartTreinos = null;
         let coresPorTreino = {
-            'A': '#ff6b6b', // Vermelho alaranjado
-            'B': '#4ecdc4', // Turquesa
-            'C': '#ffd166', // Amarelo
-            'D': '#06d6a0', // Verde
-            'E': '#118ab2', // Azul
-            'F': '#ef476f', // Rosa
-            'G': '#073b4c', // Azul escuro
-            'default': '#6c757d' // Cinza para outros
+            'A': '#ff6b6b',
+            'B': '#4ecdc4',
+            'C': '#ffd166',
+            'D': '#06d6a0',
+            'E': '#118ab2',
+            'F': '#ef476f',
+            'G': '#073b4c',
+            'default': '#6c757d'
         };
 
         function getPath(sub) {
@@ -702,24 +703,19 @@
             start();
         }
 
-        // Função para carregar os dias de treino dinamicamente
+        // Carrega dias de treino do aluno
         function carregarDiasTreino() {
             const select = document.getElementById('seletorTreino');
-            
-            // Limpa opções atuais
             select.innerHTML = '<option value="">Carregando...</option>';
             
-            // Busca os dias de treino disponíveis no Firebase
             database.ref(getPath('treinoModel')).once('value', snapshot => {
                 if (!snapshot.exists()) {
                     select.innerHTML = '<option value="">Nenhum treino disponível</option>';
                     return;
                 }
                 
-                // Limpa as opções
                 select.innerHTML = '';
                 
-                // Adiciona cada dia encontrado
                 snapshot.forEach(childSnapshot => {
                     const dia = childSnapshot.key;
                     const option = document.createElement('option');
@@ -728,7 +724,6 @@
                     select.appendChild(option);
                 });
                 
-                // Carrega o primeiro treino por padrão
                 if (select.options.length > 0) {
                     select.value = select.options[0].value;
                     carregarTreinoDoProfessor(select.value);
@@ -736,7 +731,7 @@
             });
         }
 
-        // Função: finalizarTreino (salva treino finalizado com Firebase SDK)
+        // Finalizar treino (registra em treinosFinalizados)
         function finalizarTreino() {
             try {
                 const select = document.getElementById('seletorTreino');
@@ -747,7 +742,6 @@
                     return;
                 }
                 
-                // Extrai o tipo do treino automaticamente
                 const tipoTreino = extrairTipoTreino(dia);
                 const treinoComTipo = tipoTreino ? `${dia} (Treino ${tipoTreino})` : dia;
                 
@@ -769,8 +763,8 @@
                 }
                 
                 const payload = {
-                    dia: treinoComTipo, // Salva com tipo incluído
-                    tipo: tipoTreino || extrairTipoTreinoManual(), // Tipo extraído
+                    dia: treinoComTipo,
+                    tipo: tipoTreino || extrairTipoTreinoManual(),
                     data: dataLegivel,
                     hora: horaLegivel,
                     timestamp: Date.now(),
@@ -785,7 +779,6 @@
                 ref.set(payload)
                     .then(() => {
                         alert(`Treino ${treinoComTipo} registrado com sucesso!`);
-                        // Recarrega as estatísticas
                         carregarUltimoTreino();
                         contarTreinosDoMes();
                         marcarTreinoNoCalendario(new Date());
@@ -801,19 +794,15 @@
             }
         }
 
-        // Função auxiliar para extrair tipo de treino - VERSÃO CORRIGIDA
+        // Extrai tipo de treino (A, B, C...)
         function extrairTipoTreino(diaString) {
             if (!diaString) return null;
-            
-            // Converte para string
             const str = diaString.toString();
-            
-            // Procura por padrões como "Treino A", "Dia A", "Treino: A", etc.
             const patterns = [
-                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,  // "Treino A", "Dia: B"
-                /\(([ABCDEFG])\)/i,                          // Entre parênteses "(A)"
-                /[:\-]\s*([ABCDEFG])/i,                      // Após dois pontos ou hífen
-                /\b([ABCDEFG])\b(?!\w)/i                     // Letra isolada
+                /(?:Treino|Dia|Workout)[\s:]*([ABCDEFG])/i,
+                /\(([ABCDEFG])\)/i,
+                /[:\-]\s*([ABCDEFG])/i,
+                /\b([ABCDEFG])\b(?!\w)/i
             ];
             
             for (const pattern of patterns) {
@@ -825,7 +814,6 @@
                 }
             }
             
-            // Verifica se o nome termina com letra
             const ultimoChar = str.trim().slice(-1);
             if (ultimoChar.match(/[ABCDEFG]/i)) {
                 console.log(`Extraído (último char) de "${diaString}": ${ultimoChar.toUpperCase()}`);
@@ -836,15 +824,12 @@
             return null;
         }
 
-        // Função alternativa para determinar tipo quando não encontrado
         function extrairTipoTreinoManual() {
-            // Lógica de rotação: A → B → C → D → A...
             const ultimoTipo = localStorage.getItem('ultimoTipoTreino') || 'D';
             const tipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const indexAtual = tipos.indexOf(ultimoTipo);
             const proximoIndex = (indexAtual + 1) % tipos.length;
             const novoTipo = tipos[proximoIndex];
-            
             localStorage.setItem('ultimoTipoTreino', novoTipo);
             return novoTipo;
         }
@@ -901,20 +886,17 @@
                     });
                     
                     console.log('Treinos carregados:', lista.length);
-                    
-                    // Renderiza o gráfico
                     renderTreinosBarChart(lista);
                 }).catch(err => console.warn('carregarTreinosFinalizados erro', err));
             } catch (err) { console.warn('carregarTreinosFinalizados erro', err); }
         }
 
-        // FUNÇÃO PRINCIPAL: Renderiza gráfico de barras com cores por tipo de treino
+        // Gráfico de barras de treinos
         function renderTreinosBarChart(treinosLista) {
             try {
                 const canvas = document.getElementById('graficoTreinos');
                 if (!canvas) return;
                 
-                // Se não houver treinos, limpa o gráfico
                 if (!treinosLista || treinosLista.length === 0) {
                     if (chartTreinos) chartTreinos.destroy();
                     chartTreinos = null;
@@ -925,31 +907,24 @@
                 
                 canvas.style.display = 'block';
                 
-                // Ordena por timestamp (mais antigo primeiro)
                 const treinosOrdenados = treinosLista.slice().sort((a, b) => {
                     return (a.timestamp || 0) - (b.timestamp || 0);
                 });
 
                 console.log('Treinos ordenados para gráfico:', treinosOrdenados);
 
-                // Labels com números sequenciais
                 const labels = treinosOrdenados.map((t, index) => `${index + 1}`);
-                
-                // Dados: exercícios concluídos
                 const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
                 
-                // Cores baseadas no tipo de treino - LÓGICA CORRIGIDA
                 const cores = treinosOrdenados.map(t => {
                     const tipo = t.tipo || extrairTipoTreino(t.dia);
                     console.log(`Treino: "${t.dia}" -> Tipo: ${tipo} -> Cor: ${coresPorTreino[tipo] || coresPorTreino.default}`);
-                    
                     if (tipo && coresPorTreino[tipo]) {
                         return coresPorTreino[tipo];
                     }
                     return coresPorTreino.default;
                 });
 
-                // Atualiza a legenda com os tipos presentes
                 atualizarLegendaCores(treinosOrdenados, coresPorTreino);
 
                 if (typeof Chart === 'undefined') { 
@@ -1048,11 +1023,8 @@
             }
         }
         
-        // Função para atualizar a legenda baseada nos treinos reais
         function atualizarLegendaCores(treinosOrdenados, coresPorTreino) {
             const tiposPresentes = new Set();
-            
-            // Identifica quais tipos de treino estão presentes
             treinosOrdenados.forEach(t => {
                 const tipo = t.tipo || extrairTipoTreino(t.dia);
                 if (tipo) {
@@ -1060,19 +1032,14 @@
                 }
             });
             
-            // Verifica se há treinos sem tipo específico
             const temOutros = treinosOrdenados.some(t => !(t.tipo || extrairTipoTreino(t.dia)));
-            
-            // Ordena os tipos para consistência
             const todosTipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
             const tiposFiltrados = todosTipos.filter(t => tiposPresentes.has(t));
             
-            // Atualiza a legenda
             const legendaContainer = document.getElementById('legenda-cores');
             if (legendaContainer) {
                 let html = '';
                 
-                // Adiciona cada tipo presente
                 tiposFiltrados.forEach(tipo => {
                     if (coresPorTreino[tipo]) {
                         html += `
@@ -1084,7 +1051,6 @@
                     }
                 });
                 
-                // Adiciona "Outros" se houver treinos sem tipo específico
                 if (temOutros) {
                     html += `
                         <div class="legenda-item">
@@ -1094,7 +1060,6 @@
                     `;
                 }
                 
-                // Se não houver nenhum tipo, mostra mensagem
                 if (tiposFiltrados.length === 0 && !temOutros) {
                     html = '<div style="color: #ccc; font-size: 0.8em;">Nenhum treino registrado</div>';
                 }
@@ -1121,14 +1086,10 @@
             inicializarGrafico();
             carregarUltimasMedidas();
             gerarCalendario();
-            
-            // Carrega os dias de treino dinamicamente
             carregarDiasTreino();
-        
             carregarUltimoTreino();
             contarTreinosDoMes();
             
-            // Aguarda Chart.js carregar e então renderiza os treinos
             if (typeof Chart !== 'undefined') {
                 carregarTreinosFinalizados();
             } else {
@@ -1242,10 +1203,10 @@
             });
         }
 
+        // *** FUNÇÃO CORRIGIDA: lê o formato salvo pelo painel do professor ***
         function carregarTreinoDoProfessor(dia) {
             const treinoContainer = document.getElementById('treino-dinamico-container');
             
-            // Atualiza o conteúdo do container
             treinoContainer.innerHTML = `
                 <h3 style="color:#ff9933;">${dia}</h3>
                 <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
@@ -1258,7 +1219,6 @@
                 </div>
             `;
             
-            // Busca os exercícios do dia específico
             database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
                 const ul = document.getElementById('lista-treino-dinamico');
                 ul.innerHTML = '';
@@ -1271,12 +1231,29 @@
                     `;
                     return;
                 }
+
+                const treinoRaw = snap.val();
+
+                // compatível com:
+                // - formato novo: { atualizadoEm, criadoEm, exercicios: [...] }
+                // - formato antigo: [ {nome, series, reps}, ... ]
+                const exercicios = Array.isArray(treinoRaw)
+                    ? treinoRaw
+                    : (treinoRaw && Array.isArray(treinoRaw.exercicios) ? treinoRaw.exercicios : []);
+
+                if (!exercicios || exercicios.length === 0) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Nenhum exercício cadastrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
                 
                 let contador = 0;
-                snap.forEach(childSnapshot => {
-                    contador++;
-                    const t = childSnapshot.val();
+                exercicios.forEach(t => {
                     if (t && t.nome) {
+                        contador++;
                         const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
                         const li = document.createElement('li');
                         li.className = 'exercicio-item';
@@ -1295,7 +1272,6 @@
                     }
                 });
                 
-                // Carrega status dos checkboxes
                 carregarCheckboxes(dia);
             });
         }
@@ -1307,8 +1283,6 @@
             } else {
                 li.classList.remove('concluido');
             }
-            
-            // Salva o status no Firebase
             database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
         }
 
