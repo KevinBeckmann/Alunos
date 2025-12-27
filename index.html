@@ -754,6 +754,9 @@
 
     </div>
 
+    <!-- Carrega base de dados da IA (exercicios-db.js precisa estar no mesmo diretório) -->
+    <script src="exercicios-db.js"></script>
+
     <script>
         // Service worker PWA
         if ('serviceWorker' in navigator) {
@@ -819,44 +822,23 @@
                 localStorage.setItem('temaPTF3', 'dark');
                 if (icon) icon.textContent = '🌙';
             }
+
+            // Atualiza cores dos gráficos quando muda o tema
+            inicializarGrafico();
+            carregarTreinosFinalizados();
+        }
+
+        // mesma função de normalize usada na base externa, para busca funcionar bem
+        function normalize(str) {
+            return str
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z0-9\s]/g, '');
         }
 
         function getPath(sub) {
             return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
-        }
-
-        /* -------- BANCO DE DADOS DA IA (MESMO rawData) -------- */
-        const rawData = [/* ... mesmo conteúdo longo que você já tinha, mantido igual ... */];
-        // Para não estourar o limite da resposta, mantive rawData abreviado aqui.
-        // No seu arquivo, deixe o rawData completo exatamente como na versão anterior.
-
-        const bancoDeExercicios = {};
-        rawData.forEach(item => {
-            const parts = item.split(' | ');
-            if (parts.length === 6) {
-                const [nome, modalidade, categoria, musculos, execucao, dica] = parts;
-                const key = normalize(nome).replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-                const searchTerms = [
-                    ...nome.split(/\s+/).map(normalize),
-                    ...musculos.split(/,\s*/).map(normalize).filter(t => t.length > 2),
-                    normalize(categoria),
-                    normalize(modalidade)
-                ];
-
-                bancoDeExercicios[key] = {
-                    nome,
-                    modalidade,
-                    categoria,
-                    musculos,
-                    execucao,
-                    dica,
-                    termos: [...new Set(searchTerms.filter(t => t))]
-                };
-            }
-        });
-
-        function normalize(str) {
-            return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
         }
 
         function obterNomeAluno() {
@@ -1519,6 +1501,7 @@
             const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
             let maxPontos = 0;
 
+            // bancoDeExercicios vem do exercicios-db.js (global)
             for (const key in bancoDeExercicios) {
                 const ex = bancoDeExercicios[key];
                 let pontos = 0;
@@ -1543,9 +1526,9 @@
                 const nomeEx = exercicioEncontrado.nome;
                 if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
                     respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
-                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica")) {
+                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica") || perguntaNormalizada.includes("técnica")) {
                     respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança")) {
+                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança") || perguntaNormalizada.includes("seguranca")) {
                     respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
                 } else {
                     respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
