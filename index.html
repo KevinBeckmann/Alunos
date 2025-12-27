@@ -632,7 +632,6 @@ const firebaseConfig = {
         const database = firebase.database();
 
         let alunoNome = '';
-        let alunoChave = ''; // ✅ FIX: chave real no Firebase (/alunos/<chave>)
         let pesoChart;
         let chartTreinos = null;
         let coresPorTreino = {
@@ -646,41 +645,8 @@ const firebaseConfig = {
             'default': '#6c757d' // Cinza para outros
         };
 
-        // ✅ FIX: sempre usar alunoChave nos caminhos
         function getPath(sub) {
-            return `alunos/${alunoChave}/${sub}`;
-        }
-
-        // ✅ FIX: normalização para comparar nomes com acento/maiúsculas/espaços
-        function normalizeName(str) {
-            return (str || '')
-                .trim()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .replace(/\s+/g, ' ')
-                .toLowerCase();
-        }
-
-        // ✅ FIX: resolve a chave real do aluno no nó /alunos comparando info.nome
-        async function resolverChaveAlunoPeloNome(nomeDigitado) {
-            const nomeNorm = normalizeName(nomeDigitado);
-
-            const snap = await database.ref('alunos').once('value');
-            const alunos = snap.val() || {};
-
-            // Preferência: info.nome
-            for (const chave in alunos) {
-                const nomeInfo = alunos[chave]?.info?.nome;
-                if (normalizeName(nomeInfo) === nomeNorm) return chave;
-            }
-
-            // Fallback: tenta bater com a própria chave
-            const tentativa = normalizeName(nomeDigitado).replace(/\s/g, '_');
-            for (const chave in alunos) {
-                const chaveNorm = normalizeName(chave.replace(/_/g, ' ')).replace(/\s/g, '_');
-                if (chaveNorm === tentativa) return chave;
-            }
-
-            return '';
+            return `alunos/${alunoNome.replace(/\s/g, '_')}/${sub}`;
         }
 
         const rawData = [
@@ -718,59 +684,21 @@ const firebaseConfig = {
             return str.toLowerCase().replace(/[^a-z0-9\s]/g, '');
         }
 
-        // ✅ FIX: agora resolve alunoChave antes de start()
-        async function obterNomeAluno() {
+        function obterNomeAluno() {
             const nomeLocal = localStorage.getItem('nomeAluno');
-            const chaveLocal = localStorage.getItem('alunoChave');
-
             if (!nomeLocal) {
                 document.getElementById('modal-nome').style.display = 'flex';
-                return;
-            }
-
-            alunoNome = nomeLocal;
-
-            // já tem chave salva
-            if (chaveLocal) {
-                alunoChave = chaveLocal;
+            } else {
+                alunoNome = nomeLocal;
                 start();
-                return;
             }
-
-            // resolve chave no firebase
-            const chave = await resolverChaveAlunoPeloNome(alunoNome);
-            if (!chave) {
-                alert('Não encontrei seu cadastro no sistema. Peça ao professor para cadastrar seu nome corretamente.');
-                localStorage.removeItem('nomeAluno');
-                localStorage.removeItem('alunoChave');
-                document.getElementById('modal-nome').style.display = 'flex';
-                return;
-            }
-
-            alunoChave = chave;
-            localStorage.setItem('alunoChave', alunoChave);
-            start();
         }
 
-        // ✅ FIX: ao salvar nome, resolve a chave também
-        async function salvarNomeModal() {
+        function salvarNomeModal() {
             const n = document.getElementById('nomeModalInput').value.trim();
             if (n.length < 2) return alert('Por favor, insira um nome válido!');
-
             alunoNome = n;
             localStorage.setItem('nomeAluno', n);
-
-            const chave = await resolverChaveAlunoPeloNome(alunoNome);
-            if (!chave) {
-                alert('Não encontrei seu cadastro no sistema. Peça ao professor para cadastrar seu nome corretamente.');
-                localStorage.removeItem('nomeAluno');
-                localStorage.removeItem('alunoChave');
-                return;
-            }
-
-            alunoChave = chave;
-            localStorage.setItem('alunoChave', alunoChave);
-
             document.getElementById('modal-nome').style.display = 'none';
             start();
         }
@@ -1345,11 +1273,20 @@ const firebaseConfig = {
                     return;
                 }
                 
-                let contador = 0;
-                snap.forEach(childSnapshot => {
-                    contador++;
-                    const t = childSnapshot.val();
+                const treinoData = snap.val();
+                if (!treinoData || !treinoData.exercicios || !Array.isArray(treinoData.exercicios)) {
+                    ul.innerHTML = `
+                        <li class="exercicio-item" style="background: none; border: none; color: #ff9933;">
+                            Treino não encontrado para ${dia}
+                        </li>
+                    `;
+                    return;
+                }
+                
+                const exercicios = treinoData.exercicios;
+                exercicios.forEach((t, index) => {
                     if (t && t.nome) {
+                        const contador = index + 1;
                         const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
                         const li = document.createElement('li');
                         li.className = 'exercicio-item';
