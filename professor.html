@@ -1513,6 +1513,27 @@
         // === FUNÇÕES DE DIAS DE TREINO - CORRIGIDAS ====
         // ============================================
 
+        function debugEstruturaAluno() {
+            console.log('=== DEBUG ESTRUTURA ALUNO ===');
+            console.log('alunoSelecionadoChave:', alunoSelecionadoChave);
+            console.log('alunoSelecionadoNome:', alunoSelecionadoNome);
+            
+            database.ref(`alunos/${alunoSelecionadoChave}`).once('value')
+                .then(snap => {
+                    console.log('Estrutura completa do aluno:', snap.val());
+                    console.log('Existe?', snap.exists());
+                    
+                    if (snap.exists()) {
+                        console.log('Keys disponíveis:', Object.keys(snap.val()));
+                        console.log('tem info?', !!snap.val().info);
+                        console.log('tem treinoModel?', !!snap.val().treinoModel);
+                    }
+                })
+                .catch(e => {
+                    console.error('Erro no debug:', e);
+                });
+        }
+
         function abrirModalDia() {
             if (!alunoSelecionadoChave) {
                 mostrarMensagem('Selecione um aluno primeiro!', 'erro');
@@ -1533,6 +1554,9 @@
                 alert('Digite o nome do novo dia de treino!');
                 return;
             }
+
+            // DEBUG: Mostra estrutura do aluno
+            debugEstruturaAluno();
 
             // Verifica se o aluno existe
             database.ref(`alunos/${alunoSelecionadoChave}`).once('value', alunoSnap => {
@@ -1604,40 +1628,90 @@
         function tentarSalvarDiaAlternativo(nomeDia) {
             console.log(`🔄 Tentando método alternativo para salvar dia "${nomeDia}"...`);
             
-            // Tenta primeiro garantir que a estrutura treinoModel existe
-            database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).once('value', snap => {
-                if (!snap.exists()) {
-                    console.log('⚠️ treinoModel não existe, criando...');
-                    // Cria o nó treinoModel se não existir
-                    return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).set({});
-                }
-                return Promise.resolve();
-            })
-            .then(() => {
-                // Agora cria o dia específico
-                return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`).set([]);
-            })
-            .then(() => {
-                console.log(`✅ Dia "${nomeDia}" criado (método alternativo)!`);
-                alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
-                document.getElementById('modalDia').style.display = 'none';
-                
-                // Atualiza a lista de dias
-                carregarDiasTreinoDoAluno();
-                
-                // Seleciona o novo dia automaticamente
-                setTimeout(() => {
-                    const selectDia = document.getElementById('selectDia');
-                    selectDia.value = nomeDia;
-                    setTimeout(() => {
-                        carregarTreinoDia();
-                    }, 500);
-                }, 300);
-            })
-            .catch(e => {
-                console.error('❌ Método alternativo também falhou:', e);
-                alert('Falha completa ao criar dia: ' + e.message);
-            });
+            // Primeiro, verifica se o aluno existe
+            database.ref(`alunos/${alunoSelecionadoChave}`).once('value')
+                .then(alunoSnap => {
+                    if (!alunoSnap.exists()) {
+                        throw new Error(`Aluno "${alunoSelecionadoNome}" não encontrado!`);
+                    }
+                    
+                    console.log('🔍 Verificando se treinoModel existe...');
+                    
+                    // Verifica se treinoModel existe
+                    return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).once('value');
+                })
+                .then(treinoModelSnap => {
+                    if (!treinoModelSnap.exists()) {
+                        console.log('⚠️ treinoModel não existe, criando estrutura vazia...');
+                        // Cria o nó treinoModel vazio
+                        return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).set({});
+                    }
+                    console.log('✅ treinoModel já existe');
+                    return Promise.resolve();
+                })
+                .then(() => {
+                    console.log(`💾 Criando dia "${nomeDia}" dentro de treinoModel...`);
+                    
+                    // Agora cria o dia específico com um array vazio
+                    return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`).set([]);
+                })
+                .then(() => {
+                    console.log(`✅ Dia "${nomeDia}" criado com sucesso!`);
+                    
+                    // Verifica se realmente foi criado
+                    return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel/${nomeDia}`).once('value');
+                })
+                .then(verificacaoSnap => {
+                    if (verificacaoSnap.exists()) {
+                        console.log('✅ Verificação confirmada:', verificacaoSnap.val());
+                        alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
+                        document.getElementById('modalDia').style.display = 'none';
+                        
+                        // Atualiza a lista de dias
+                        carregarDiasTreinoDoAluno();
+                        
+                        // Seleciona o novo dia automaticamente
+                        setTimeout(() => {
+                            const selectDia = document.getElementById('selectDia');
+                            selectDia.value = nomeDia;
+                            setTimeout(() => {
+                                carregarTreinoDia();
+                            }, 500);
+                        }, 300);
+                    } else {
+                        throw new Error('Dia não foi salvo no Firebase após criação');
+                    }
+                })
+                .catch(e => {
+                    console.error('❌ Método alternativo também falhou:', e);
+                    
+                    // Última tentativa: cria toda a estrutura completa de uma vez
+                    console.log('🔄 Tentando método de emergência...');
+                    
+                    const estruturaCompleta = {
+                        [nomeDia]: []
+                    };
+                    
+                    return database.ref(`alunos/${alunoSelecionadoChave}/treinoModel`).update(estruturaCompleta)
+                        .then(() => {
+                            alert(`✅ Dia "${nomeDia}" criado (método de emergência)!`);
+                            document.getElementById('modalDia').style.display = 'none';
+                            carregarDiasTreinoDoAluno();
+                            
+                            setTimeout(() => {
+                                const selectDia = document.getElementById('selectDia');
+                                selectDia.value = nomeDia;
+                                setTimeout(() => {
+                                    carregarTreinoDia();
+                                }, 500);
+                            }, 300);
+                        })
+                        .catch(erroFinal => {
+                            console.error('❌ Falha completa:', erroFinal);
+                            alert('❌ Falha ao criar dia: ' + erroFinal.message + 
+                                  '\n\nSugestão: Verifique se o aluno está cadastrado corretamente no Firebase.');
+                        });
+                });
         }
 
         function removerDiaTreino() {
