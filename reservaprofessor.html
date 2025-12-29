@@ -37,18 +37,13 @@
             background-color: #1a1a1a;
             margin-bottom: 20px;
         }
-        
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #00d4ff;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            background: linear-gradient(90deg, #00d4ff, #00a3cc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
-            margin: 0;
+
+        /* Imagem de logo */
+        .logo-img {
+            height: 48px;
+            max-width: 200px;
+            object-fit: contain;
+            display: inline-block;
         }
         
         .logo-subtitle {
@@ -96,8 +91,8 @@
                 margin-bottom: 15px;
             }
             
-            .logo {
-                font-size: 2rem;
+            .logo-img {
+                height: 40px;
             }
             
             .btn-sair {
@@ -115,8 +110,8 @@
                 font-size: 14px;
             }
             
-            .logo {
-                font-size: 1.8rem;
+            .logo-img {
+                height: 36px;
             }
         }
         
@@ -441,7 +436,6 @@
         }
         
         @media (max-width: 767px) {
-            /* Ajuste para tabelas em mobile */
             .tabela-treino th,
             .tabela-treino td {
                 padding: 12px 8px;
@@ -731,7 +725,6 @@
             }
         }
         
-        /* Botão Renomear Aluno */
         .btn-renomear-aluno { 
             background: linear-gradient(90deg, #00d4ff, #00a3cc); 
             color: #1e1e1e; 
@@ -743,7 +736,6 @@
             box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
         }
         
-        /* Loading state */
         .loading {
             text-align: center;
             padding: 40px;
@@ -766,9 +758,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* ================================================ */
-        /* ESTILOS MODAIS FALTANTES */
-        /* ================================================ */
+        /* Modais */
         .modal {
             display: none;
             position: fixed;
@@ -840,7 +830,6 @@
             color: #00d4ff;
         }
         
-        /* Botões pequenos na tabela de medidas */
         .btn-pequeno {
             padding: 8px 12px;
             font-size: 12px;
@@ -856,7 +845,8 @@
 
     <div id="login-screen" style="display:none;">
         <div class="logo-header" style="border-bottom: none; background: transparent; padding: 0 0 20px 0; margin: 0;">
-            <h1 class="logo">GYM PRO</h1>
+            <!-- Logo como imagem -->
+            <img src="logotipo.png" alt="GYM PRO" class="logo-img" onerror="this.style.display='none'">
             <p class="logo-subtitle">Painel do Treinador</p>
         </div>
         <h2>Acesso Restrito</h2>
@@ -869,7 +859,8 @@
     <div id="main-content" style="display:none;">
         <!-- Logo Centralizado no Topo -->
         <div class="logo-header">
-            <h1 class="logo">GYM PRO</h1>
+            <!-- Logo como imagem -->
+            <img src="logotipo.png" alt="GYM PRO" class="logo-img" onerror="this.style.display='none'">
             <p class="logo-subtitle">Painel do Treinador</p>
         </div>
         
@@ -913,7 +904,6 @@
                     
                     <hr>
                     
-                    <!-- Instruções estilizadas -->
                     <div class="instrucoes-treino">
                         <strong>💡 Dica:</strong> Arraste o ícone ☰ para reordenar os exercícios.
                     </div>
@@ -947,7 +937,7 @@
                 </div>
             </div>
 
-            <!-- Seção de Medidas (Toda a largura) -->
+            <!-- Seção de Medidas -->
             <div class="medidas-section">
                 <div class="card">
                     <h2>📏 Gerenciar Medidas</h2>
@@ -1049,25 +1039,22 @@
         let editorSortable = null;
         let graficos = {};
 
-        // === 1. CONFIGURAÇÃO FIREBASE ===
-       const firebaseConfig = {
-  apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
-  authDomain: "ptf03-26fdb.firebaseapp.com",
-  databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
-  projectId: "ptf03-26fdb",
-  storageBucket: "ptf03-26fdb.firebasestorage.app",
-  messagingSenderId: "1020981883676",
-  appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
-};
+        // CONFIG FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDlKdyL4QgpEj1YqBr2xCs0F3aM1o82ef0",
+            authDomain: "ptf03-26fdb.firebaseapp.com",
+            databaseURL: "https://ptf03-26fdb-default-rtdb.firebaseio.com",
+            projectId: "ptf03-26fdb",
+            storageBucket: "ptf03-26fdb.firebasestorage.app",
+            messagingSenderId: "1020981883676",
+            appId: "1:1020981883676:web:7b26aca25ddb1dc02100d9"
+        };
         
         try {
             const app = firebase.initializeApp(firebaseConfig);
             auth = firebase.auth(); 
             database = firebase.database();
-            
-            // Inicia o observador de autenticação
             iniciarObservadorAuth();
-
         } catch (error) {
             alert("ERRO CRÍTICO NO FIREBASE: " + error.message);
         }
@@ -1088,19 +1075,14 @@
             });
         }
 
-        // --- FUNÇÕES DE MENSAGEM ---
         function mostrarMensagem(texto, tipo = 'sucesso') {
             const msgDiv = document.getElementById('mensagem-treino');
             msgDiv.textContent = texto;
             msgDiv.className = `mensagem ${tipo}`;
             msgDiv.style.display = 'block';
-            
-            setTimeout(() => {
-                msgDiv.style.display = 'none';
-            }, 3000);
+            setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
         }
 
-        // --- FUNÇÕES GERAIS ---
         function formatarNomeParaChave(nome) {
             return nome.trim()
                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -1117,7 +1099,6 @@
             document.getElementById('login-erro').textContent = `Erro: ${mensagem}`;
         }
 
-        // --- FUNÇÕES DE AUTENTICAÇÃO ---
         function fazerLogin() {
             const email = document.getElementById('login-email').value;
             const senha = document.getElementById('login-senha').value;
@@ -1143,13 +1124,11 @@
             }
         }
 
-        // --- INICIALIZAÇÃO E CARREGAMENTO GERAL ---
         function inicializarPainel() {
             const selTreino = document.getElementById('selectAluno');
             const selGraficos = document.getElementById('selectAlunoGraficos');
             const selMedidas = document.getElementById('selectAlunoMedidas');
 
-            // ✅ FIX: value dos selects será a CHAVE do aluno no Firebase
             const atualizarAlunoGlobal = (chave) => {
                 const optTreino = selTreino.querySelector(`option[value="${CSS.escape(chave)}"]`);
                 const nome = optTreino ? optTreino.textContent : chave;
@@ -1207,14 +1186,12 @@
                     sel.innerHTML = '';
                     lista.forEach(item => {
                         const opt = document.createElement('option');
-                        // ✅ FIX: value = chave REAL do Firebase (pode ter maiúscula)
                         opt.value = item.chave;
                         opt.textContent = item.nomeLegivel;
                         sel.appendChild(opt);
                     });
                 });
 
-                // Selecionar aluno atual (se ainda existir) senão o primeiro
                 const chaveInicial = (alunoSelecionadoChave && alunos[alunoSelecionadoChave])
                     ? alunoSelecionadoChave
                     : lista[0].chave;
@@ -1230,15 +1207,10 @@
 
         function carregarTudo() {
             if(!alunoSelecionadoChave) return;
-            
             carregarDiasTreinoDoAluno();
             carregarGraficosAluno();
             carregarMedidasCompletas();
         }
-
-        // ============================================
-        // === FUNÇÕES DA TAB TREINO - LAYOUT MELHORADO ====
-        // ============================================
 
         function carregarDiasTreinoDoAluno() {
             if (!alunoSelecionadoChave) {
@@ -1264,12 +1236,9 @@
                         selDia.appendChild(option);
                     });
                     
-                    // Se houver apenas um dia, selecione-o automaticamente
                     if (selDia.options.length === 2) {
                         selDia.value = selDia.options[1].value;
-                        setTimeout(() => {
-                            carregarTreinoDia();
-                        }, 100);
+                        setTimeout(() => { carregarTreinoDia(); }, 100);
                     }
                 }
                 
@@ -1310,7 +1279,6 @@
                 treinoContainer.className = 'treino-tabelas-container';
                 treinoContainer.id = 'treino-sortable';
 
-                // ✅ FIX: compatibilidade com formato antigo (array) e novo (obj.exercicios)
                 const exercicios = Array.isArray(treinoRaw)
                     ? treinoRaw
                     : (treinoRaw && Array.isArray(treinoRaw.exercicios) ? treinoRaw.exercicios : []);
@@ -1318,7 +1286,6 @@
                 if(exercicios.length > 0) {
                     exercicios.forEach(t => addLinhaTabelaMelhorada(t.nome, t.series, t.reps, treinoContainer));
                 } else {
-                    // Se não houver exercícios, adiciona uma linha vazia
                     addLinhaTabelaMelhorada('', '', '', treinoContainer);
                 }
                 
@@ -1334,8 +1301,6 @@
                 container.appendChild(btn);
                 
                 initSortable();
-                
-                console.log(`Treino do dia "${dia}" carregado com sucesso`);
             }).catch(error => {
                 console.error("Erro ao carregar treino:", error);
                 container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 30px; background: rgba(220, 53, 69, 0.1); border-radius: 8px;">Erro ao carregar treino</p>';
@@ -1385,20 +1350,14 @@
             if (tabela) {
                 tabela.style.opacity = '0.5';
                 tabela.style.transform = 'translateX(-100px)';
-                setTimeout(() => {
-                    tabela.remove();
-                }, 300);
+                setTimeout(() => { tabela.remove(); }, 300);
             }
         }
 
         function initSortable() {
             const container = document.getElementById('treino-sortable');
-            
             if (!container) return;
-            
-            if (editorSortable) {
-                editorSortable.destroy();
-            }
+            if (editorSortable) editorSortable.destroy();
             
             editorSortable = Sortable.create(container, {
                 animation: 200, 
@@ -1406,13 +1365,8 @@
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 touchStartThreshold: 5,
-                onStart: function() {
-                    document.body.style.cursor = 'grabbing';
-                },
-                onEnd: function() {
-                    document.body.style.cursor = '';
-                    console.log("Ordem dos exercícios alterada");
-                }
+                onStart: () => { document.body.style.cursor = 'grabbing'; },
+                onEnd: () => { document.body.style.cursor = ''; }
             });
         }
 
@@ -1443,11 +1397,7 @@
                 const reps = tabela.querySelector('.i-reps')?.value.trim() || '';
                 
                 if(nome) {
-                    dados.push({ 
-                        nome: nome, 
-                        series: series, 
-                        reps: reps 
-                    });
+                    dados.push({ nome, series, reps });
                 }
             });
             
@@ -1458,7 +1408,6 @@
             
             mostrarMensagem('Salvando treino...', 'sucesso');
             
-            // ✅ FIX: salvar no formato novo (visível e consistente)
             const treinoRef = database.ref(getPath(`treinoModel/${dia}`));
             treinoRef.update({
                 atualizadoEm: Date.now(),
@@ -1466,17 +1415,12 @@
             })
                 .then(() => {
                     mostrarMensagem('✅ Treino salvo com sucesso!', 'sucesso');
-                    console.log(`Treino "${dia}" salvo com ${dados.length} exercícios`);
                 })
                 .catch(e => {
                     console.error("Erro ao salvar treino:", e);
                     mostrarMensagem('❌ Erro ao salvar treino: ' + e.message, 'erro');
                 });
         }
-
-        // ============================================
-        // === FUNÇÕES DE DIAS DE TREINO ====
-        // ============================================
 
         function abrirModalDia() {
             if (!alunoSelecionadoChave) {
@@ -1499,14 +1443,12 @@
                 return;
             }
 
-            // Verifica se o dia já existe
             database.ref(getPath(`treinoModel/${nomeDia}`)).once('value', snap => {
                 if (snap.exists()) {
                     alert(`O dia "${nomeDia}" já existe!`);
                     return;
                 }
 
-                // ✅ FIX: cria como objeto visível (não mais [])
                 database.ref(getPath(`treinoModel/${nomeDia}`)).set({
                     criadoEm: Date.now(),
                     exercicios: []
@@ -1514,17 +1456,11 @@
                     .then(() => {
                         alert(`✅ Dia "${nomeDia}" criado com sucesso!`);
                         document.getElementById('modalDia').style.display = 'none';
-                        
-                        // Atualiza a lista de dias
                         carregarDiasTreinoDoAluno();
-                        
-                        // Seleciona o novo dia automaticamente
                         setTimeout(() => {
                             const selectDia = document.getElementById('selectDia');
                             selectDia.value = nomeDia;
-                            setTimeout(() => {
-                                carregarTreinoDia();
-                            }, 300);
+                            setTimeout(() => { carregarTreinoDia(); }, 300);
                         }, 200);
                     })
                     .catch(e => {
@@ -1570,21 +1506,14 @@
             }
         }
 
-        // ============================================
-        // === FUNÇÕES DA TAB GRÁFICOS ===============
-        // ============================================
-
         function carregarGraficosAluno() {
             if (!alunoSelecionadoChave) return;
             
             const container = document.getElementById('graficos-container');
             container.innerHTML = '<div class="loading">Carregando gráficos...</div>';
             
-            // Destruir gráficos existentes
             Object.values(graficos).forEach(chart => {
-                if (chart && typeof chart.destroy === 'function') {
-                    chart.destroy();
-                }
+                if (chart && typeof chart.destroy === 'function') chart.destroy();
             });
             graficos = {};
             
@@ -1596,7 +1525,6 @@
                 container.innerHTML = '';
                 let temDados = false;
                 
-                // 1. Gráfico de medidas (só se tiver dados)
                 if (snapMedidas.exists() && snapMedidas.numChildren() > 1) {
                     const medidasData = [];
                     snapMedidas.forEach(child => {
@@ -1605,52 +1533,35 @@
                             medidasData.push({ ...medida, id: child.key });
                         }
                     });
-                    
                     medidasData.sort((a, b) => a.timestamp - b.timestamp);
-                    
                     if (medidasData.length > 1) {
                         criarGraficoMedidas(medidasData);
                         temDados = true;
                     }
                 }
                 
-                // 2. Gráficos de carga (só exercícios com pelo menos 2 registros)
                 if (snapCargas.exists()) {
                     const exerciciosComDados = [];
-                    
                     snapCargas.forEach(exercicioSnap => {
                         const nomeExercicio = exercicioSnap.key;
                         const dadosExercicio = [];
-                        
                         exercicioSnap.forEach(registro => {
                             const dado = registro.val();
                             if (dado.peso && parseFloat(dado.peso) > 0) {
-                                dadosExercicio.push({
-                                    ...dado,
-                                    id: registro.key
-                                });
+                                dadosExercicio.push({ ...dado, id: registro.key });
                             }
                         });
-                        
                         if (dadosExercicio.length >= 2) {
-                            exerciciosComDados.push({
-                                nome: nomeExercicio,
-                                dados: dadosExercicio
-                            });
+                            exerciciosComDados.push({ nome: nomeExercicio, dados: dadosExercicio });
                         }
                     });
-                    
-                    // Ordenar por nome do exercício
                     exerciciosComDados.sort((a, b) => a.nome.localeCompare(b.nome));
-                    
-                    // Limitar a 4 gráficos de carga para não poluir
                     exerciciosComDados.slice(0, 4).forEach(ex => {
                         criarGraficoCarga(ex.nome, ex.dados);
                         temDados = true;
                     });
                 }
                 
-                // 3. Gráfico de presença (só se tiver pelo menos 2 presenças)
                 if (snapPresenca.exists() && snapPresenca.numChildren() >= 2) {
                     const presencas = Object.keys(snapPresenca.val());
                     if (presencas.length >= 2) {
@@ -1670,7 +1581,6 @@
 
         function criarGraficoMedidas(dados) {
             const container = document.getElementById('graficos-container');
-            
             const canvasId = 'chart-medidas-' + Date.now();
             const card = document.createElement('div');
             card.className = 'chart-card';
@@ -1681,15 +1591,10 @@
             container.appendChild(card);
             
             const ctx = document.getElementById(canvasId).getContext('2d');
-            
-            // Formatar datas para serem mais legíveis
             const labels = dados.map((d, index) => {
                 if (d.data) {
-                    // Formata data para DD/MM
                     const parts = d.data.split('/');
-                    if (parts.length >= 2) {
-                        return `${parts[0]}/${parts[1]}`;
-                    }
+                    if (parts.length >= 2) return `${parts[0]}/${parts[1]}`;
                     return d.data;
                 }
                 if (d.timestamp) {
@@ -1702,7 +1607,7 @@
             graficos[canvasId] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels,
                     datasets: [
                         {
                             label: 'Peso (kg)',
@@ -1746,9 +1651,7 @@
                         legend: { 
                             labels: { 
                                 color: '#e0e0e0',
-                                font: {
-                                    size: window.innerWidth < 768 ? 10 : 12
-                                }
+                                font: { size: window.innerWidth < 768 ? 10 : 12 }
                             },
                             position: 'top'
                         },
@@ -1763,42 +1666,21 @@
                     scales: {
                         y: { 
                             beginAtZero: false,
-                            grid: { 
-                                color: 'rgba(255, 255, 255, 0.1)',
-                                drawBorder: false
-                            },
-                            ticks: { 
-                                color: '#e0e0e0',
-                                font: {
-                                    size: window.innerWidth < 768 ? 10 : 11
-                                }
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
+                            ticks: { color: '#e0e0e0', font: { size: window.innerWidth < 768 ? 10 : 11 } }
                         },
                         x: { 
-                            grid: { 
-                                color: 'rgba(255, 255, 255, 0.1)',
-                                drawBorder: false
-                            },
-                            ticks: { 
-                                color: '#e0e0e0',
-                                maxRotation: 0,
-                                font: {
-                                    size: window.innerWidth < 768 ? 9 : 10
-                                }
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
+                            ticks: { color: '#e0e0e0', maxRotation: 0, font: { size: window.innerWidth < 768 ? 9 : 10 } }
                         }
                     },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
+                    interaction: { intersect: false, mode: 'index' }
                 }
             });
         }
 
         function criarGraficoCarga(nomeExercicio, dados) {
             const container = document.getElementById('graficos-container');
-            
             const canvasId = `chart-${nomeExercicio.replace(/\s+/g, '-')}-${Date.now()}`;
             const card = document.createElement('div');
             card.className = 'chart-card';
@@ -1809,17 +1691,12 @@
             container.appendChild(card);
             
             const ctx = document.getElementById(canvasId).getContext('2d');
-            
             dados.sort((a, b) => a.timestamp - b.timestamp);
             
-            // Formatar datas para serem mais legíveis
             const labels = dados.map((d, index) => {
                 if (d.data) {
-                    // Formata data para DD/MM
                     const parts = d.data.split('/');
-                    if (parts.length >= 2) {
-                        return `${parts[0]}/${parts[1]}`;
-                    }
+                    if (parts.length >= 2) return `${parts[0]}/${parts[1]}`;
                     return d.data.length > 8 ? d.data.substring(0, 5) : d.data;
                 }
                 if (d.timestamp) {
@@ -1834,7 +1711,7 @@
             graficos[canvasId] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels,
                     datasets: [{
                         label: 'Carga (kg)',
                         data: valores,
@@ -1854,9 +1731,7 @@
                         legend: { 
                             labels: { 
                                 color: '#e0e0e0',
-                                font: {
-                                    size: window.innerWidth < 768 ? 10 : 12
-                                }
+                                font: { size: window.innerWidth < 768 ? 10 : 12 }
                             },
                             position: 'top'
                         },
@@ -1867,54 +1742,32 @@
                             borderColor: '#333',
                             borderWidth: 1,
                             callbacks: {
-                                label: function(context) {
-                                    return `Carga: ${context.parsed.y} kg`;
-                                }
+                                label: context => `Carga: ${context.parsed.y} kg`
                             }
                         }
                     },
                     scales: {
                         y: { 
                             beginAtZero: true,
-                            grid: { 
-                                color: 'rgba(255, 255, 255, 0.1)',
-                                drawBorder: false
-                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
                             ticks: { 
                                 color: '#e0e0e0',
-                                font: {
-                                    size: window.innerWidth < 768 ? 10 : 11
-                                },
-                                callback: function(value) {
-                                    return value + ' kg';
-                                }
+                                font: { size: window.innerWidth < 768 ? 10 : 11 },
+                                callback: value => value + ' kg'
                             }
                         },
                         x: { 
-                            grid: { 
-                                color: 'rgba(255, 255, 255, 0.1)',
-                                drawBorder: false
-                            },
-                            ticks: { 
-                                color: '#e0e0e0',
-                                maxRotation: 0,
-                                font: {
-                                    size: window.innerWidth < 768 ? 9 : 10
-                                }
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
+                            ticks: { color: '#e0e0e0', maxRotation: 0, font: { size: window.innerWidth < 768 ? 9 : 10 } }
                         }
                     },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
+                    interaction: { intersect: false, mode: 'index' }
                 }
             });
         }
 
         function criarGraficoPresenca(presencas) {
             const container = document.getElementById('graficos-container');
-            
             const canvasId = 'chart-presenca-' + Date.now();
             const card = document.createElement('div');
             card.className = 'chart-card';
@@ -1925,8 +1778,6 @@
             container.appendChild(card);
             
             const ctx = document.getElementById(canvasId).getContext('2d');
-            
-            // Agrupar por mês
             const meses = {};
             presencas.forEach(dataStr => {
                 try {
@@ -1936,9 +1787,7 @@
                         if (!meses[mesAno]) meses[mesAno] = 0;
                         meses[mesAno]++;
                     }
-                } catch (e) {
-                    console.warn("Erro ao processar data:", dataStr, e);
-                }
+                } catch (e) { console.warn("Erro ao processar data:", dataStr, e); }
             });
             
             const labels = Object.keys(meses).sort((a, b) => {
@@ -1955,8 +1804,8 @@
                 data: {
                     labels: labels.map(label => {
                         const [mes, ano] = label.split('/');
-                        const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                        return `${mesesNomes[parseInt(mes) - 1]}/${ano}`;
+                        const nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                        return `${nomes[parseInt(mes) - 1]}/${ano}`;
                     }),
                     datasets: [{
                         label: 'Treinos por Mês',
@@ -1974,9 +1823,7 @@
                         legend: { 
                             labels: { 
                                 color: '#e0e0e0',
-                                font: {
-                                    size: window.innerWidth < 768 ? 10 : 12
-                                }
+                                font: { size: window.innerWidth < 768 ? 10 : 12 }
                             },
                             position: 'top'
                         },
@@ -1991,43 +1838,18 @@
                     scales: {
                         y: { 
                             beginAtZero: true,
-                            grid: { 
-                                color: 'rgba(255, 255, 255, 0.1)',
-                                drawBorder: false
-                            },
-                            ticks: { 
-                                color: '#e0e0e0',
-                                stepSize: 1,
-                                font: {
-                                    size: window.innerWidth < 768 ? 10 : 11
-                                }
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
+                            ticks: { color: '#e0e0e0', stepSize: 1, font: { size: window.innerWidth < 768 ? 10 : 11 } }
                         },
                         x: { 
-                            grid: { 
-                                color: 'rgba(255, 255, 255, 0.1)',
-                                drawBorder: false
-                            },
-                            ticks: { 
-                                color: '#e0e0e0',
-                                maxRotation: 0,
-                                font: {
-                                    size: window.innerWidth < 768 ? 9 : 10
-                                }
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)', drawBorder: false },
+                            ticks: { color: '#e0e0e0', maxRotation: 0, font: { size: window.innerWidth < 768 ? 9 : 10 } }
                         }
                     },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
+                    interaction: { intersect: false, mode: 'index' }
                 }
             });
         }
-
-        // ============================================
-        // === FUNÇÕES DA TAB MEDIDAS ================
-        // ============================================
 
         function carregarMedidasCompletas() {
             if (!alunoSelecionadoChave) return;
@@ -2044,9 +1866,7 @@
                 }
                 
                 const medidas = [];
-                snap.forEach(child => {
-                    medidas.push({ ...child.val(), id: child.key });
-                });
+                snap.forEach(child => { medidas.push({ ...child.val(), id: child.key }); });
                 
                 medidas.sort((a, b) => {
                     const dateA = a.timestamp || (a.data ? new Date(a.data) : 0);
@@ -2056,21 +1876,15 @@
                 
                 medidas.forEach(medida => {
                     const tr = document.createElement('tr');
-                    
                     let dataFormatada;
                     if (medida.data) {
                         const parts = medida.data.split('-');
-                        if (parts.length === 3) {
-                            dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                        } else {
-                            dataFormatada = medida.data;
-                        }
+                        if (parts.length === 3) dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        else dataFormatada = medida.data;
                     } else if (medida.timestamp) {
                         const date = new Date(medida.timestamp);
                         dataFormatada = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-                    } else {
-                        dataFormatada = 'N/D';
-                    }
+                    } else dataFormatada = 'N/D';
                     
                     tr.innerHTML = `
                         <td style="padding: 12px; border-bottom: 1px solid #333;">${dataFormatada}</td>
@@ -2092,7 +1906,6 @@
 
         function abrirModalMedida() {
             if (!alunoSelecionadoChave) return alert('Selecione um aluno primeiro!');
-            
             const hoje = new Date();
             const dataFormatada = hoje.toISOString().split('T')[0];
             document.getElementById('medida-data').value = dataFormatada;
@@ -2114,7 +1927,7 @@
             if (!peso && !cintura && !braco) return alert('Informe pelo menos uma medida!');
             
             const medidaData = {
-                data: data,
+                data,
                 peso: peso || null,
                 cintura: cintura || null,
                 braco: braco || null,
@@ -2136,7 +1949,6 @@
 
         function excluirMedida(medidaId) {
             if (!confirm('Tem certeza que deseja excluir esta medida?')) return;
-            
             database.ref(getPath(`medidas/${medidaId}`)).remove()
                 .then(() => {
                     alert('✅ Medida excluída!');
@@ -2148,10 +1960,6 @@
                 });
         }
 
-        // ============================================
-        // === FUNÇÕES EXISTENTES (MANTIDAS) =========
-        // ============================================
-        
         function abrirModalAluno() {
             const modal = document.getElementById('modalAluno');
             document.getElementById('modal-titulo').textContent = 'Adicionar Novo Aluno';
@@ -2171,7 +1979,6 @@
                 return;
             }
 
-            // Validação de email básica
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 alert('Por favor, insira um e-mail válido.');
@@ -2184,8 +1991,8 @@
                         alert(`Erro: Já existe um aluno com o nome: ${nome}.`);
                     } else {
                         database.ref(`alunos/${chave}/info`).set({
-                            nome: nome,
-                            email: email,
+                            nome,
+                            email,
                             criacao: firebase.database.ServerValue.TIMESTAMP
                         })
                         .then(() => {
@@ -2244,7 +2051,6 @@
                     if (snapNova.exists()) {
                         return Promise.reject(new Error(`Já existe um aluno com o nome: ${novoNome}.`));
                     }
-
                     return database.ref(`alunos/${chaveAntiga}`).once('value');
                 })
                 .then(snapAntiga => {
@@ -2252,17 +2058,13 @@
                         return Promise.reject(new Error(`Erro: Aluno antigo "${nomeAntigo}" não encontrado.`));
                     }
                     const dadosAluno = snapAntiga.val();
-
                     if (dadosAluno.info) {
                         dadosAluno.info.nome = novoNome;
                     } else {
-                         dadosAluno.info = { nome: novoNome, email: 'N/A', criacao: firebase.database.ServerValue.TIMESTAMP };
+                        dadosAluno.info = { nome: novoNome, email: 'N/A', criacao: firebase.database.ServerValue.TIMESTAMP };
                     }
-
                     return database.ref(`alunos/${chaveNova}`).set(dadosAluno)
-                    .then(() => {
-                        return database.ref(`alunos/${chaveAntiga}`).remove();
-                    });
+                        .then(() => database.ref(`alunos/${chaveAntiga}`).remove());
                 })
                 .then(() => {
                     alert(`✅ Aluno renomeado com sucesso de "${nomeAntigo}" para "${novoNome}".`);
@@ -2278,44 +2080,32 @@
             }
         }
 
-        // Adicionar event listener para fechar modais ao clicar fora
         window.onclick = function(event) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
+                if (event.target == modal) modal.style.display = 'none';
             });
         }
 
-        // Adicionar suporte a tecla ESC para fechar modais
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const modals = document.querySelectorAll('.modal');
                 modals.forEach(modal => {
-                    if (modal.style.display === 'block') {
-                        modal.style.display = 'none';
-                    }
+                    if (modal.style.display === 'block') modal.style.display = 'none';
                 });
             }
         });
 
-        // Redimensionar gráficos quando a janela mudar de tamanho
         window.addEventListener('resize', function() {
             Object.values(graficos).forEach(chart => {
-                if (chart && typeof chart.resize === 'function') {
-                    chart.resize();
-                }
+                if (chart && typeof chart.resize === 'function') chart.resize();
             });
-            
-            // Reconfigurar o Sortable se a tela mudar de tamanho
             if (editorSortable) {
                 editorSortable.destroy();
                 setTimeout(initSortable, 100);
             }
         });
 
-        // Foco automático no primeiro campo do modal quando aberto
         document.addEventListener('DOMContentLoaded', function() {
             const modais = ['modalAluno', 'modalEditarNome', 'modalDia', 'modalMedida'];
             modais.forEach(modalId => {
@@ -2328,7 +2118,6 @@
                 }
             });
         });
-
     </script>
 </body>
 </html>
