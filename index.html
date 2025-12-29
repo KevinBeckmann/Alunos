@@ -28,20 +28,7 @@
 
     <style>
         :root {
-            /* cores padrão (modo escuro) */
-            --bg-color: #000000;
-            --text-color: #f0f0f0;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --accent: #ff8c00;
-            --accent-soft: #ff9933;
-            --input-bg: rgba(255, 255, 255, 0.1);
-            --input-border: rgba(255, 255, 255, 0.2);
-            --presenca-header-bg: #ff8c00;
-            --presente-bg: #5cb85c;
-        }
-
-        body.light-mode {
+            /* agora o padrão é CLARO */
             --bg-color: #f5f5f5;
             --text-color: #222222;
             --card-bg: #ffffff;
@@ -52,6 +39,20 @@
             --input-border: rgba(0, 0, 0, 0.2);
             --presenca-header-bg: #ff8c00;
             --presente-bg: #4caf50;
+        }
+
+        /* tema escuro passa a ser a variação com classe no body */
+        body.dark-mode {
+            --bg-color: #000000;
+            --text-color: #f0f0f0;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent: #ff8c00;
+            --accent-soft: #ff9933;
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --input-border: rgba(255, 255, 255, 0.2);
+            --presenca-header-bg: #ff8c00;
+            --presente-bg: #5cb85c;
         }
 
         /* --- ESTILOS GERAIS --- */
@@ -175,14 +176,14 @@
             order: 2;
         }
 
-        /* CARD DE TREINO COM BORDA IGUAL AO PRINT */
+        /* CARD DE TREINO */
         #treino-card {
             border: 2px solid var(--accent);
             box-shadow: 0 0 12px rgba(255, 140, 0, 0.7);
             border-radius: 14px;
             background-color: #111;
         }
-        body.light-mode #treino-card {
+        body:not(.dark-mode) #treino-card {
             background-color: #ffffff;
             box-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
         }
@@ -206,10 +207,10 @@
             width: 95px;
             flex-shrink: 0;
             font-size: 0.9em;
-            color: #ccc;
-        }
-        body.light-mode .input-group label {
             color: #333;
+        }
+        body.dark-mode .input-group label {
+            color: #ccc;
         }
 
         #medidas-card .input-container {
@@ -243,12 +244,12 @@
         }
 
         select option {
-            background-color: #1a1a1a;
-            color: #f0f0f0;
-        }
-        body.light-mode select option {
             background-color: #ffffff;
             color: #222;
+        }
+        body.dark-mode select option {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
         }
 
         h2 {
@@ -272,25 +273,25 @@
             align-items: center;
             padding: 15px;
             margin-bottom: 10px;
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: #e6f2e6;
             border-radius: 8px;
             transition: background-color 0.3s;
-            color: #f0f0f0;
-        }
-        body.light-mode .exercicio-item {
-            background-color: #e6f2e6;
             color: #222;
+        }
+        body.dark-mode .exercicio-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #f0f0f0;
         }
 
         .exercicio-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        body.light-mode .exercicio-item:hover {
             background-color: #d8e9d8;
         }
+        body.dark-mode .exercicio-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
 
-        body.light-mode .exercicio-item .exercicio-info span,
-        body.light-mode .exercicio-item .exercicio-info small {
+        body:not(.dark-mode) .exercicio-item .exercicio-info span,
+        body:not(.dark-mode) .exercicio-item .exercicio-info small {
             color: #555;
         }
 
@@ -306,14 +307,14 @@
         }
 
         .concluido {
-            background-color: #387038;
+            background-color: #a5d6a7;
             opacity: 0.7;
             text-decoration: line-through;
-            color: #a0a0a0;
-        }
-        body.light-mode .concluido {
-            background-color: #a5d6a7;
             color: #777;
+        }
+        body.dark-mode .concluido {
+            background-color: #387038;
+            color: #a0a0a0;
         }
 
         /* TABELA PRESENÇA */
@@ -325,13 +326,13 @@
 
         .presenca-table th,
         .presenca-table td {
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             padding: 8px;
             cursor: pointer;
         }
-        body.light-mode .presenca-table th,
-        body.light-mode .presenca-table td {
-            border-color: rgba(0, 0, 0, 0.1);
+        body.dark-mode .presenca-table th,
+        body.dark-mode .presenca-table td {
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .presenca-table th {
@@ -389,18 +390,18 @@
         }
 
         .modal-content {
-            background-color: #0d0d0d;
+            background-color: #ffffff;
             padding: 30px;
             border-radius: 12px;
             width: 90%;
             max-width: 400px;
             text-align: center;
             border: 2px solid #ff8c00;
-            color: #f0f0f0;
-        }
-        body.light-mode .modal-content {
-            background-color: #ffffff;
             color: #222;
+        }
+        body.dark-mode .modal-content {
+            background-color: #0d0d0d;
+            color: #f0f0f0;
         }
 
         .modal-content img {
@@ -417,12 +418,12 @@
         /* --- CAMPO DE PESQUISA IA --- */
         #ai-search-card {
             order: 3;
-            background-color: #1a1a1a;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        body.light-mode #ai-search-card {
             background-color: #ffffff;
-            border-color: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        body.dark-mode #ai-search-card {
+            background-color: #1a1a1a;
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         #ai-search-card textarea {
@@ -431,32 +432,32 @@
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background-color: #000000;
-            color: #f0f0f0;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            background-color: #ffffff;
+            color: #222;
             resize: vertical;
             box-sizing: border-box;
         }
-        body.light-mode #ai-search-card textarea {
-            background-color: #ffffff;
-            color: #222;
-            border-color: rgba(0, 0, 0, 0.2);
+        body.dark-mode #ai-search-card textarea {
+            background-color: #000000;
+            color: #f0f0f0;
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         #ai-resposta {
             margin-top: 15px;
             padding: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             background-color: transparent;
             border-radius: 8px;
             min-height: 50px;
             font-size: 0.9em;
-            color: #ccc;
+            color: #444;
             white-space: pre-wrap;
         }
-        body.light-mode #ai-resposta {
-            border-color: rgba(0, 0, 0, 0.1);
-            color: #444;
+        body.dark-mode #ai-resposta {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ccc;
         }
 
         #ai-resposta strong {
@@ -516,11 +517,11 @@
             gap: 12px;
             font-size: 0.8em;
             padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.03);
             border-radius: 8px;
         }
-        body.light-mode #legenda-cores {
-            background: rgba(0, 0, 0, 0.03);
+        body.dark-mode #legenda-cores {
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .legenda-item {
@@ -528,36 +529,36 @@
             align-items: center;
             padding: 4px 8px;
             border-radius: 4px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        body.light-mode .legenda-item {
             background: rgba(0, 0, 0, 0.03);
+        }
+        body.dark-mode .legenda-item {
+            background: rgba(255, 255, 255, 0.05);
         }
 
         /* texto em vários lugares no tema claro */
-        body.light-mode #chart-card,
-        body.light-mode #medidas-card,
-        body.light-mode #treino-card,
-        body.light-mode #ai-search-card,
-        body.light-mode #presenca-card,
-        body.light-mode #status-treino {
+        body:not(.dark-mode) #chart-card,
+        body:not(.dark-mode) #medidas-card,
+        body:not(.dark-mode) #treino-card,
+        body:not(.dark-mode) #ai-search-card,
+        body:not(.dark-mode) #presenca-card,
+        body:not(.dark-mode) #status-treino {
             color: #333;
         }
 
-        body.light-mode #ultimasMedidas,
-        body.light-mode #treino-dinamico-container p,
-        body.light-mode #presenca-card p,
-        body.light-mode #status-treino p {
+        body:not(.dark-mode) #ultimasMedidas,
+        body:not(.dark-mode) #treino-dinamico-container p,
+        body:not(.dark-mode) #presenca-card p,
+        body:not(.dark-mode) #status-treino p {
             color: #555;
         }
 
-        body.light-mode p,
-        body.light-mode span,
-        body.light-mode li {
+        body:not(.dark-mode) p,
+        body:not(.dark-mode) span,
+        body:not(.dark-mode) li {
             color: #333;
         }
 
-        body.light-mode #legenda-cores span {
+        body:not(.dark-mode) #legenda-cores span {
             color: #444;
         }
     </style>
@@ -570,7 +571,8 @@
 
         <!-- Botão único de tema -->
         <button type="button" class="theme-toggle-btn" onclick="toggleTema()" title="Alternar tema">
-            <span id="themeIcon">🌙</span>
+            <!-- ícone começa como sol, pois o tema inicial é claro -->
+            <span id="themeIcon">☀️</span>
         </button>
     </nav>
 
@@ -797,30 +799,31 @@
 
         /* ---------- TEMA ---------- */
         function aplicarTemaInicial() {
-            const temaSalvo = localStorage.getItem('temaPTF3') || 'dark';
+            // padrão agora é 'light' se nada estiver salvo
+            const temaSalvo = localStorage.getItem('temaPTF3') || 'light';
             const body = document.body;
             const icon = document.getElementById('themeIcon');
 
-            if (temaSalvo === 'light') {
-                body.classList.add('light-mode');
-                if (icon) icon.textContent = '☀️';
-            } else {
-                body.classList.remove('light-mode');
+            if (temaSalvo === 'dark') {
+                body.classList.add('dark-mode');
                 if (icon) icon.textContent = '🌙';
+            } else {
+                body.classList.remove('dark-mode');
+                if (icon) icon.textContent = '☀️';
             }
         }
 
         function toggleTema() {
             const body = document.body;
             const icon = document.getElementById('themeIcon');
-            const estaClaro = body.classList.toggle('light-mode');
+            const estaEscuro = body.classList.toggle('dark-mode');
 
-            if (estaClaro) {
-                localStorage.setItem('temaPTF3', 'light');
-                if (icon) icon.textContent = '☀️';
-            } else {
+            if (estaEscuro) {
                 localStorage.setItem('temaPTF3', 'dark');
                 if (icon) icon.textContent = '🌙';
+            } else {
+                localStorage.setItem('temaPTF3', 'light');
+                if (icon) icon.textContent = '☀️';
             }
 
             // Atualiza cores dos gráficos quando muda o tema
@@ -1002,265 +1005,110 @@
 
         function contarTreinosDoMes() {
             try {
-                const mesAtual = new Date().getMonth() + 1;
-                const anoAtual = new Date().getFullYear();
-                let total = 0;
-                database.ref(getPath('treinosFinalizados')).once('value').then(snap => {
-                    snap.forEach(c => {
-                        const t = c.val();
-                        if (!t || !t.data) return;
-                        const parts = t.data.split('/');
-                        if (parts.length >= 2) {
-                            const mesT = parseInt(parts[1], 10);
-                            const anoT = parseInt(parts[2] || anoAtual, 10);
-                            if (mesT === mesAtual && anoT === anoAtual) total++;
+                const agora = new Date();
+                const mesAtual = agora.getMonth() + 1;
+                const anoAtual = agora.getFullYear();
+                
+                const ref = database.ref(getPath('treinosFinalizados'));
+                ref.on('value', snap => {
+                    let contador = 0;
+                    snap.forEach(child => {
+                        const t = child.val();
+                        if (!t.data) return;
+                        const [dia, mes, ano] = t.data.split('/').map(Number);
+                        if (mes === mesAtual && ano === anoAtual) {
+                            contador++;
                         }
                     });
                     const el = document.getElementById('contador-treinos');
-                    if (el) el.textContent = `Treinos no mês: ${total}`;
+                    if (el) el.textContent = `Treinos no mês: ${contador}`;
                 });
             } catch (err) {}
         }
 
-        function carregarTreinosFinalizados() {
+        function marcarTreinoNoCalendario(data) {
             try {
-                const ref = database.ref(getPath('treinosFinalizados'));
-                ref.orderByChild('timestamp').once('value').then(snap => {
-                    const lista = [];
-                    snap.forEach(c => {
-                        const treino = c.val();
-                        treino.id = c.key;
-                        lista.push(treino);
-                    });
-                    renderTreinosBarChart(lista);
+                if (!(data instanceof Date)) return;
+                const dia = data.getDate();
+                const celulas = document.querySelectorAll('#calendario-body td');
+                celulas.forEach(td => {
+                    if (parseInt(td.textContent) === dia) {
+                        td.classList.add('presente');
+                    }
                 });
             } catch (err) {}
         }
 
-        function renderTreinosBarChart(treinosLista) {
+        function limparStatusTreinoDoDia(dia) {
             try {
-                const canvas = document.getElementById('graficoTreinos');
-                if (!canvas) return;
-                
-                if (!treinosLista || treinosLista.length === 0) {
-                    if (chartTreinos) chartTreinos.destroy();
-                    chartTreinos = null;
-                    canvas.style.display = 'none';
-                    atualizarLegendaCores([], coresPorTreino);
-                    return;
-                }
-                
-                canvas.style.display = 'block';
-                
-                const treinosOrdenados = treinosLista.slice().sort((a, b) => {
-                    return (a.timestamp || 0) - (b.timestamp || 0);
-                });
-
-                const labels = treinosOrdenados.map((t, index) => `${index + 1}`);
-                const dados = treinosOrdenados.map(t => t.concluidoCount || 1);
-                
-                const cores = treinosOrdenados.map(t => {
-                    const tipo = t.tipo || extrairTipoTreino(t.dia);
-                    if (tipo && coresPorTreino[tipo]) {
-                        return coresPorTreino[tipo];
-                    }
-                    return coresPorTreino.default;
-                });
-
-                atualizarLegendaCores(treinosOrdenados, coresPorTreino);
-
-                if (typeof Chart === 'undefined') { 
-                    setTimeout(() => renderTreinosBarChart(treinosLista), 1000);
-                    return;
-                }
-
-                const ctx = canvas.getContext('2d');
-                if (chartTreinos) chartTreinos.destroy();
-
-                const eixoColor = document.body.classList.contains('light-mode') ? '#333' : '#f0f0f0';
-                const gridColor = document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)';
-
-                chartTreinos = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Exercícios Concluídos',
-                            data: dados,
-                            backgroundColor: cores,
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
-                            borderWidth: 1,
-                            borderRadius: 4,
-                            barPercentage: 0.7
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { 
-                                display: true,
-                                ticks: { color: eixoColor, font: { size: 11 } },
-                                grid: { display: false }
-                            },
-                            y: { 
-                                beginAtZero: true, 
-                                ticks: { color: eixoColor, stepSize: 1, precision: 0 },
-                                grid: { color: gridColor }
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false }
-                        }
-                    }
-                });
-            } catch(err) {}
-        }
-        
-        function atualizarLegendaCores(treinosOrdenados, coresPorTreino) {
-            const tiposPresentes = new Set();
-            treinosOrdenados.forEach(t => {
-                const tipo = t.tipo || extrairTipoTreino(t.dia);
-                if (tipo) tiposPresentes.add(tipo.toUpperCase());
-            });
-            
-            const temOutros = treinosOrdenados.some(t => !(t.tipo || extrairTipoTreino(t.dia)));
-            const todosTipos = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-            const tiposFiltrados = todosTipos.filter(t => tiposPresentes.has(t));
-            
-            const legendaContainer = document.getElementById('legenda-cores');
-            if (legendaContainer) {
-                let html = '';
-                
-                tiposFiltrados.forEach(tipo => {
-                    if (coresPorTreino[tipo]) {
-                        html += `
-                            <div class="legenda-item">
-                                <div style="width: 12px; height: 12px; background-color: ${coresPorTreino[tipo]}; margin-right: 5px; border-radius: 2px;"></div>
-                                <span>Treino ${tipo}</span>
-                            </div>
-                        `;
-                    }
-                });
-                
-                if (temOutros) {
-                    html += `
-                        <div class="legenda-item">
-                            <div style="width: 12px; height: 12px; background-color: ${coresPorTreino.default}; margin-right: 5px; border-radius: 2px;"></div>
-                            <span>Outros</span>
-                        </div>
-                    `;
-                }
-                
-                if (tiposFiltrados.length === 0 && !temOutros) {
-                    html = '<div style="font-size: 0.8em;">Nenhum treino registrado</div>';
-                }
-                
-                legendaContainer.innerHTML = html;
-            }
+                console.log('Treino do dia concluído:', dia);
+            } catch (err) {}
         }
 
-        function marcarTreinoNoCalendario(dataObj) {
-            try {
-                const dia = String(dataObj.getDate()).padStart(2,'0');
-                const mes = String(dataObj.getMonth()+1).padStart(2,'0');
-                const ano = dataObj.getFullYear();
-                const chave = `${dia}-${mes}-${ano}`;
-                database.ref(getPath(`calendario/${chave}`)).set({ treinou: true, timestamp: Date.now() });
-            } catch(e){}
-        }
-
-        function escolherExercicioInicial() {
-            return new Promise((resolve) => {
-                const MIN_PONTOS = 3;
-                
-                database.ref(getPath('cargas')).once('value')
-                    .then((snap) => {
-                        if (!snap.exists()) return resolve(null);
-
-                        let melhorExercicio = null;
-
-                        snap.forEach((child) => {
-                            const nomeExercicio = child.key;
-                            const qtdRegistros = child.numChildren();
-
-                            if (!melhorExercicio && qtdRegistros >= MIN_PONTOS) {
-                                melhorExercicio = nomeExercicio;
-                            }
-                        });
-
-                        resolve(melhorExercicio);
-                    })
-                    .catch(() => resolve(null));
-            });
-        }
-
-        async function start() {
-            document.getElementById('main-title').textContent = `Olá, ${alunoNome}!`;
-            document.getElementById('nome-aluno').textContent = alunoNome;
-            document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
-
-            const exercicioInicial = await escolherExercicioInicial();
-            if (exercicioInicial) {
-                const seletor = document.getElementById('seletorExercicio');
-                if (seletor) seletor.value = exercicioInicial;
-            }
-
-            inicializarGrafico();
-            carregarUltimasMedidas();
-            gerarCalendario();
-            carregarDiasTreino();
-            carregarUltimoTreino();
-            contarTreinosDoMes();
-            carregarTreinosFinalizados();
-        }
-
+        /* ---------- GRAFICO DE CARGAS ---------- */
         function inicializarGrafico() {
-            const ex = document.getElementById('seletorExercicio').value;
-            database.ref(getPath(`cargas/${ex}`)).on('value', snap => {
-                const datas = [];
-                const pesos = [];
-                snap.forEach(c => {
-                    const v = c.val();
-                    datas.push(v.data);
-                    pesos.push(v.peso);
+            const ctx = document.getElementById('pesoChart').getContext('2d');
+            const exercicio = document.getElementById('seletorExercicio').value;
+            const ref = database.ref(getPath('cargas')).child(exercicio);
+
+            ref.off();
+
+            ref.on('value', snap => {
+                const labels = [];
+                const dados = [];
+                snap.forEach(child => {
+                    const v = child.val();
+                    labels.push(v.data || '');
+                    dados.push(v.peso || 0);
                 });
 
-                const ctx = document.getElementById('pesoChart').getContext('2d');
-                if (pesoChart) pesoChart.destroy();
+                if (pesoChart) {
+                    pesoChart.destroy();
+                }
 
-                const eixoColor = document.body.classList.contains('light-mode') ? '#333' : '#f0f0f0';
-                const gridColor = document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.08)' : '#333';
+                const isDark = document.body.classList.contains('dark-mode');
+                const textoCor = isDark ? '#f0f0f0' : '#222222';
+                const gridCor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
 
                 pesoChart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: datas,
+                        labels,
                         datasets: [{
-                            label: `Carga (kg)`,
-                            data: pesos,
+                            label: 'Carga (kg)',
+                            data: dados,
                             borderColor: '#ff8c00',
                             backgroundColor: 'rgba(255,140,0,0.2)',
-                            tension: 0.2,
-                            fill: true
+                            fill: true,
+                            tension: 0.2
                         }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: false,
                         scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: gridColor },
-                                ticks: { color: eixoColor }
-                            },
                             x: {
-                                grid: { color: gridColor },
-                                ticks: { color: eixoColor }
+                                ticks: {
+                                    color: textoCor
+                                },
+                                grid: {
+                                    color: gridCor
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: textoCor
+                                },
+                                grid: {
+                                    color: gridCor
+                                }
                             }
                         },
                         plugins: {
-                            legend: { labels: { color: eixoColor } }
+                            legend: {
+                                labels: {
+                                    color: textoCor
+                                }
+                            }
                         }
                     }
                 });
@@ -1268,327 +1116,416 @@
         }
 
         function adicionarPeso() {
-            const p = document.getElementById('pesoInput').value;
-            if (!p || isNaN(parseFloat(p)) || parseFloat(p) <= 0) {
-                alert('Por favor, insira uma carga válida e positiva.');
+            const exercicio = document.getElementById('seletorExercicio').value;
+            const peso = parseFloat(document.getElementById('pesoInput').value);
+            if (isNaN(peso) || peso <= 0) {
+                alert('Informe uma carga válida!');
                 return;
             }
-            const ex = document.getElementById('seletorExercicio').value;
-            const agora = new Date();
-            const dataLegivel = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) +
-                ' ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            database.ref(getPath(`cargas/${ex}`)).push({
-                data: dataLegivel,
-                peso: parseFloat(p),
+
+            const hoje = new Date();
+            const data = hoje.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'2-digit'});
+
+            const ref = database.ref(getPath('cargas')).child(exercicio);
+            ref.push({
+                peso,
+                data,
                 timestamp: Date.now()
             }).then(() => {
                 document.getElementById('pesoInput').value = '';
-            }).catch(() => {
-                alert("Erro ao registrar carga.");
             });
         }
 
+        /* ---------- MEDIDAS ---------- */
         function registrarMedidas() {
-            const peso = document.getElementById('pesoCorporalInput').value;
-            if (!peso) return alert('O peso é obrigatório!');
+            const peso = parseFloat(document.getElementById('pesoCorporalInput').value) || null;
+            const cintura = parseFloat(document.getElementById('cinturaInput').value) || null;
+            const braco = parseFloat(document.getElementById('bracoInput').value) || null;
+            const torax = parseFloat(document.getElementById('toraxInput').value) || null;
+            const abdomen = parseFloat(document.getElementById('abdomenInput').value) || null;
+            const coxa = parseFloat(document.getElementById('coxaInput').value) || null;
+            const panturrilha = parseFloat(document.getElementById('panturrilhaInput').value) || null;
+            const antebraco = parseFloat(document.getElementById('antebracoInput').value) || null;
 
-            const m = {
-                data: new Date().toLocaleDateString('pt-BR'),
-                timestamp: Date.now(),
-                peso: peso,
-                cintura: document.getElementById('cinturaInput').value,
-                braco: document.getElementById('bracoInput').value,
-                torax: document.getElementById('toraxInput').value,
-                abdomen: document.getElementById('abdomenInput').value,
-                coxa: document.getElementById('coxaInput').value,
-                panturrilha: document.getElementById('panturrilhaInput').value,
-                antebraco: document.getElementById('antebracoInput').value
-            };
-            database.ref(getPath('medidas')).push(m);
-            alert('Medidas Salvas!');
-            document.querySelectorAll('#medidas-card input').forEach(i => i.value = '');
-            carregarUltimasMedidas();
+            if (!peso && !cintura && !braco && !torax && !abdomen && !coxa && !panturrilha && !antebraco) {
+                alert('Informe pelo menos um valor!');
+                return;
+            }
+
+            const hoje = new Date();
+            const data = hoje.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'2-digit'});
+
+            const ref = database.ref(getPath('medidas'));
+            ref.push({
+                data,
+                peso,
+                cintura,
+                braco,
+                torax,
+                abdomen,
+                coxa,
+                panturrilha,
+                antebraco,
+                timestamp: Date.now()
+            }).then(() => {
+                document.querySelectorAll('#medidas-card input').forEach(inp => inp.value = '');
+            });
         }
 
         function carregarUltimasMedidas() {
-            database.ref(getPath('medidas')).limitToLast(1).once('value', snap => {
-                const div = document.getElementById('ultimasMedidas');
-                div.innerHTML = 'Nenhum registro encontrado.';
-                snap.forEach(c => {
-                    const d = c.val();
-                    div.innerHTML =
-                        `<strong>${d.data}</strong>: ${d.peso}kg | Cintura: ${d.cintura||'-'} | Braço: ${d.braco||'-'}`;
+            const ref = database.ref(getPath('medidas'));
+            ref.orderByChild('timestamp').limitToLast(5).on('value', snap => {
+                const container = document.getElementById('ultimasMedidas');
+                if (!container) return;
+                if (!snap.exists()) {
+                    container.textContent = 'Nenhum registro encontrado.';
+                    return;
+                }
+                let html = '<ul style="list-style:none; padding:0; margin:0;">';
+                const registros = [];
+                snap.forEach(child => {
+                    registros.push(child.val());
                 });
+                registros.reverse().forEach(reg => {
+                    html += `<li style="margin-bottom:8px;">
+                        <strong>${reg.data}:</strong>
+                        ${reg.peso ? `Peso: ${reg.peso}kg; ` : ''}
+                        ${reg.cintura ? `Cintura: ${reg.cintura}cm; ` : ''}
+                        ${reg.braco ? `Braço: ${reg.braco}cm; ` : ''}
+                        ${reg.torax ? `Tórax: ${reg.torax}cm; ` : ''}
+                        ${reg.abdomen ? `Abdômen: ${reg.abdomen}cm; ` : ''}
+                        ${reg.coxa ? `Coxa: ${reg.coxa}cm; ` : ''}
+                        ${reg.panturrilha ? `Panturrilha: ${reg.panturrilha}cm; ` : ''}
+                        ${reg.antebraco ? `Antebraço: ${reg.antebraco}cm` : ''}
+                    </li>`;
+                });
+                html += '</ul>';
+                container.innerHTML = html;
             });
         }
 
-        function carregarTreinoDoProfessor(dia) {
-            const treinoContainer = document.getElementById('treino-dinamico-container');
-            
-            treinoContainer.innerHTML = `
-                <h3 style="color:#ff9933;">${dia}</h3>
-                <ul id="lista-treino-dinamico" style="list-style: none; padding: 0;">
-                    <li class="exercicio-item" style="background: none; border: none;">
-                        Carregando treino...
-                    </li>
-                </ul>
-                <div style="margin-top:10px;">
-                    <button class="btn-primary btn-finalizar-treino" onclick="finalizarTreino()">Finalizar Treino</button>
-                </div>
-            `;
-            
-            database.ref(getPath(`treinoModel/${dia}`)).on('value', snap => {
-                const ul = document.getElementById('lista-treino-dinamico');
-                ul.innerHTML = '';
-                
+        /* ---------- TREINO DINÂMICO ---------- */
+        function carregarTreinoDoProfessor(diaSelecionado) {
+            if (!diaSelecionado) {
+                document.getElementById('treino-dinamico-container').innerHTML = '<p style="text-align:center;">Selecione um dia de treino.</p>';
+                return;
+            }
+
+            const ref = database.ref(getPath('treinoModel')).child(diaSelecionado);
+            ref.once('value', snap => {
                 if (!snap.exists()) {
-                    ul.innerHTML = `
-                        <li class="exercicio-item" style="background: none; border: none;">
-                            Treino não encontrado para ${dia}
-                        </li>
-                    `;
+                    document.getElementById('treino-dinamico-container').innerHTML = '<p style="text-align:center;">Nenhum treino configurado para este dia.</p>';
                     return;
                 }
 
-                const treinoRaw = snap.val();
+                const lista = snap.val();
+                let html = '<ul id="lista-treino-dinamico" style="list-style:none; padding:0; margin:0;">';
 
-                const exercicios = Array.isArray(treinoRaw)
-                    ? treinoRaw
-                    : (treinoRaw && Array.isArray(treinoRaw.exercicios) ? treinoRaw.exercicios : []);
-
-                if (!exercicios || exercicios.length === 0) {
-                    ul.innerHTML = `
-                        <li class="exercicio-item" style="background: none; border: none;">
-                            Nenhum exercício cadastrado para ${dia}
-                        </li>
-                    `;
-                    return;
-                }
-                
-                let contador = 0;
-                exercicios.forEach(t => {
-                    if (t && t.nome) {
-                        contador++;
-                        const id = `ex-${dia.replace(/\s/g, '')}-${contador}`;
-                        const li = document.createElement('li');
-                        li.className = 'exercicio-item';
-                        li.setAttribute('data-exercicio', id);
-                        li.innerHTML = `
+                Object.keys(lista).forEach(key => {
+                    const ex = lista[key];
+                    html += `
+                        <li class="exercicio-item">
                             <div class="exercicio-info">
-                                <strong>${t.nome}</strong>
-                                <span>${t.series || '--'}x | ${t.reps || '--'} reps</span>
-                                ${t.nota ? `<br><small>${t.nota}</small>` : ''}
+                                <strong>${ex.nome || key}</strong>
+                                <span>${ex.series || ''} séries x ${ex.repeticoes || ''} reps ${ex.carga ? '- ' + ex.carga + 'kg' : ''}</span><br>
+                                <small>${ex.obs || ''}</small>
                             </div>
                             <div class="checkbox-container">
-                                <input type="checkbox" onchange="marcarConcluido(this, '${dia}', '${id}')">
+                                <input type="checkbox" onchange="marcarExercicioConcluido(this)">
                             </div>
-                        `;
-                        ul.appendChild(li);
-                    }
+                        </li>
+                    `;
                 });
-                
-                carregarCheckboxes(dia);
+
+                html += `</ul>
+                    <button class="btn-primary" style="margin-top:10px;" onclick="finalizarTreino()">Finalizar Treino</button>
+                `;
+
+                document.getElementById('treino-dinamico-container').innerHTML = html;
             });
         }
 
-        function marcarConcluido(chk, dia, id) {
-            const li = chk.closest('li');
-            if (chk.checked) {
-                li.classList.add('concluido');
+        function marcarExercicioConcluido(checkbox) {
+            const item = checkbox.closest('.exercicio-item');
+            if (!item) return;
+            if (checkbox.checked) {
+                item.classList.add('concluido');
             } else {
-                li.classList.remove('concluido');
+                item.classList.remove('concluido');
             }
-            database.ref(getPath(`treino_status/${dia}/${id}`)).set(chk.checked);
         }
 
-        function carregarCheckboxes(dia) {
-            database.ref(getPath(`treino_status/${dia}`)).once('value', snap => {
-                const status = snap.val() || {};
-                document.querySelectorAll(`#lista-treino-dinamico li`).forEach(li => {
-                    const id = li.getAttribute('data-exercicio');
-                    const chk = li.querySelector('input[type="checkbox"]');
-                    if (chk && status[id]) {
-                        chk.checked = true;
-                        li.classList.add('concluido');
-                    }
-                });
-            });
-        }
-
-        function limparStatusTreinoDoDia(dia) {
-            database.ref(getPath(`treino_status/${dia}`)).remove().catch(() => {});
-            const listaEl = document.getElementById('lista-treino-dinamico');
-            if (!listaEl) return;
-            listaEl.querySelectorAll('li.exercicio-item').forEach(li => {
-                const cb = li.querySelector('input[type="checkbox"]');
-                if (cb) cb.checked = false;
-                li.classList.remove('concluido');
-            });
-        }
-
+        /* ---------- PRESENÇA / CALENDÁRIO ---------- */
         function gerarCalendario() {
+            const tbody = document.getElementById('calendario-body');
+            if (!tbody) return;
+
             const hoje = new Date();
-            const mesAtual = hoje.getMonth();
-            const anoAtual = hoje.getFullYear();
+            const ano = hoje.getFullYear();
+            const mes = hoje.getMonth();
+            const primeiroDia = new Date(ano, mes, 1);
+            const inicioSemana = primeiroDia.getDay();
+            const ultimoDia = new Date(ano, mes + 1, 0).getDate();
 
-            const primeiroDiaSemana = new Date(anoAtual, mesAtual, 1).getDay();
-            const ultimoDiaMes = new Date(anoAtual, mesAtual + 1, 0).getDate();
-
-            let html = '<tr>';
-            let contadorDias = 1;
+            tbody.innerHTML = '';
+            let dia = 1;
             for (let i = 0; i < 6; i++) {
+                const tr = document.createElement('tr');
                 for (let j = 0; j < 7; j++) {
-                    if (i === 0 && j < primeiroDiaSemana) {
-                        html += '<td></td>';
-                    } else if (contadorDias > ultimoDiaMes) {
-                        html += '<td></td>';
+                    const td = document.createElement('td');
+                    if (i === 0 && j < inicioSemana) {
+                        td.textContent = '';
+                    } else if (dia > ultimoDia) {
+                        td.textContent = '';
                     } else {
-                        const chaveData = `${String(contadorDias).padStart(2,'0')}-${String(mesAtual+1).padStart(2,'0')}-${anoAtual}`;
-                        html += `<td id="dia-${chaveData}" onclick="togglePresenca('${chaveData}')">${contadorDias}</td>`;
-                        contadorDias++;
+                        td.textContent = dia;
+                        td.addEventListener('click', () => togglePresenca(td, dia));
+                        dia++;
                     }
+                    tr.appendChild(td);
                 }
-                html += '</tr>';
-                if (contadorDias > ultimoDiaMes) break;
+                tbody.appendChild(tr);
+                if (dia > ultimoDia) break;
             }
-            document.getElementById('calendario-body').innerHTML = html;
+
             carregarPresencas();
         }
 
-        function togglePresenca(key) {
-            const td = document.getElementById(`dia-${key}`);
-            const status = td.classList.contains('presente');
-            if (status) {
-                database.ref(getPath(`presenca/${key}`)).remove();
+        function togglePresenca(td, dia) {
+            const hoje = new Date();
+            const mes = hoje.getMonth() + 1;
+            const ano = hoje.getFullYear();
+            const chave = `${dia.toString().padStart(2,'0')}/${mes.toString().padStart(2,'0')}/${ano}`;
+
+            const ref = database.ref(getPath('presencas')).child(chave);
+            const estaPresente = td.classList.contains('presente');
+
+            if (estaPresente) {
+                ref.remove();
                 td.classList.remove('presente');
             } else {
-                database.ref(getPath(`presenca/${key}`)).set(true);
+                ref.set({
+                    presente: true,
+                    timestamp: Date.now()
+                });
                 td.classList.add('presente');
             }
         }
 
         function carregarPresencas() {
-            database.ref(getPath('presenca')).on('value', snap => {
-                const p = snap.val() || {};
-                document.querySelectorAll('#calendario-body td').forEach(td => td.classList.remove('presente'));
-                Object.keys(p).forEach(k => {
-                    const td = document.getElementById(`dia-${k}`);
-                    if (td) td.classList.add('presente');
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth() + 1;
+            const anoAtual = hoje.getFullYear();
+
+            const ref = database.ref(getPath('presencas'));
+            ref.on('value', snap => {
+                const celulas = document.querySelectorAll('#calendario-body td');
+                celulas.forEach(td => td.classList.remove('presente'));
+
+                snap.forEach(child => {
+                    const chave = child.key; // dd/mm/aaaa
+                    const [d, m, a] = chave.split('/').map(Number);
+                    if (m === mesAtual && a === anoAtual) {
+                        const dia = d;
+                        celulas.forEach(td => {
+                            if (parseInt(td.textContent) === dia) {
+                                td.classList.add('presente');
+                            }
+                        });
+                    }
                 });
             });
         }
 
-        async function simularPesquisaIA() {
-            const pergunta = document.getElementById('exercicioPergunta').value.trim().toLowerCase();
-            const perguntaNormalizada = normalize(pergunta);
-            const respostaDiv = document.getElementById('ai-resposta');
-            const botao = document.querySelector('#ai-search-card .btn-primary');
-            
-            if (pergunta.length < 3) {
-                respostaDiv.innerHTML = '<strong style="color: #dc3545;">Por favor, digite uma pergunta mais completa.</strong>';
+        /* ---------- GRÁFICO DE TREINOS ---------- */
+        function carregarTreinosFinalizados() {
+            const ref = database.ref(getPath('treinosFinalizados'));
+            ref.orderByChild('timestamp').on('value', snap => {
+                const labels = [];
+                const dados = [];
+                const cores = [];
+
+                snap.forEach(child => {
+                    const t = child.val();
+                    if (!t.data || !t.dia) return;
+                    labels.push(`${t.data}\n${t.dia}`);
+                    dados.push(1);
+                    const tipo = (t.tipo || extrairTipoTreino(t.dia) || 'default').toUpperCase();
+                    cores.push(coresPorTreino[tipo] || coresPorTreino.default);
+                });
+
+                const ctx = document.getElementById('graficoTreinos').getContext('2d');
+
+                if (chartTreinos) {
+                    chartTreinos.destroy();
+                }
+
+                const isDark = document.body.classList.contains('dark-mode');
+                const textoCor = isDark ? '#f0f0f0' : '#222222';
+                const gridCor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+                chartTreinos = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Treinos',
+                            data: dados,
+                            backgroundColor: cores
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: textoCor
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: textoCor,
+                                    autoSkip: true,
+                                    maxRotation: 0,
+                                    minRotation: 0
+                                },
+                                grid: {
+                                    color: gridCor
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: textoCor,
+                                    stepSize: 1
+                                },
+                                grid: {
+                                    color: gridCor
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        /* ---------- RESET GERAL ---------- */
+        function resetarDados(tipo) {
+            if (!confirm('Tem certeza que deseja apagar estes dados?')) return;
+
+            let refPath = null;
+
+            switch (tipo) {
+                case 'cargas':
+                    refPath = getPath('cargas');
+                    break;
+                case 'medidas':
+                    refPath = getPath('medidas');
+                    break;
+                case 'presenca':
+                    refPath = getPath('presencas');
+                    break;
+                case 'treinos':
+                    refPath = getPath('treinosFinalizados');
+                    break;
+            }
+
+            if (!refPath) return;
+
+            database.ref(refPath).remove()
+                .then(() => {
+                    alert('Dados apagados com sucesso.');
+                    if (tipo === 'cargas') inicializarGrafico();
+                    if (tipo === 'medidas') carregarUltimasMedidas();
+                    if (tipo === 'presenca') gerarCalendario();
+                    if (tipo === 'treinos') {
+                        carregarUltimoTreino();
+                        contarTreinosDoMes();
+                        carregarTreinosFinalizados();
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro ao apagar dados:', err);
+                    alert('Erro ao apagar. Tente novamente.');
+                });
+        }
+
+        /* ---------- IA SIMULADA ---------- */
+        function simularPesquisaIA() {
+            const pergunta = document.getElementById('exercicioPergunta').value.trim();
+            const respostaEl = document.getElementById('ai-resposta');
+
+            if (!pergunta) {
+                respostaEl.textContent = 'Digite uma pergunta sobre o exercício.';
                 return;
             }
 
-            botao.disabled = true;
-            botao.textContent = 'Pesquisando no Banco de Dados...';
-            respostaDiv.innerHTML = '<p style="text-align: center; color: #666;">Consultando informações...</p>';
-            
-            await new Promise(resolve => setTimeout(resolve, 800));
-            
-            let respostaTexto = '';
-            let exercicioEncontrado = null;
+            const perguntaNorm = normalize(pergunta);
+            let melhor = null;
+            let melhorScore = -1;
 
-            const palavrasDaPergunta = perguntaNormalizada.split(' ').filter(p => p.length > 2);
-            let maxPontos = 0;
-
-            // bancoDeExercicios vem do exercicios-db.js (global)
-            for (const key in bancoDeExercicios) {
-                const ex = bancoDeExercicios[key];
-                let pontos = 0;
-
-                if (perguntaNormalizada.includes(normalize(ex.nome))) {
-                    pontos += 100;
-                }
-
-                palavrasDaPergunta.forEach(palavra => {
-                    if (ex.termos.includes(palavra)) {
-                        pontos += 1;
+            if (window.EXERCICIOS_DB && Array.isArray(window.EXERCICIOS_DB)) {
+                window.EXERCICIOS_DB.forEach(ex => {
+                    const nomeNorm = normalize(ex.nome || '');
+                    const muscNorm = normalize((ex.musculos || []).join(' '));
+                    const dicaNorm = normalize(ex.dicas || '');
+                    const texto = `${nomeNorm} ${muscNorm} ${dicaNorm}`;
+                    let score = 0;
+                    perguntaNorm.split(/\s+/).forEach(p => {
+                        if (!p) return;
+                        if (texto.includes(p)) score += 1;
+                        if (nomeNorm.includes(p)) score += 1;
+                    });
+                    if (score > melhorScore) {
+                        melhorScore = score;
+                        melhor = ex;
                     }
                 });
-
-                if (pontos > 0 && pontos > maxPontos) {
-                    maxPontos = pontos;
-                    exercicioEncontrado = ex;
-                }
             }
 
-            if (exercicioEncontrado) {
-                const nomeEx = exercicioEncontrado.nome;
-                if (perguntaNormalizada.includes("músculos") || perguntaNormalizada.includes("musculos") || perguntaNormalizada.includes("trabalha") || perguntaNormalizada.includes("ativa")) {
-                    respostaTexto = `**Músculos Principais de ${nomeEx}:** ${exercicioEncontrado.musculos}`;
-                } else if (perguntaNormalizada.includes("execução") || perguntaNormalizada.includes("forma correta") || perguntaNormalizada.includes("fazer") || perguntaNormalizada.includes("tecnica") || perguntaNormalizada.includes("técnica")) {
-                    respostaTexto = `**Execução do ${nomeEx}:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                } else if (perguntaNormalizada.includes("dica") || perguntaNormalizada.includes("segurança") || perguntaNormalizada.includes("seguranca")) {
-                    respostaTexto = `**Dica de Segurança para ${nomeEx}:** ${exercicioEncontrado.dica}`;
-                } else {
-                    respostaTexto = `**Informações sobre ${nomeEx}**\n\n**Músculos:** ${exercicioEncontrado.musculos}\n\n**Execução:** ${exercicioEncontrado.execucao}\n\n**Dica Importante:** ${exercicioEncontrado.dica}`;
-                }
-
-            } else {
-                respostaTexto = `Desculpe, não encontrei informações detalhadas sobre a sua pergunta ("${pergunta}").`;
+            if (!melhor) {
+                respostaEl.textContent = 'Não encontrei nada muito relacionado. Tente perguntar de outra forma.';
+                return;
             }
 
-            let respostaFormatada = respostaTexto
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
+            let msg = '';
+            msg += `**Exercício sugerido:** ${melhor.nome}\n\n`;
+            if (melhor.musculos && melhor.musculos.length) {
+                msg += `**Músculos trabalhados:** ${melhor.musculos.join(', ')}\n\n`;
+            }
+            if (melhor.execucao) {
+                msg += `**Execução básica:** ${melhor.execucao}\n\n`;
+            }
+            if (melhor.dicas) {
+                msg += `**Dicas importantes:** ${melhor.dicas}\n\n`;
+            }
+            if (melhor.errosComuns && melhor.errosComuns.length) {
+                msg += `**Erros comuns para evitar:** ${melhor.errosComuns.join('; ')}\n\n`;
+            }
 
-            respostaDiv.innerHTML = `<div style="text-align: left; padding: 10px;">${respostaFormatada}</div>`;
-            
-            botao.disabled = false;
-            botao.textContent = 'Perguntar à IA';
+            respostaEl.innerHTML = msg.replace(/\n/g, '<br>');
         }
 
-        function resetarDados(tipo) {
-            let path;
-            let msg;
+        /* ---------- START ---------- */
+        function start() {
+            document.getElementById('nome-aluno').textContent = alunoNome;
+            document.getElementById('main-title').textContent = `Seja bem-vindo, ${alunoNome}.`;
 
-            switch (tipo) {
-                case 'presenca':
-                    path = 'presenca';
-                    msg = 'histórico de presenças';
-                    break;
-                case 'cargas':
-                    path = `cargas/${document.getElementById('seletorExercicio').value}`;
-                    msg = 'histórico de cargas para este exercício';
-                    break;
-                case 'medidas':
-                    path = 'medidas';
-                    msg = 'histórico de medidas corporais';
-                    break;
-                case 'treinos':
-                    path = 'treinosFinalizados';
-                    msg = 'histórico completo de treinos';
-                    break;
-                default:
-                    return;
-            }
+            const hoje = new Date();
+            document.getElementById('data-atual').textContent = hoje.toLocaleDateString('pt-BR', {
+                weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric'
+            });
 
-            if (confirm(`Tem certeza que deseja apagar o ${msg}? Isso não pode ser desfeito.`)) {
-                database.ref(getPath(path)).remove()
-                    .then(() => {
-                        alert('Histórico apagado com sucesso!');
-                        if (tipo === 'presenca') gerarCalendario();
-                        if (tipo === 'cargas') inicializarGrafico();
-                        if (tipo === 'medidas') document.getElementById('ultimasMedidas').innerHTML = 'Nenhum registro encontrado.';
-                        if (tipo === 'treinos') {
-                            carregarUltimoTreino();
-                            contarTreinosDoMes();
-                            carregarTreinosFinalizados();
-                        }
-                    })
-                    .catch(() => alert("Erro ao apagar dados."));
-            }
+            carregarDiasTreino();
+            inicializarGrafico();
+            carregarUltimasMedidas();
+            gerarCalendario();
+            carregarUltimoTreino();
+            contarTreinosDoMes();
+            carregarTreinosFinalizados();
         }
     </script>
+
 </body>
 </html>
