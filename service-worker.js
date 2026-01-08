@@ -27,6 +27,14 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(event.request).then((cached) => {
+      return cached || fetch(event.request).catch(() => {
+        // If both cache and network fail, return a fallback
+        return new Response('Offline - resource not available', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        });
+      });
+    })
   );
 });
